@@ -29,7 +29,7 @@ Un seul service Node.js sert :
 - Mot de passe oublié : l'admin reçoit une alerte et envoie un lien de 24 h sur WhatsApp depuis la page Clients (pas besoin de service d'email).
 
 ## Mise en ligne (Render)
-1. Pousser ce dossier sur GitHub, puis créer le Blueprint depuis `render.yaml` (service web + Postgres).
+1. Pousser ce dossier sur GitHub, puis créer le Blueprint depuis `render.yaml` (service web ; la base de données est sur Supabase, renseigner `DATABASE_URL`).
 2. Renseigner `FREDA_SECRET_KEY` (sk_test_ d'abord), `ADMIN_PASSWORD`, `PUBLIC_URL`.
 3. Dans le tableau de bord Freda Pay Issuing, enregistrer le webhook `https://VOTRE-DOMAINE/webhooks/freda`, copier le `whsec_…` dans `FREDA_WEBHOOK_SECRET`.
 4. Tester avec « Tester ma clé API » (événement `webhook.test`), faire un paiement Sandbox, puis passer en `sk_live_`.
