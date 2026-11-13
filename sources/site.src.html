@@ -1,0 +1,2275 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Elite Auto Deal — Véhicules, précommandes et services automobiles en Haïti</title>
+<meta name="description" content="Elite Auto Deal : véhicules sélectionnés, précommandes, financement, recherche personnalisée et vente accompagnée à Port-au-Prince, Haïti.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --noir:#0B0B0C;--graphite:#1C1C1F;--gris-700:#4A4A50;--gris-500:#6E6E75;--gris-300:#C9C9CC;--gris-200:#DCDCD9;--gris-100:#EDEDEB;--gris-50:#F6F6F4;--blanc:#FFFFFF;
+  --rouge:#D7191F;--rouge-fonce:#A80F14;--rouge-50:#FDEBEC;
+  --succes:#1F8A4C;--succes-50:#E7F4EC;--alerte:#C77700;--alerte-50:#FCF2E1;--whatsapp:#25D366;
+  --r-s:10px;--r-m:18px;--r-l:28px;
+  --ombre:0 10px 30px rgba(11,11,12,.08);
+  --pad:clamp(16px,4vw,32px);
+  --f-titre:"Montserrat",system-ui,sans-serif;--f-texte:"Inter",system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{margin:0;font-family:var(--f-texte);font-size:16px;line-height:1.55;color:var(--noir);background:var(--blanc);overflow-x:hidden}
+img,svg{max-width:100%}
+h1,h2,h3,h4{font-family:var(--f-titre);line-height:1.05;margin:0;letter-spacing:-.02em}
+h1{font-weight:800;font-size:clamp(34px,6vw,72px)}
+h2{font-weight:800;font-size:clamp(28px,4vw,48px)}
+h3{font-weight:700;font-size:20px;line-height:1.2}
+p{margin:0}
+a{color:inherit}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--rouge);outline-offset:3px;border-radius:6px}
+.wrap{max-width:1200px;margin:0 auto;padding:0 var(--pad)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.muted{color:var(--gris-500)}
+.lead{font-size:clamp(16px,1.6vw,19px);color:var(--gris-700);max-width:60ch}
+
+/* Boutons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:48px;padding:12px 22px;border-radius:var(--r-s);border:1.5px solid transparent;font-weight:600;font-size:15px;text-decoration:none;cursor:pointer;transition:background .2s,border-color .2s,color .2s;white-space:nowrap}
+.btn svg{width:18px;height:18px;flex:none}
+.btn-rouge{background:var(--rouge);color:#fff}
+.btn-rouge:hover{background:var(--rouge-fonce)}
+.btn-noir{background:var(--noir);color:#fff}
+.btn-noir:hover{background:var(--graphite)}
+.btn-contour{background:transparent;border-color:var(--gris-300);color:var(--noir)}
+.btn-contour:hover{border-color:var(--noir)}
+.btn-blanc{background:#fff;color:var(--noir)}
+.btn-blanc:hover{background:var(--gris-100)}
+.btn-wa{background:var(--whatsapp);color:#0B2E17}
+.btn-wa:hover{background:#1fbd5a}
+.btn-sm{min-height:44px;padding:10px 16px;font-size:14px}
+.btn-bloc{width:100%}
+.btn[disabled]{opacity:.55;cursor:not-allowed}
+.lien{background:none;border:0;padding:0;color:var(--noir);font-weight:600;text-decoration:underline;text-underline-offset:3px;cursor:pointer;min-height:44px}
+
+/* En-tête */
+.entete{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:saturate(1.4) blur(12px);-webkit-backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid var(--gris-100)}
+.entete .wrap{display:flex;align-items:center;gap:20px;height:72px}
+.logo-lien{display:flex;align-items:center;color:var(--noir);flex:none}
+.logo{width:136px;height:42px;display:block}
+.nav{display:none;gap:4px;margin-left:auto}
+.nav a{text-decoration:none;font-weight:500;font-size:15px;padding:10px 12px;border-radius:8px;color:var(--gris-700)}
+.nav a:hover{color:var(--noir);background:var(--gris-50)}
+.nav a[aria-current="page"]{color:var(--noir);font-weight:600;box-shadow:inset 0 -2px 0 var(--rouge);border-radius:0}
+.entete-actions{display:flex;align-items:center;gap:8px;margin-left:auto}
+.burger{width:48px;height:48px;border-radius:var(--r-s);border:1.5px solid var(--gris-200);background:#fff;display:grid;place-items:center;cursor:pointer}
+.burger span{display:block;width:20px;height:2px;background:var(--noir);position:relative;transition:transform .2s}
+.burger span::before,.burger span::after{content:"";position:absolute;left:0;width:20px;height:2px;background:var(--noir);transition:transform .2s}
+.burger span::before{top:-6px}.burger span::after{top:6px}
+.burger[aria-expanded="true"] span{background:transparent}
+.burger[aria-expanded="true"] span::before{transform:translateY(6px) rotate(45deg)}
+.burger[aria-expanded="true"] span::after{transform:translateY(-6px) rotate(-45deg)}
+.entete .btn-wa .txt{display:none}
+.menu-mobile{display:none;border-top:1px solid var(--gris-100);background:#fff;padding:8px var(--pad) 20px}
+.menu-mobile.ouvert{display:block}
+.menu-mobile a{display:flex;align-items:center;justify-content:space-between;min-height:52px;text-decoration:none;font-weight:600;font-size:17px;border-bottom:1px solid var(--gris-100)}
+.menu-mobile a small{font-weight:500;color:var(--gris-500);font-size:13px}
+@media (min-width:1080px){.nav{display:flex}.burger{display:none}.entete-actions{margin-left:12px}.menu-mobile{display:none!important}.entete .btn-wa .txt{display:inline}}
+@media (min-width:520px){.entete .btn-wa .txt{display:inline}}
+
+/* Vues */
+.vue{display:none}
+.vue.active{display:block}
+section{padding:clamp(56px,8vw,104px) 0}
+.sec-tete{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:16px 32px;margin-bottom:clamp(24px,4vw,40px)}
+.sec-tete p{max-width:52ch;color:var(--gris-700)}
+
+/* Héros */
+.heros{padding:16px 0 0}
+.studio{position:relative;background:linear-gradient(180deg,var(--gris-50) 0%,var(--gris-100) 70%,#E4E4E1 100%);border-radius:var(--r-l);overflow:hidden;isolation:isolate}
+.heros .studio{min-height:clamp(560px,82vh,760px);display:flex;flex-direction:column}
+.heros-texte{position:relative;z-index:3;padding:clamp(24px,5vw,56px) clamp(20px,5vw,56px) 0;max-width:760px}
+.heros-texte h1{max-width:13ch}
+.heros-texte .lead{margin-top:16px}
+.heros-cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+.scene{position:relative;flex:1;display:grid;place-items:end center;min-height:240px}
+.annee-geante{position:absolute;left:50%;top:50%;transform:translate(-50%,-46%);font-family:var(--f-titre);font-weight:900;font-size:clamp(130px,30vw,400px);line-height:1;letter-spacing:-.06em;color:rgba(11,11,12,.055);z-index:0;user-select:none;pointer-events:none;transition:opacity .5s}
+.diapo-voiture{position:relative;z-index:2;width:min(92%,880px);margin-bottom:-6px;transition:transform .7s cubic-bezier(.2,.7,.1,1),opacity .5s}
+.diapo-voiture.sortie{opacity:0;transform:translateX(-8%)}
+.diapo-voiture.entree{opacity:0;transform:translateX(10%);transition:none}
+.heros-barre{position:relative;z-index:3;display:flex;flex-wrap:wrap;align-items:center;gap:16px;justify-content:space-between;padding:16px clamp(20px,5vw,56px) clamp(20px,4vw,32px)}
+.heros-vehicule{display:flex;flex-direction:column;gap:4px;min-width:0}
+.heros-vehicule strong{font-family:var(--f-titre);font-size:clamp(18px,2.2vw,24px);font-weight:800}
+.heros-vehicule .ligne{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;color:var(--gris-700);font-size:14px}
+.heros-vehicule .prix{color:var(--noir);font-weight:700;font-size:16px}
+.heros-nav{display:flex;align-items:center;gap:10px}
+.rond{width:48px;height:48px;border-radius:50%;border:1.5px solid var(--gris-300);background:rgba(255,255,255,.6);display:grid;place-items:center;cursor:pointer}
+.rond:hover{border-color:var(--noir);background:#fff}
+.rond svg{width:18px;height:18px}
+.points{display:flex;gap:6px;align-items:center}
+.points button{width:28px;height:44px;border:0;background:none;cursor:pointer;display:grid;place-items:center;padding:0}
+.points button::after{content:"";width:22px;height:3px;border-radius:2px;background:var(--gris-300);transition:background .3s}
+.points button[aria-current="true"]::after{background:var(--noir)}
+@media (min-width:1100px){
+  .heros .studio{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);grid-template-rows:1fr auto;min-height:clamp(560px,calc(100vh - 110px),720px)}
+  .heros-texte{grid-column:1;grid-row:1;align-self:center;padding:48px 24px 24px 56px}
+  .heros-texte h1{font-size:clamp(42px,3.9vw,56px);max-width:14ch}
+  .scene{grid-column:2;grid-row:1;place-items:end center;padding-right:24px}
+  .diapo-voiture{width:108%;margin-left:-4%}
+  .annee-geante{font-size:clamp(220px,22vw,340px);transform:translate(-50%,-56%)}
+  .heros-barre{grid-column:1/-1;grid-row:2;border-top:1px solid rgba(11,11,12,.07)}
+}
+@media (max-width:640px){.heros .studio{min-height:0}.scene{min-height:200px}.heros-barre{flex-direction:column;align-items:stretch}.heros-nav{justify-content:space-between}}
+
+/* Actions */
+.actions{padding:20px 0 0}
+.actions-grille{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.action{display:flex;flex-direction:column;justify-content:space-between;gap:18px;min-height:132px;padding:18px;border-radius:var(--r-m);background:var(--gris-50);border:1.5px solid var(--gris-100);text-decoration:none;transition:border-color .2s,background .2s}
+.action:hover{border-color:var(--noir);background:#fff}
+.action svg{width:28px;height:28px;stroke:var(--noir)}
+.action b{font-family:var(--f-titre);font-weight:700;font-size:17px;line-height:1.2;display:block}
+.action span{font-size:13px;color:var(--gris-500);display:block;margin-top:4px}
+.action.principale{background:var(--noir);border-color:var(--noir);color:#fff}
+.action.principale svg{stroke:#fff}
+.action.principale span{color:#B9B9BE}
+.action.principale:hover{background:var(--graphite)}
+@media (min-width:760px){.actions-grille{grid-template-columns:repeat(5,minmax(0,1fr))}}
+@media (max-width:759px){.action.principale{grid-column:1/-1;min-height:96px}}
+
+/* Puces filtres */
+.puces{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.puces::-webkit-scrollbar{display:none}
+.puce{flex:none;min-height:44px;padding:10px 16px;border-radius:999px;border:1.5px solid var(--gris-200);background:#fff;font-weight:500;font-size:14px;cursor:pointer}
+.puce[aria-pressed="true"]{background:var(--noir);border-color:var(--noir);color:#fff}
+
+/* Cartes véhicules */
+.grille-v{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:clamp(14px,2vw,22px)}
+.vcarte{display:flex;flex-direction:column;border-radius:var(--r-m);background:#fff;border:1px solid var(--gris-100);overflow:hidden}
+.vcarte-media{position:relative;display:block;width:100%;border:0;padding:0;cursor:pointer;background:linear-gradient(180deg,var(--gris-50),var(--gris-100));aspect-ratio:16/10;overflow:hidden}
+.vcarte-media .annee{position:absolute;inset:auto 0 32%;text-align:center;font-family:var(--f-titre);font-weight:900;font-size:clamp(70px,9vw,108px);letter-spacing:-.05em;line-height:1;color:rgba(11,11,12,.06)}
+.vcarte-media svg.voiture{position:absolute;left:5%;width:90%;bottom:2%}
+.vcarte-media .badge{position:absolute;top:12px;left:12px}
+.vcarte-corps{padding:16px 18px 18px;display:flex;flex-direction:column;gap:12px;flex:1}
+.vcarte h3{font-size:19px}
+.vcarte h3 small{display:block;font-family:var(--f-texte);font-weight:500;font-size:13px;color:var(--gris-500);letter-spacing:0;margin-top:4px}
+.specs{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.specs li{font-size:12.5px;font-weight:500;color:var(--gris-700);background:var(--gris-50);border:1px solid var(--gris-100);padding:4px 9px;border-radius:999px}
+.vcarte-pied{margin-top:auto;display:flex;flex-direction:column;gap:12px}
+.prix-ligne{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.prix{font-family:var(--f-titre);font-weight:800;font-size:24px;letter-spacing:-.02em}
+.prix-note{font-size:12.5px;color:var(--gris-500)}
+.vcarte-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.vcarte-btns .seul{grid-column:1/-1}
+.vcarte-btns .btn{padding:10px 12px;font-size:14px;white-space:normal;text-align:center;line-height:1.2}
+
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;padding:5px 10px;border-radius:999px;background:#fff;border:1px solid var(--gris-200);white-space:nowrap}
+.badge::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.st-disponible{color:var(--succes)}
+.st-transit{color:var(--alerte)}
+.st-precommande{color:var(--rouge)}
+.st-vendu{color:var(--gris-500)}
+.st-indisponible{color:var(--gris-500)}
+.badge span{color:var(--noir)}
+
+/* Services */
+.services-grille{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:14px}
+.service{display:flex;flex-direction:column;gap:14px;padding:24px;border-radius:var(--r-m);border:1px solid var(--gris-200);background:#fff}
+.service .tarif{display:flex;align-items:baseline;gap:8px}
+.service .tarif b{font-family:var(--f-titre);font-weight:800;font-size:34px;letter-spacing:-.03em}
+.service .tarif span{font-size:13px;color:var(--gris-500)}
+.service p{color:var(--gris-700);font-size:15px}
+.service ul{margin:0;padding-left:18px;color:var(--gris-700);font-size:14px}
+.service .btn{margin-top:auto}
+.encadre{margin-top:18px;display:flex;gap:14px;align-items:flex-start;padding:16px 18px;border-radius:var(--r-m);background:var(--gris-50);border:1px solid var(--gris-100);font-size:14.5px;color:var(--gris-700)}
+.encadre svg{flex:none;width:22px;height:22px;margin-top:1px}
+.encadre b{color:var(--noir)}
+.encadre.rouge{background:var(--rouge-50);border-color:#F6C9CB}
+.encadre.alerte{background:var(--alerte-50);border-color:#F0D9AE}
+
+/* Deux réservations */
+.duo{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:14px}
+.option{padding:clamp(22px,3vw,32px);border-radius:var(--r-l);display:flex;flex-direction:column;gap:14px}
+.option.a{background:var(--noir);color:#fff}
+.option.a .muted{color:#B9B9BE}
+.option.b{background:var(--gris-100)}
+.option .lettre{font-family:var(--f-titre);font-weight:900;font-size:56px;line-height:.8;opacity:.18}
+.option ol{margin:0;padding-left:20px;display:grid;gap:6px;font-size:15px}
+.option .btn{align-self:flex-start;margin-top:auto}
+
+/* Étapes */
+.etapes{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:0;border-top:1px solid var(--gris-200)}
+.etapes li{padding:22px 22px 22px 0;border-bottom:1px solid var(--gris-200);display:flex;flex-direction:column;gap:8px}
+.etapes .n{font-family:var(--f-titre);font-weight:800;font-size:15px;color:var(--rouge)}
+.etapes b{font-family:var(--f-titre);font-size:18px}
+.etapes p{color:var(--gris-700);font-size:15px;max-width:34ch}
+
+/* Atouts */
+.atouts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:28px}
+.atout svg{width:36px;height:36px;stroke:var(--noir);margin-bottom:14px}
+.atout b{display:block;font-family:var(--f-titre);font-size:17px;margin-bottom:6px}
+.atout p{font-size:15px;color:var(--gris-700)}
+
+/* Bloc CTA noir */
+.cta-noir{background:var(--noir);color:#fff;border-radius:var(--r-l);padding:clamp(28px,6vw,72px);position:relative;overflow:hidden;display:grid;gap:22px}
+.cta-noir h2{max-width:18ch}
+.cta-noir p{color:#C4C4C8;max-width:52ch}
+.cta-noir .btns{display:flex;flex-wrap:wrap;gap:10px}
+.cta-noir .filigrane{position:absolute;right:-4%;bottom:-18%;width:min(70%,620px);color:#fff;opacity:.07;pointer-events:none}
+
+/* Pied */
+.pied{background:var(--gris-50);border-top:1px solid var(--gris-100);padding:clamp(40px,6vw,72px) 0 24px;margin-top:clamp(40px,6vw,80px)}
+.pied-grille{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:28px}
+.pied h4{font-size:15px;margin-bottom:12px}
+.pied ul{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.pied a{text-decoration:none;color:var(--gris-700);display:inline-flex;min-height:36px;align-items:center}
+.pied a:hover{color:var(--noir);text-decoration:underline}
+.pied .logo{width:170px;height:52px;margin-bottom:12px}
+.pied-bas{margin-top:36px;padding-top:18px;border-top:1px solid var(--gris-200);display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-between;font-size:13px;color:var(--gris-500)}
+
+/* Pages internes */
+.page-tete{padding:clamp(28px,5vw,56px) 0 clamp(20px,3vw,32px)}
+.fil{font-size:14px;color:var(--gris-500);margin-bottom:14px}
+.fil a{color:var(--gris-500)}
+.page-tete .rang{display:flex;flex-wrap:wrap;gap:16px 24px;align-items:flex-end;justify-content:space-between}
+.page-tete h1{font-size:clamp(30px,4.6vw,56px);max-width:20ch}
+.page-tete .lead{margin-top:12px}
+.etiquette-prix{display:inline-flex;flex-direction:column;gap:2px;padding:14px 18px;border-radius:var(--r-m);background:var(--gris-50);border:1px solid var(--gris-100)}
+.etiquette-prix b{font-family:var(--f-titre);font-weight:800;font-size:30px;line-height:1}
+.etiquette-prix span{font-size:13px;color:var(--gris-500)}
+
+/* Inventaire */
+.filtres{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:10px;margin-bottom:18px}
+.compte{font-size:14px;color:var(--gris-500);margin-bottom:16px}
+.vide{text-align:center;padding:48px 20px;border:1.5px dashed var(--gris-300);border-radius:var(--r-m);display:grid;gap:14px;justify-items:center}
+
+/* Champs */
+.champ{display:flex;flex-direction:column;gap:6px;min-width:0}
+.champ label,.champ .lbl{font-weight:600;font-size:14px}
+.champ .aide{font-size:13px;color:var(--gris-500)}
+input[type=text],input[type=tel],input[type=email],input[type=number],input[type=date],input[type=search],select,textarea{width:100%;min-height:48px;padding:12px 14px;border-radius:var(--r-s);border:1.5px solid var(--gris-300);background:#fff;font-size:16px;-webkit-appearance:none;appearance:none}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1.5 6 6.5l5-5' stroke='%230B0B0C' stroke-width='1.8'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:40px}
+textarea{min-height:110px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--noir);box-shadow:0 0 0 3px rgba(215,25,31,.18)}
+input:user-invalid,select:user-invalid,textarea:user-invalid{border-color:var(--rouge)}
+.grille-champs{display:grid;grid-template-columns:1fr;gap:16px}
+@media (min-width:640px){.grille-champs{grid-template-columns:1fr 1fr}.grille-champs .large{grid-column:1/-1}}
+fieldset{border:0;margin:0;padding:0;min-width:0}
+legend{font-weight:600;font-size:14px;margin-bottom:8px;padding:0}
+.choix{display:grid;gap:8px}
+.choix.deux{grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr))}
+.choix label{display:flex;gap:12px;align-items:flex-start;padding:13px 14px;border-radius:var(--r-s);border:1.5px solid var(--gris-300);cursor:pointer;font-weight:500;font-size:15px;min-height:48px;background:#fff}
+.choix label:has(input:checked){border-color:var(--noir);background:var(--gris-50)}
+.choix input,.case input{width:20px;height:20px;accent-color:var(--rouge);margin:1px 0 0;flex:none}
+.choix small{display:block;color:var(--gris-500);font-size:13px;font-weight:400}
+.case{display:flex;gap:12px;align-items:flex-start;font-size:14.5px;cursor:pointer;padding:6px 0}
+.bloc-form{border:1px solid var(--gris-200);border-radius:var(--r-m);padding:clamp(18px,3vw,28px);background:#fff;display:grid;gap:20px}
+.bloc-form h3{font-size:18px}
+.bloc-form + .bloc-form{margin-top:14px}
+.apercus{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:8px}
+.apercus figure{margin:0;aspect-ratio:1;border-radius:8px;overflow:hidden;background:var(--gris-100);position:relative}
+.apercus img,.apercus video{width:100%;height:100%;object-fit:cover;display:block}
+.apercus figcaption{position:absolute;inset:auto 0 0;font-size:10px;background:rgba(11,11,12,.6);color:#fff;padding:2px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.depot{position:relative;border:1.5px dashed var(--gris-300);border-radius:var(--r-s);padding:16px;display:flex;gap:12px;align-items:center;background:var(--gris-50)}
+.depot svg{width:26px;height:26px;flex:none}
+.depot input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%}
+.depot:focus-within{border-color:var(--noir);box-shadow:0 0 0 3px rgba(215,25,31,.18)}
+.depot b{font-size:14.5px;display:block}
+.depot span{font-size:13px;color:var(--gris-500)}
+.cache{display:none!important}
+
+/* Parcours */
+.parcours{display:grid;gap:24px;align-items:start;padding-bottom:clamp(40px,6vw,80px)}
+@media (min-width:980px){.parcours{grid-template-columns:minmax(0,1fr) 360px}}
+.etapier{list-style:none;margin:0 0 18px;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;counter-reset:e}
+.etapier li{font-size:12.5px;font-weight:600;color:var(--gris-500);padding-top:10px;border-top:3px solid var(--gris-200);counter-increment:e;line-height:1.25}
+.etapier li::before{content:counter(e) ". "}
+.etapier li.fait{color:var(--noir);border-color:var(--noir)}
+.etapier li.encours{color:var(--noir);border-color:var(--rouge)}
+@media (max-width:420px){.etapier li{font-size:11px}}
+.resume{position:sticky;top:92px;border-radius:var(--r-m);background:var(--gris-50);border:1px solid var(--gris-100);padding:22px;display:grid;gap:14px}
+.resume h3{font-size:17px}
+.resume .montant{font-family:var(--f-titre);font-weight:800;font-size:36px;letter-spacing:-.03em;line-height:1}
+.resume dl{margin:0;display:grid;gap:8px;font-size:14px}
+.resume dl div{display:flex;justify-content:space-between;gap:12px}
+.resume dt{color:var(--gris-500)}
+.resume dd{margin:0;font-weight:600;text-align:right}
+.resume .note{font-size:13px;color:var(--gris-700);border-top:1px solid var(--gris-200);padding-top:12px}
+@media (max-width:979px){.resume{position:static}}
+.form-actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;margin-top:18px}
+.recap{list-style:none;margin:0;padding:0;display:grid}
+.recap li{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:12px;padding:11px 0;border-bottom:1px solid var(--gris-100);font-size:15px}
+.recap li span:first-child{color:var(--gris-500)}
+.recap li span:last-child{font-weight:600;word-break:break-word}
+.demo{display:flex;gap:10px;align-items:center;font-size:13.5px;padding:10px 14px;border-radius:var(--r-s);background:var(--alerte-50);color:#7A4A00;border:1px solid #F0D9AE}
+.devises{display:inline-grid;grid-template-columns:1fr 1fr;border:1.5px solid var(--gris-300);border-radius:var(--r-s);overflow:hidden}
+.devises button{min-height:46px;min-width:88px;border:0;background:#fff;font-weight:600;cursor:pointer}
+.devises button[aria-pressed="true"]{background:var(--noir);color:#fff}
+.a-payer{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:10px;padding:18px;border-radius:var(--r-m);background:var(--noir);color:#fff}
+.a-payer b{font-family:var(--f-titre);font-weight:800;font-size:clamp(28px,4vw,38px);letter-spacing:-.02em}
+.a-payer span{color:#C4C4C8;font-size:13.5px}
+.progres{height:8px;border-radius:99px;background:var(--gris-100);overflow:hidden}.progres span{display:block;height:100%;width:0;background:var(--rouge);transition:width .2s}
+.erreur-paie{padding:12px 14px;border-radius:var(--r-s);background:var(--rouge-50,#FDEBEC);color:#8A0F13;font-size:14px;font-weight:500}
+html.mode-reel [data-seulement-demo]{display:none!important}
+[tabindex="-1"]:focus{outline:none}
+.verif{display:flex;gap:12px;align-items:center;padding:16px;border-radius:var(--r-s);background:var(--gris-50);font-weight:600}
+.spin{width:22px;height:22px;border-radius:50%;border:3px solid var(--gris-300);border-top-color:var(--rouge);animation:tour 0.8s linear infinite;flex:none}
+@keyframes tour{to{transform:rotate(360deg)}}
+.confirme{display:grid;gap:20px}
+.confirme-tete{display:flex;gap:16px;align-items:center}
+.coche{width:56px;height:56px;border-radius:50%;background:var(--succes);display:grid;place-items:center;flex:none}
+.coche svg{width:28px;height:28px;stroke:#fff}
+.ref{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:16px 18px;border-radius:var(--r-m);border:1.5px dashed var(--gris-300)}
+.ref b{font-family:var(--f-titre);font-size:clamp(20px,3vw,26px);letter-spacing:.02em}
+.suite{margin:0;padding-left:20px;display:grid;gap:6px;color:var(--gris-700)}
+
+/* Détail véhicule */
+.detail{display:grid;gap:clamp(20px,3vw,40px);padding-bottom:clamp(40px,6vw,80px)}
+@media (min-width:980px){.detail{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);align-items:start}}
+.detail-scene{position:relative;border-radius:var(--r-l);background:linear-gradient(180deg,var(--gris-50),var(--gris-100) 70%,#E4E4E1);aspect-ratio:4/3;overflow:hidden;display:grid;place-items:end center}
+.detail-scene .annee-geante{font-size:clamp(110px,20vw,260px)}
+.detail-scene svg.voiture{position:relative;z-index:2;width:92%;margin-bottom:4%}
+.detail-info{display:grid;gap:18px}
+.fiche{margin:0;display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--gris-200)}
+.fiche div{padding:12px 0;border-bottom:1px solid var(--gris-200)}
+.fiche div:nth-child(odd){padding-right:12px}
+.fiche dt{font-size:13px;color:var(--gris-500)}
+.fiche dd{margin:2px 0 0;font-weight:600}
+.repartition{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.repartition div{padding:14px;border-radius:var(--r-s);background:var(--gris-50);border:1px solid var(--gris-100)}
+.repartition div:first-child{background:var(--noir);color:#fff;border-color:var(--noir)}
+.repartition span{font-size:13px;opacity:.75;display:block}
+.repartition b{font-family:var(--f-titre);font-size:22px}
+.conditions{margin:0;padding:0;list-style:none;display:grid;gap:10px;font-size:14.5px;color:var(--gris-700)}
+.conditions b{color:var(--noir)}
+.detail-btns{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:10px}
+
+/* Suivi */
+.suivi-form{display:flex;gap:10px;flex-wrap:wrap;max-width:620px}
+.suivi-form input{flex:1 1 240px;text-transform:uppercase}
+.chrono{list-style:none;margin:24px 0 0;padding:0;display:grid}
+.chrono li{position:relative;padding:0 0 24px 40px}
+.chrono li::before{content:"";position:absolute;left:11px;top:26px;bottom:0;width:2px;background:var(--gris-200)}
+.chrono li:last-child::before{display:none}
+.chrono .pt{position:absolute;left:0;top:2px;width:24px;height:24px;border-radius:50%;border:2px solid var(--gris-300);background:#fff;display:grid;place-items:center}
+.chrono .fait .pt{background:var(--noir);border-color:var(--noir)}
+.chrono .fait .pt::after{content:"";width:8px;height:5px;border:2px solid #fff;border-top:0;border-right:0;transform:rotate(-45deg) translate(1px,-1px)}
+.chrono .encours .pt{border-color:var(--rouge);box-shadow:0 0 0 5px var(--rouge-50)}
+.chrono b{display:block}
+.chrono .encours b{color:var(--rouge)}
+.chrono span{font-size:14px;color:var(--gris-500)}
+.carte-suivi{border:1px solid var(--gris-200);border-radius:var(--r-m);padding:clamp(18px,3vw,28px);margin-top:24px;max-width:720px}
+.carte-suivi .tete{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;align-items:baseline}
+
+/* WhatsApp flottant + modale */
+.wa-flottant{position:fixed;right:clamp(14px,3vw,24px);bottom:calc(clamp(14px,3vw,24px) + env(safe-area-inset-bottom));z-index:60;width:58px;height:58px;border-radius:50%;background:var(--whatsapp);border:0;box-shadow:0 10px 28px rgba(11,11,12,.25);display:grid;place-items:center;cursor:pointer}
+.wa-flottant svg{width:30px;height:30px}
+.modale{position:fixed;inset:0;z-index:80;background:rgba(11,11,12,.5);display:none;align-items:flex-end;justify-content:center;padding:0}
+.modale.ouverte{display:flex}
+.modale-boite{background:#fff;width:100%;max-width:520px;max-height:92vh;overflow:auto;border-radius:var(--r-l) var(--r-l) 0 0;padding:24px clamp(18px,4vw,28px) calc(24px + env(safe-area-inset-bottom));display:grid;gap:16px}
+@media (min-width:640px){.modale{align-items:center;padding:24px}.modale-boite{border-radius:var(--r-l)}}
+.modale-tete{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.fermer{width:44px;height:44px;border-radius:50%;border:1.5px solid var(--gris-200);background:#fff;cursor:pointer;display:grid;place-items:center}
+.message-wa{white-space:pre-wrap;font-size:14.5px;background:#E7F8EE;border-radius:14px 14px 14px 4px;padding:14px 16px;border:1px solid #CDEFD9}
+.toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%) translateY(20px);background:var(--noir);color:#fff;padding:12px 18px;border-radius:999px;font-size:14px;opacity:0;pointer-events:none;transition:all .25s;z-index:90}
+.toast.vu{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.legal h2{font-size:22px;margin:28px 0 10px}
+.legal p,.legal li{color:var(--gris-700);max-width:72ch}
+
+/* Voiture SVG */
+svg.voiture{display:block;height:auto;overflow:visible}
+
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
+/* Photos des véhicules */
+.scene:has(.voiture.vide) .annee-geante,.scene:has(.voiture.photo) .annee-geante{display:none}
+@media (min-width:1100px){.scene{place-items:center}.diapo-voiture:has(.voiture.vide),.diapo-voiture:has(.voiture.photo){width:100%;max-width:680px;margin:32px 8px 32px 24px}}
+@media (max-width:900px){.heros .scene{margin-top:20px}}
+img.voiture.photo{display:block;width:100%;height:100%;object-fit:cover;border-radius:inherit;background:var(--gris-100)}
+.voiture.vide{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;width:100%;height:100%;min-height:140px;color:var(--gris-300);text-align:center}
+.voiture.vide svg{width:min(46%,220px);aspect-ratio:680/118;color:var(--gris-300)}
+.voiture.vide span{font-size:12.5px;font-weight:600;color:var(--gris-500);letter-spacing:.01em}
+.vcarte-media img.voiture.photo,.vcarte-media .voiture.vide{position:absolute;inset:0;width:100%;height:100%}
+.vcarte-media:has(.voiture.photo) .annee,.vcarte-media:has(.voiture.vide) .annee{display:none}
+.detail-scene img.voiture.photo,.detail-scene .voiture.vide{position:absolute;inset:0;z-index:2;margin:0;width:100%;height:100%}
+.detail-scene:has(.voiture.photo) .annee-geante,.detail-scene:has(.voiture.vide) .annee-geante{display:none}
+.scene img.voiture.photo{position:relative;z-index:2;width:100%;height:auto;aspect-ratio:16/10;border-radius:var(--r-l);box-shadow:0 24px 50px rgba(11,11,12,.16)}
+.scene .voiture.vide{position:relative;z-index:2;aspect-ratio:16/10;height:auto;border-radius:var(--r-l);background:var(--gris-50);border:1.5px dashed var(--gris-300)}
+
+/* Vitrine hero (voitures détourées, style showroom) */
+.vitrine-img{display:block;width:100%;height:auto;max-height:min(46vh,420px);object-fit:contain;filter:drop-shadow(0 26px 22px rgba(11,11,12,.22));-webkit-box-reflect:below -2px linear-gradient(transparent 72%,rgba(255,255,255,.22))}
+.diapo-voiture:has(.vitrine-img){display:grid;place-items:end center;padding:0 4%}
+.diapo-voiture:has(.vitrine-img)::after{content:"";position:absolute;left:10%;right:10%;bottom:-4px;height:26px;border-radius:50%;background:radial-gradient(closest-side,rgba(11,11,12,.32),rgba(11,11,12,0));z-index:-1}
+.scene:has(.vitrine-img) .annee-geante{display:block;color:rgba(11,11,12,.07)}
+@media (min-width:1100px){.diapo-voiture:has(.vitrine-img){width:100%;margin:0 0 36px}.scene:has(.vitrine-img){place-items:end center}}
+@media (max-width:640px){.vitrine-img{max-height:240px}.diapo-voiture:has(.vitrine-img){margin-bottom:18px}}
+
+/* ---------- Espace client ---------- */
+.nav a{white-space:nowrap}
+@media (min-width:1080px) and (max-width:1439px){.nav{gap:0}.nav a{padding:10px 9px;font-size:14.5px}.entete .wrap{gap:14px}}
+@media (min-width:1080px) and (max-width:1199px){.nav a{padding:10px 7px;font-size:14px}.logo{width:120px;height:37px}}
+input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:var(--r-s);border:1.5px solid var(--gris-300);background:#fff;font-size:16px;-webkit-appearance:none;appearance:none}
+.btn-compte{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;min-width:48px;padding:0 12px;border-radius:var(--r-s);border:1.5px solid var(--gris-200);background:#fff;text-decoration:none;font-weight:600;font-size:14px;color:var(--noir);position:relative;white-space:nowrap}
+.btn-compte:hover{border-color:var(--noir)}
+.btn-compte svg{width:20px;height:20px;flex:none}
+.btn-compte .txt{display:none;max-width:12ch;overflow:hidden;text-overflow:ellipsis}
+.btn-compte.connecte::after{content:"";position:absolute;top:7px;right:7px;width:9px;height:9px;border-radius:50%;background:var(--succes);box-shadow:0 0 0 2px #fff}
+.btn-compte[aria-current="page"]{border-color:var(--noir)}
+@media (min-width:1280px){.btn-compte .txt{display:inline}.btn-compte.connecte::after{position:static;box-shadow:none;margin-left:-2px;order:-1;width:8px;height:8px}}
+@media (max-width:379px){.entete .wrap{gap:10px}.entete-actions{gap:6px}.logo{width:118px;height:37px}}
+.vue[data-vue="compte"] h1,.vue[data-vue="compte-dossier"] h1{font-size:clamp(30px,4.6vw,52px)}
+.compte-fil{padding-top:clamp(20px,3vw,32px)}
+.compte-auth{display:grid;gap:18px;margin:18px 0 0}
+@media (min-width:920px){.compte-auth{grid-template-columns:minmax(0,1fr) minmax(0,.82fr);align-items:start}}
+.auth-carte h1{font-size:clamp(28px,4vw,40px)}
+.onglets{display:grid;grid-template-columns:1fr 1fr;background:var(--gris-50);padding:4px;border-radius:12px;border:1px solid var(--gris-100)}
+.onglets button{min-height:44px;border:0;background:transparent;border-radius:9px;font-weight:600;font-size:15px;cursor:pointer;color:var(--gris-700)}
+.onglets button[aria-selected="true"]{background:#fff;color:var(--noir);box-shadow:0 1px 4px rgba(11,11,12,.1)}
+.form-compte{display:grid;gap:16px}
+.mdp{position:relative}
+.mdp input{padding-right:104px}
+.voir-mdp{position:absolute;right:6px;top:50%;transform:translateY(-50%);min-height:38px;padding:0 12px;border:0;background:var(--gris-50);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer}
+.auth-avantages{position:relative;overflow:hidden;border-radius:var(--r-l);background:var(--noir);color:#fff;padding:clamp(22px,4vw,36px);display:grid;gap:18px;align-content:start}
+.auth-avantages h2{font-size:clamp(24px,3vw,32px);max-width:16ch}
+.auth-avantages ul{list-style:none;margin:0;padding:0;display:grid;gap:14px}
+.auth-avantages li{display:flex;gap:12px;align-items:flex-start;font-size:15px;color:#DADADD}
+.auth-avantages li b{color:#fff;display:block}
+.auth-avantages li svg{flex:none;width:24px;height:24px;padding:4px;border-radius:50%;background:var(--rouge);stroke:#fff;margin-top:1px}
+.auth-avantages .filigrane{position:absolute;right:-40px;bottom:-14px;width:300px;height:52px;color:rgba(255,255,255,.07);pointer-events:none}
+.compte-tete{display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;align-items:flex-end;padding:8px 0 4px}
+.compte-tete .lead{margin-top:8px;color:var(--gris-700)}
+.compte-actions{display:flex;flex-wrap:wrap;gap:8px}
+.stats-compte{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:12px;margin:22px 0 0}
+.stat{border:1px solid var(--gris-100);border-radius:var(--r-m);padding:18px 20px;background:var(--gris-50)}
+.stat span{font-size:13.5px;color:var(--gris-500);font-weight:500}
+.stat b{display:block;font-family:var(--f-titre);font-size:clamp(24px,3vw,32px);font-weight:800;margin-top:4px;letter-spacing:-.01em}
+.stat.du b{color:var(--rouge)}
+@media (max-width:640px){.stats-compte{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.stat{padding:12px 10px}.stat span{font-size:11.5px;line-height:1.25;display:block}.stat b{font-size:20px}
+.compte-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.compte-actions>*{width:100%;justify-content:center;padding-inline:10px;font-size:14px}.compte-actions>:first-child{grid-column:1/-1}}
+.rang-titre{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:30px 0 14px;flex-wrap:wrap}
+.rang-titre h2{font-size:clamp(22px,3vw,30px)}
+.grille-dossiers{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr))}
+.carte-dossier{display:grid;gap:10px;padding:18px;border:1px solid var(--gris-200);border-radius:var(--r-m);background:#fff;text-decoration:none;color:inherit;transition:border-color .2s,box-shadow .2s}
+.carte-dossier:hover{border-color:var(--noir);box-shadow:var(--ombre)}
+.cd-tete{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap;font-size:13.5px}
+.carte-dossier strong{font-family:var(--f-titre);font-size:18px;line-height:1.2}
+.cd-ref{font-size:13px;font-weight:600;letter-spacing:.03em;color:var(--gris-700)}
+.cd-pied{display:flex;justify-content:space-between;gap:6px 10px;font-size:13.5px;flex-wrap:wrap}
+.cd-pied span:first-child{font-weight:600}
+.carte-dossier .progres span,.progres.fixe span{transition:none}
+.badge.st-echec{color:var(--rouge)}
+.vide-compte{border:1.5px dashed var(--gris-300);border-radius:var(--r-m);padding:clamp(22px,4vw,36px);display:grid;gap:12px;justify-items:start;background:var(--gris-50)}
+.panneau-compte{margin-top:18px}
+.pan-tete{display:flex;justify-content:space-between;align-items:center;gap:12px}
+@media (min-width:640px){.g2{grid-template-columns:1fr 1fr}}
+.retour-lien{display:inline-flex;align-items:center;gap:6px;text-decoration:none;font-weight:600;min-height:44px}
+.retour-lien svg{width:18px;height:18px}
+.dossier-tete{display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;align-items:flex-end;margin:4px 0 20px}
+.dossier-tete h1{font-size:clamp(26px,4vw,44px)!important;margin-top:4px}
+.ref-ligne{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin-top:12px;font-size:14.5px}
+.ref-ligne b{letter-spacing:.03em}
+.dossier-grille{display:grid;gap:14px}
+@media (min-width:980px){.dossier-grille{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);align-items:start}}
+.dossier-grille .col{display:grid;gap:14px;min-width:0}
+.dossier-grille .bloc-form + .bloc-form{margin-top:0}
+.dossier-grille .chrono{margin-top:0}
+.liste-simple{list-style:none;margin:0;padding:0;display:grid}
+.liste-simple li{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--gris-100);font-size:15px;min-width:0}
+.liste-simple li:last-child{border-bottom:0}
+.liste-simple li > div{min-width:0}
+.liste-simple .sous{display:block;font-size:13px;color:var(--gris-500)}
+.liste-simple a{font-weight:600;word-break:break-word}
+.pl-droite{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center}
+.depot-mini{display:flex;gap:12px;align-items:center;padding:14px 16px;border:1.5px dashed var(--gris-300);border-radius:var(--r-s);cursor:pointer;font-weight:600;background:var(--gris-50);min-height:56px}
+.depot-mini:hover{border-color:var(--noir)}
+.depot-mini:focus-within{outline:3px solid var(--rouge);outline-offset:3px}
+.depot-mini svg{width:22px;height:22px;flex:none}
+.depot-mini small{display:block;font-weight:400;font-size:13px;color:var(--gris-500)}
+.solde-bloc .statut-solde{font-size:14.5px;color:var(--gris-700)}
+.histo{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.histo li{display:grid;gap:2px;padding-left:16px;border-left:2px solid var(--gris-200);font-size:14.5px}
+.histo time{font-size:12.5px;color:var(--gris-500)}
+.bloc-compte{display:flex;flex-wrap:wrap;gap:12px 16px;align-items:center;justify-content:space-between;padding:16px 18px;border-radius:var(--r-m);background:var(--gris-50);border:1px solid var(--gris-100)}
+.bloc-compte p{font-size:14.5px;color:var(--gris-700);max-width:48ch}
+.bloc-compte b{color:var(--noir)}
+.recu{display:grid;gap:14px}
+.recu-tete{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding-bottom:14px;border-bottom:2px solid var(--noir)}
+.recu-tete .logo-recu{width:140px;height:43px;display:block;color:var(--noir)}
+.recu-num{text-align:right;font-size:12.5px;color:var(--gris-500)}
+.recu-num b{display:block;color:var(--noir);font-size:14px;letter-spacing:.02em}
+.recu-montant{display:flex;flex-wrap:wrap;gap:6px;justify-content:space-between;align-items:baseline;padding:14px 16px;border-radius:var(--r-s);background:var(--gris-50)}
+.recu-montant b{font-family:var(--f-titre);font-size:26px}
+.recu .paye{color:var(--succes);font-weight:700}
+.recu .recap li{font-size:14px;padding:9px 0}
+.recu-pied{font-size:12px;color:var(--gris-500)}
+@media print{
+  body.impr-recu>*:not(#modale-recu):not(svg){display:none!important}
+  body.impr-recu #modale-recu{position:static;display:block;background:none;padding:0}
+  body.impr-recu .modale-boite{max-width:none;max-height:none;border-radius:0;padding:0;overflow:visible}
+  body.impr-recu .sans-impr{display:none!important}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="logo" viewBox="0 0 680 207"><path fill="currentColor" fill-rule="evenodd" d="__CAR__"/><path fill="currentColor" fill-rule="evenodd" d="__TXT__"/></symbol>
+  <symbol id="marque" viewBox="0 0 680 118"><path fill="currentColor" fill-rule="evenodd" d="__CAR__"/></symbol>
+  <symbol id="i-wa" viewBox="0 0 32 32"><path fill="currentColor" d="M16 3C8.8 3 3 8.7 3 15.8c0 2.5.7 4.9 2 7L3 29l6.4-2c2 1.1 4.3 1.7 6.6 1.7 7.2 0 13-5.7 13-12.8S23.2 3 16 3Zm0 23.4c-2.1 0-4.1-.6-5.9-1.7l-.4-.3-3.8 1.2 1.2-3.7-.3-.4a10.4 10.4 0 0 1-1.8-5.7C5 10 10 5.2 16 5.2S27 10 27 15.8 22 26.4 16 26.4Zm6-7.8c-.3-.2-2-1-2.3-1.1-.3-.1-.5-.2-.8.2l-1 1.3c-.2.2-.4.2-.7.1-.3-.2-1.4-.5-2.7-1.7-1-.9-1.7-2-1.9-2.3-.2-.3 0-.5.1-.7l.5-.6.4-.6c.1-.2 0-.4 0-.6l-1.1-2.6c-.3-.7-.6-.6-.8-.6h-.7c-.2 0-.6.1-.9.4-.3.3-1.2 1.1-1.2 2.8s1.2 3.2 1.4 3.5c.2.2 2.4 3.6 5.8 5 2.9 1.1 3.4.9 4 .8.7-.1 2-.8 2.3-1.6.3-.8.3-1.5.2-1.6-.1-.2-.4-.3-.7-.4Z"/></symbol>
+  <symbol id="i-fleche-g" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-fleche-d" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 11v6M12 7.5v.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-cadenas" viewBox="0 0 24 24"><rect x="4.5" y="10.5" width="15" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M4 15v3.5A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5V15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="4" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M4.5 20.5c1.2-3.6 4.1-5.5 7.5-5.5s6.3 1.9 7.5 5.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+</svg>
+
+<a class="sr" href="#contenu">Aller au contenu</a>
+
+<header class="entete">
+  <div class="wrap">
+    <a class="logo-lien" href="#accueil" aria-label="Elite Auto Deal, accueil"><svg class="logo" role="img" aria-hidden="true"><use href="#logo"/></svg></a>
+    <nav class="nav" aria-label="Navigation principale">
+      <a href="#vehicules">Véhicules</a>
+      <a href="#precommande">Précommande</a>
+      <a href="#recherche">Trouver un véhicule</a>
+      <a href="#essai">Essai</a>
+      <a href="#vendre">Vendre</a>
+      <a href="#financement">Financement</a>
+      <a href="#suivi">Suivi</a>
+    </nav>
+    <div class="entete-actions">
+      <a class="btn-compte" href="#compte" aria-label="Mon espace : connexion ou création de compte"><svg aria-hidden="true"><use href="#i-user"/></svg><span class="txt">Mon espace</span></a>
+      <button class="btn btn-wa btn-sm" type="button" data-ouvrir-wa><svg aria-hidden="true"><use href="#i-wa"/></svg><span class="txt">WhatsApp</span><span class="sr">Écrire sur WhatsApp</span></button>
+      <button class="burger" type="button" aria-expanded="false" aria-controls="menu-mobile" aria-label="Ouvrir le menu"><span></span></button>
+    </div>
+  </div>
+  <nav class="menu-mobile" id="menu-mobile" aria-label="Menu mobile">
+    <a href="#compte">Mon espace <small id="compte-menu-etat">Connexion</small></a>
+    <a href="#vehicules">Véhicules <small>Inventaire</small></a>
+    <a href="#precommande">Précommander <small>90 % puis 10 %</small></a>
+    <a href="#recherche">Trouver un véhicule <small>150 $</small></a>
+    <a href="#essai">Réserver un essai <small>150 $</small></a>
+    <a href="#consultation">Consultation <small>150 $</small></a>
+    <a href="#vendre">Vendre mon véhicule <small>200 $</small></a>
+    <a href="#financement">Demander un financement <small>25 $</small></a>
+    <a href="#suivi">Suivre mon dossier</a>
+  </nav>
+</header>
+
+<main id="contenu">
+
+<!-- ============ ACCUEIL ============ -->
+<div class="vue" data-vue="accueil">
+  <div class="heros">
+    <div class="wrap">
+      <div class="studio" id="heros">
+        <div class="heros-texte">
+          <h1>Trouvez votre prochain véhicule avec Elite Auto Deal</h1>
+          <p class="lead">Des véhicules sélectionnés, un accompagnement personnalisé et des solutions adaptées à votre budget, de Delmas à toute la région de Port-au-Prince.</p>
+          <div class="heros-cta">
+            <a class="btn btn-rouge" href="#vehicules">Voir les véhicules</a>
+            <a class="btn btn-contour" href="#recherche">Confier ma recherche</a>
+          </div>
+        </div>
+        <div class="scene" aria-live="polite">
+          <div class="annee-geante" id="heros-annee" aria-hidden="true">2017</div>
+          <div class="diapo-voiture" id="heros-voiture"></div>
+        </div>
+        <div class="heros-barre">
+          <div class="heros-vehicule" id="heros-info"></div>
+          <div class="heros-nav">
+            <button class="rond" type="button" id="heros-prec" aria-label="Véhicule précédent"><svg><use href="#i-fleche-g"/></svg></button>
+            <div class="points" id="heros-points" role="group" aria-label="Choisir un véhicule"></div>
+            <button class="rond" type="button" id="heros-suiv" aria-label="Véhicule suivant"><svg><use href="#i-fleche-d"/></svg></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <div class="wrap">
+      <h2 class="sr">Que voulez-vous faire ?</h2>
+      <div class="actions-grille">
+        <a class="action principale" href="#vehicules"><svg viewBox="0 0 32 32" fill="none" stroke-width="1.6"><path d="M4 20v-4.5L7.5 9h17L28 15.5V20"/><path d="M3 20h26v4H3z"/><circle cx="9" cy="24" r="2.5"/><circle cx="23" cy="24" r="2.5"/></svg><div><b>Acheter un véhicule</b><span>Comptant, financement ou précommande</span></div></a>
+        <a class="action" href="#recherche"><svg viewBox="0 0 32 32" fill="none" stroke-width="1.6"><circle cx="14" cy="14" r="8"/><path d="m20 20 7 7"/></svg><div><b>Trouver un véhicule</b><span>Recherche personnalisée, 150 $</span></div></a>
+        <a class="action" href="#essai"><svg viewBox="0 0 32 32" fill="none" stroke-width="1.6"><rect x="5" y="7" width="22" height="20" rx="2"/><path d="M5 13h22M11 4v6M21 4v6"/><path d="m12 20 3 3 6-6"/></svg><div><b>Réserver un essai</b><span>Visite ou essai, 150 $</span></div></a>
+        <a class="action" href="#vendre"><svg viewBox="0 0 32 32" fill="none" stroke-width="1.6"><path d="M16 4 4 10v2h24v-2L16 4Z"/><path d="M7 12v11M13 12v11M19 12v11M25 12v11M4 27h24"/></svg><div><b>Vendre mon véhicule</b><span>Vente accompagnée, 200 $</span></div></a>
+        <a class="action" href="#financement"><svg viewBox="0 0 32 32" fill="none" stroke-width="1.6"><rect x="4" y="8" width="24" height="16" rx="2"/><path d="M4 13h24M9 19h6"/></svg><div><b>Demander un financement</b><span>Frais de dossier, 25 $</span></div></a>
+      </div>
+    </div>
+  </div>
+
+  <section>
+    <div class="wrap">
+      <div class="sec-tete">
+        <div><h2>Notre flotte</h2></div>
+        <p>Chaque annonce indique si le véhicule est déjà en Haïti, en transit ou ouvert à la précommande, avant tout paiement.</p>
+      </div>
+      <div class="puces" role="group" aria-label="Filtrer la flotte" id="flotte-puces">
+        <button class="puce" type="button" aria-pressed="true" data-f="tous">Tous</button>
+        <button class="puce" type="button" aria-pressed="false" data-f="disponible">En Haïti</button>
+        <button class="puce" type="button" aria-pressed="false" data-f="precommande">Précommande et transit</button>
+        <button class="puce" type="button" aria-pressed="false" data-f="SUV">SUV</button>
+        <button class="puce" type="button" aria-pressed="false" data-f="Pick-up">Pick-up</button>
+        <button class="puce" type="button" aria-pressed="false" data-f="budget">Moins de 20 000 $</button>
+      </div>
+      <div class="grille-v" id="flotte" style="margin-top:20px"></div>
+      <div style="margin-top:28px;display:flex;justify-content:center"><a class="btn btn-noir" href="#vehicules">Voir tout l'inventaire</a></div>
+    </div>
+  </section>
+
+  <section style="background:var(--gris-50)">
+    <div class="wrap">
+      <div class="sec-tete">
+        <h2>Nos services</h2>
+        <p>Chaque service a son propre formulaire et son propre paiement. Vous savez exactement ce que vous payez.</p>
+      </div>
+      <div class="services-grille">
+        <article class="service">
+          <h3>Consultation automobile</h3>
+          <div class="tarif"><b>150 $</b><span>frais de service</span></div>
+          <p>Un échange personnalisé pour choisir le bon véhicule, définir votre budget et vos critères.</p>
+          <a class="btn btn-noir" href="#consultation">Réserver une consultation</a>
+        </article>
+        <article class="service">
+          <h3>Recherche ou achat accompagné</h3>
+          <div class="tarif"><b>150 $</b><span>frais de service</span></div>
+          <p>Nous trouvons un véhicule absent du site, ou nous vous accompagnons pour l'achat d'un véhicule déjà en Haïti.</p>
+          <a class="btn btn-noir" href="#recherche">Confier ma recherche</a>
+        </article>
+        <article class="service">
+          <h3>Visite ou essai</h3>
+          <div class="tarif"><b>150 $</b><span>frais de service</span></div>
+          <p>Visite, essai routier ou inspection d'un véhicule disponible en Haïti, confirmés selon sa disponibilité réelle.</p>
+          <a class="btn btn-noir" href="#essai">Réserver mon essai</a>
+        </article>
+        <article class="service">
+          <h3>Vente de votre véhicule</h3>
+          <div class="tarif"><b>200 $</b><span>non remboursable</span></div>
+          <p>Confiez-nous la vente : photos, vidéos et fiche détaillée, puis vérification avant toute publication.</p>
+          <a class="btn btn-noir" href="#vendre">Vendre mon véhicule</a>
+        </article>
+      </div>
+      <div class="encadre">
+        <svg aria-hidden="true"><use href="#i-info"/></svg>
+        <p><b>Les frais de service ne sont pas le prix du véhicule.</b> Ils ne constituent ni un acompte de réservation ni des frais de financement. Le dossier de financement coûte 25 $ (ou l'équivalent en gourdes) et ne garantit pas l'approbation. <a href="#conditions">Lire les conditions</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="sec-tete">
+        <h2>Précommander ou réserver un essai</h2>
+        <p>Deux démarches différentes, avec des paiements différents. Choisissez celle qui correspond à votre situation.</p>
+      </div>
+      <div class="duo">
+        <div class="option a">
+          <div class="lettre" aria-hidden="true">A</div>
+          <h3>Précommander un véhicule</h3>
+          <p class="muted">Pour un véhicule publié par Elite Auto Deal qui n'est pas encore arrivé en Haïti.</p>
+          <ol>
+            <li>Vous choisissez le véhicule et lisez les conditions.</li>
+            <li>Vous versez 90 % du prix en ligne.</li>
+            <li>Vous suivez l'expédition avec votre référence.</li>
+            <li>Vous réglez les 10 % restants à l'arrivée en Haïti.</li>
+          </ol>
+          <a class="btn btn-rouge" href="#precommande">Précommander ce véhicule</a>
+        </div>
+        <div class="option b">
+          <div class="lettre" aria-hidden="true">B</div>
+          <h3>Réserver un essai ou une visite</h3>
+          <p class="muted">Pour un véhicule déjà en Haïti, y compris un véhicule que vous avez trouvé ailleurs.</p>
+          <ol>
+            <li>Vous sélectionnez ou décrivez le véhicule.</li>
+            <li>Vous indiquez vos disponibilités.</li>
+            <li>Vous payez 150 $ de frais de service, pas un acompte.</li>
+            <li>Nous confirmons le rendez-vous selon la disponibilité réelle.</li>
+          </ol>
+          <a class="btn btn-noir" href="#essai">Réserver mon essai</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding-top:0">
+    <div class="wrap">
+      <div class="sec-tete"><h2>Comment ça marche</h2></div>
+      <ol class="etapes">
+        <li><span class="n">1</span><b>Vous remplissez le formulaire</b><p>Le service et le montant sont identifiés automatiquement.</p></li>
+        <li><span class="n">2</span><b>Vous payez en ligne</b><p>En dollars ou en gourdes, sur une page de paiement sécurisée avec la référence de votre dossier.</p></li>
+        <li><span class="n">3</span><b>Le paiement est vérifié</b><p>La confirmation vient du prestataire de paiement, jamais d'une capture d'écran.</p></li>
+        <li><span class="n">4</span><b>Nous prenons le relais</b><p>Reçu, numéro de dossier et suivi par WhatsApp avec notre équipe.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section style="padding-top:0">
+    <div class="wrap">
+      <div class="atouts">
+        <div class="atout"><svg viewBox="0 0 36 36" fill="none" stroke-width="1.5"><path d="M4 24h20l4-6h4v6h-2"/><path d="M4 24V12h18v12"/><circle cx="10" cy="27" r="3"/><circle cx="25" cy="27" r="3"/></svg><b>Clé en main</b><p>Transport depuis les États-Unis et dédouanement pris en charge selon l'offre du véhicule.</p></div>
+        <div class="atout"><svg viewBox="0 0 36 36" fill="none" stroke-width="1.5"><rect x="5" y="9" width="26" height="18" rx="2"/><path d="M5 15h26M10 21h7"/></svg><b>Financement disponible</b><p>Un parcours dédié, des pièces vérifiées et une décision communiquée clairement.</p></div>
+        <div class="atout"><svg viewBox="0 0 36 36" fill="none" stroke-width="1.5"><rect x="7" y="15" width="22" height="15" rx="2"/><path d="M12 15v-3a6 6 0 0 1 12 0v3"/><path d="M18 21v3"/></svg><b>Paiements vérifiés</b><p>Chaque paiement porte une référence unique et génère un reçu.</p></div>
+        <div class="atout"><svg viewBox="0 0 36 36" fill="none" stroke-width="1.5"><path d="M6 8h24v16H14l-6 5v-5H6z"/><path d="M12 15h12M12 19h8"/></svg><b>Suivi sur WhatsApp</b><p>Votre conseiller vous écrit après la confirmation du paiement.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding-top:0">
+    <div class="wrap">
+      <div class="cta-noir">
+        <svg class="filigrane" viewBox="0 0 680 118" aria-hidden="true"><use href="#marque"/></svg>
+        <h2>Le véhicule que vous cherchez n'est pas sur le site ?</h2>
+        <p>Indiquez la marque, l'année, le modèle et votre budget. Nous lançons la recherche dès la confirmation du paiement des frais de service.</p>
+        <div class="btns">
+          <a class="btn btn-rouge" href="#recherche">Confier ma recherche</a>
+          <button class="btn btn-blanc" type="button" data-ouvrir-wa>Écrire sur WhatsApp</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============ INVENTAIRE ============ -->
+<div class="vue" data-vue="vehicules">
+  <div class="wrap">
+    <div class="page-tete">
+      <div class="fil"><a href="#accueil">Accueil</a> / Véhicules</div>
+      <h1>Nos véhicules</h1>
+      <p class="lead">Disponibles en Haïti, en transit ou à précommander. Le statut et les conditions sont affichés avant le paiement.</p>
+    </div>
+    <form class="filtres" id="filtres" onsubmit="return false">
+      <div class="champ"><label for="f-q">Rechercher</label><input id="f-q" type="search" placeholder="Marque, modèle, année" autocomplete="off"></div>
+      <div class="champ"><label for="f-statut">Statut</label><select id="f-statut"><option value="">Tous les statuts</option><option value="disponible">Disponible en Haïti</option><option value="transit">En transit</option><option value="precommande">Précommandable</option><option value="vendu">Vendu</option></select></div>
+      <div class="champ"><label for="f-marque">Marque</label><select id="f-marque"><option value="">Toutes les marques</option></select></div>
+      <div class="champ"><label for="f-budget">Budget</label><select id="f-budget"><option value="">Tous les budgets</option><option value="0-15000">Jusqu'à 15 000 $</option><option value="15000-25000">15 000 à 25 000 $</option><option value="25000-35000">25 000 à 35 000 $</option><option value="35000-999999">Plus de 35 000 $</option></select></div>
+      <div class="champ"><label for="f-type">Type</label><select id="f-type"><option value="">Tous les types</option><option>SUV</option><option>Pick-up</option><option>4x4</option></select></div>
+    </form>
+    <p class="compte" id="compte" aria-live="polite"></p>
+    <div class="grille-v" id="inventaire"></div>
+    <div style="height:clamp(40px,6vw,80px)"></div>
+  </div>
+</div>
+
+<!-- ============ DÉTAIL ============ -->
+<div class="vue" data-vue="vehicule">
+  <div class="wrap">
+    <div class="page-tete" style="padding-bottom:20px"><div class="fil"><a href="#accueil">Accueil</a> / <a href="#vehicules">Véhicules</a> / <span id="fil-v"></span></div></div>
+    <div class="detail" id="detail"></div>
+  </div>
+</div>
+
+<!-- ============ PRÉCOMMANDE ============ -->
+<div class="vue" data-vue="precommande">
+  <div class="wrap">
+    <div class="page-tete"><div class="fil"><a href="#accueil">Accueil</a> / Précommande</div>
+      <div class="rang"><div><h1>Précommander un véhicule</h1><p class="lead">Pour un véhicule publié par Elite Auto Deal qui n'est pas encore arrivé en Haïti. Vous versez 90 % maintenant et 10 % à l'arrivée.</p></div>
+      <div class="etiquette-prix"><b>90 % + 10 %</b><span>du prix du véhicule</span></div></div>
+    </div>
+    <div class="parcours" data-service="precommande">
+      <div class="parcours-principal">
+        <ol class="etapier"><li>Informations</li><li>Récapitulatif</li><li>Paiement</li><li>Confirmation</li></ol>
+        <form class="form-service" novalidate>
+          <div class="bloc-form">
+            <h3>Véhicule</h3>
+            <div class="champ"><label for="pc-v">Véhicule à précommander</label><select id="pc-v" name="vehicule" data-lbl="Véhicule" data-vselect="precommande" required></select><span class="aide">Seuls les véhicules précommandables ou en transit sont proposés.</span></div>
+            <div id="pc-details"></div>
+          </div>
+          <div class="bloc-form">
+            <h3>Vos coordonnées</h3>
+            <div class="grille-champs">
+              <div class="champ large"><label for="pc-nom">Nom complet</label><input id="pc-nom" name="nom" data-lbl="Nom complet" type="text" autocomplete="name" required></div>
+              <div class="champ"><label for="pc-tel">Téléphone</label><input id="pc-tel" name="tel" data-lbl="Téléphone" type="tel" autocomplete="tel" placeholder="+509" required></div>
+              <div class="champ"><label for="pc-wa">WhatsApp</label><input id="pc-wa" name="whatsapp" data-lbl="WhatsApp" type="tel" placeholder="+509" required></div>
+              <div class="champ large"><label for="pc-loc">Localité de livraison</label><select id="pc-loc" name="localite" data-lbl="Livraison" required data-localites></select><span class="aide">Livraison proposée uniquement dans les zones accessibles, après confirmation logistique.</span></div>
+            </div>
+          </div>
+          <div class="form-actions"><a class="lien" href="#vehicules">Retour aux véhicules</a><button class="btn btn-rouge" type="submit">Vérifier ma précommande</button></div>
+        </form>
+      </div>
+      <aside class="resume" aria-label="Montant à payer"></aside>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ACHAT ============ -->
+<div class="vue" data-vue="achat">
+  <div class="wrap">
+    <div class="page-tete"><div class="fil"><a href="#accueil">Accueil</a> / <a href="#vehicules">Véhicules</a> / Achat</div>
+      <h1>Acheter un véhicule</h1><p class="lead">Pour un véhicule disponible en Haïti. Choisissez le paiement comptant ou le financement, sous réserve d'approbation.</p>
+    </div>
+    <div class="parcours" data-service="achat">
+      <div class="parcours-principal">
+        <ol class="etapier"><li>Informations</li><li>Récapitulatif</li><li>Paiement</li><li>Confirmation</li></ol>
+        <form class="form-service" novalidate>
+          <div class="bloc-form">
+            <h3>Véhicule</h3>
+            <div class="champ"><label for="ac-v">Véhicule</label><select id="ac-v" name="vehicule" data-lbl="Véhicule" data-vselect="disponible" required></select></div>
+            <fieldset><legend>Mode de paiement</legend>
+              <div class="choix deux">
+                <label><input type="radio" name="mode" value="Comptant" data-lbl="Mode de paiement" checked><span>Comptant<small>Paiement du prix, puis livraison</small></span></label>
+                <label><input type="radio" name="mode" value="Financement" data-lbl="Mode de paiement"><span>Financement<small>Sous réserve d'approbation</small></span></label>
+              </div>
+            </fieldset>
+          </div>
+          <div class="bloc-form">
+            <h3>Vos coordonnées</h3>
+            <div class="grille-champs">
+              <div class="champ large"><label for="ac-nom">Nom complet</label><input id="ac-nom" name="nom" data-lbl="Nom complet" type="text" autocomplete="name" required></div>
+              <div class="champ"><label for="ac-tel">Téléphone</label><input id="ac-tel" name="tel" data-lbl="Téléphone" type="tel" placeholder="+509" required></div>
+              <div class="champ"><label for="ac-wa">WhatsApp</label><input id="ac-wa" name="whatsapp" data-lbl="WhatsApp" type="tel" placeholder="+509" required></div>
+              <div class="champ large"><label for="ac-loc">Localité de livraison</label><select id="ac-loc" name="localite" data-lbl="Livraison" required data-localites></select><span class="aide">Livraison dans les zones accessibles, après confirmation logistique.</span></div>
+            </div>
+          </div>
+          <div class="form-actions"><a class="lien" href="#vehicules">Retour aux véhicules</a><button class="btn btn-rouge" type="submit">Continuer</button></div>
+        </form>
+      </div>
+      <aside class="resume" aria-label="Montant à payer"></aside>
+    </div>
+  </div>
+</div>
+
+<!-- ============ CONSULTATION ============ -->
+<div class="vue" data-vue="consultation">
+  <div class="wrap">
+    <div class="page-tete"><div class="fil"><a href="#accueil">Accueil</a> / Consultation</div>
+      <div class="rang"><div><h1>Consultation automobile</h1><p class="lead">Un accompagnement personnalisé : choix du véhicule, conseils, recherche ou orientation selon vos besoins.</p></div>
+      <div class="etiquette-prix"><b>150 $</b><span>frais de service, non remboursables</span></div></div>
+    </div>
+    <div class="parcours" data-service="consultation">
+      <div class="parcours-principal">
+        <ol class="etapier"><li>Informations</li><li>Récapitulatif</li><li>Paiement</li><li>Confirmation</li></ol>
+        <form class="form-service" novalidate>
+          <div class="bloc-form">
+            <h3>Votre besoin</h3>
+            <fieldset><legend>Sujet de la consultation</legend>
+              <div class="choix deux">
+                <label><input type="radio" name="sujet" value="Choix du véhicule" data-lbl="Sujet" required><span>Choix du véhicule</span></label>
+                <label><input type="radio" name="sujet" value="Budget et financement" data-lbl="Sujet"><span>Budget et financement</span></label>
+                <label><input type="radio" name="sujet" value="Importation depuis les États-Unis" data-lbl="Sujet"><span>Importation depuis les États-Unis</span></label>
+                <label><input type="radio" name="sujet" value="Autre" data-lbl="Sujet"><span>Autre besoin</span></label>
+              </div>
+            </fieldset>
+            <div class="grille-champs">
+              <div class="champ"><label for="co-budget">Budget approximatif (USD)</label><input id="co-budget" name="budget" data-lbl="Budget" type="number" min="0" step="500" inputmode="numeric"></div>
+              <div class="champ"><label for="co-dispo">Vos disponibilités</label><select id="co-dispo" name="dispo" data-lbl="Disponibilités"><option>En semaine, le matin</option><option>En semaine, l'après-midi</option><option>Samedi</option><option>Peu importe</option></select></div>
+              <div class="champ large"><label for="co-msg">Précisions</label><textarea id="co-msg" name="message" data-lbl="Précisions" placeholder="Usage du véhicule, nombre de places, préférences"></textarea></div>
+            </div>
+          </div>
+          <div class="bloc-form">
+            <h3>Vos coordonnées</h3>
+            <div class="grille-champs">
+              <div class="champ large"><label for="co-nom">Nom complet</label><input id="co-nom" name="nom" data-lbl="Nom complet" type="text" autocomplete="name" required></div>
+              <div class="champ"><label for="co-tel">Téléphone</label><input id="co-tel" name="tel" data-lbl="Téléphone" type="tel" placeholder="+509" required></div>
+              <div class="champ"><label for="co-wa">WhatsApp</label><input id="co-wa" name="whatsapp" data-lbl="WhatsApp" type="tel" placeholder="+509" required></div>
+            </div>
+          </div>
+          <div class="form-actions"><a class="lien" href="#accueil">Annuler</a><button class="btn btn-rouge" type="submit">Continuer</button></div>
+        </form>
+      </div>
+      <aside class="resume" aria-label="Montant à payer"></aside>
+    </div>
+  </div>
+</div>
+
+<!-- ============ RECHERCHE ============ -->
+<div class="vue" data-vue="recherche">
+  <div class="wrap">
+    <div class="page-tete"><div class="fil"><a href="#accueil">Accueil</a> / Trouver un véhicule</div>
+      <div class="rang"><div><h1>Votre recherche automobile</h1><p class="lead">Un véhicule absent du site, ou un véhicule déjà en Haïti que vous voulez acheter ou faire inspecter avec nous.</p></div>
+      <div class="etiquette-prix"><b>150 $</b><span>frais de service, pas un acompte</span></div></div>
+    </div>
+    <div class="parcours" data-service="recherche">
+      <div class="parcours-principal">
+        <ol class="etapier"><li>Informations</li><li>Récapitulatif</li><li>Paiement</li><li>Confirmation</li></ol>
+        <form class="form-service" novalidate>
+          <div class="bloc-form">
+            <h3>Le véhicule recherché</h3>
+            <div class="grille-champs">
+              <div class="champ"><label for="re-marque">Marque</label><input id="re-marque" name="marque" data-lbl="Marque" type="text" placeholder="Toyota" required list="liste-marques"></div>
+              <div class="champ"><label for="re-modele">Modèle</label><input id="re-modele" name="modele" data-lbl="Modèle" type="text" placeholder="RAV4" required></div>
+              <div class="champ"><label for="re-annee">Année souhaitée</label><input id="re-annee" name="annee" data-lbl="Année" type="number" min="1995" max="2027" placeholder="2018" inputmode="numeric" required></div>
+              <div class="champ"><label for="re-budget">Budget maximal (USD)</label><input id="re-budget" name="budget" data-lbl="Budget maximal" type="number" min="1000" step="500" placeholder="20000" inputmode="numeric" required></div>
+            </div>
+            <fieldset><legend>Mode de paiement</legend>
+              <div class="choix deux">
+                <label><input type="radio" name="paiement" value="Comptant" data-lbl="Mode de paiement" checked><span>Comptant</span></label>
+                <label><input type="radio" name="paiement" value="Financement" data-lbl="Mode de paiement"><span>Financement</span></label>
+              </div>
+            </fieldset>
+            <fieldset><legend>Type de demande</legend>
+              <div class="choix">
+                <label><input type="radio" name="type" value="Recherche confiée à Elite Auto Deal" data-lbl="Type de demande" checked><span>Je confie la recherche à Elite Auto Deal<small>Nous cherchons le véhicule correspondant à vos critères.</small></span></label>
+                <label><input type="radio" name="type" value="Achat ou inspection d'un véhicule déjà en Haïti" data-lbl="Type de demande"><span>Je veux acheter ou inspecter un véhicule déjà en Haïti<small>Le véhicule reste la propriété de son vendeur ; nous vous accompagnons.</small></span></label>
+              </div>
+            </fieldset>
+            <div class="champ"><label for="re-plus">Précisions supplémentaires</label><textarea id="re-plus" name="precisions" data-lbl="Précisions" placeholder="Couleur, kilométrage maximum, lieu du véhicule déjà repéré…"></textarea></div>
+          </div>
+          <div class="bloc-form">
+            <h3>Vos coordonnées</h3>
+            <div class="grille-champs">
+              <div class="champ large"><label for="re-nom">Nom complet</label><input id="re-nom" name="nom" data-lbl="Nom complet" type="text" autocomplete="name" required></div>
+              <div class="champ"><label for="re-tel">Téléphone</label><input id="re-tel" name="tel" data-lbl="Téléphone" type="tel" placeholder="+509" required></div>
+              <div class="champ"><label for="re-wa">WhatsApp</label><input id="re-wa" name="whatsapp" data-lbl="WhatsApp" type="tel" placeholder="+509" required></div>
+            </div>
+          </div>
+          <div class="form-actions"><a class="lien" href="#accueil">Annuler</a><button class="btn btn-rouge" type="submit">Continuer</button></div>
+        </form>
+      </div>
+      <aside class="resume" aria-label="Montant à payer"></aside>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ESSAI ============ -->
+<div class="vue" data-vue="essai">
+  <div class="wrap">
+    <div class="page-tete"><div class="fil"><a href="#accueil">Accueil</a> / Réserver un essai</div>
+      <div class="rang"><div><h1>Réserver mon essai</h1><p class="lead">Visite, essai routier ou inspection d'un véhicule déjà en Haïti. Le rendez-vous est confirmé selon la disponibilité réelle du véhicule.</p></div>
+      <div class="etiquette-prix"><b>150 $</b><span>frais de service, pas un acompte</span></div></div>
+    </div>
+    <div class="parcours" data-service="essai">
+      <div class="parcours-principal">
+        <ol class="etapier"><li>Informations</li><li>Récapitulatif</li><li>Paiement</li><li>Confirmation</li></ol>
+        <form class="form-service" novalidate>
+          <div class="bloc-form">
+            <h3>Le véhicule</h3>
+            <fieldset><legend>Quel véhicule ?</legend>
+              <div class="choix deux">
+                <label><input type="radio" name="origine" value="Inventaire Elite Auto Deal" data-lbl="Origine" checked data-bascule="es-inv"><span>Un véhicule de notre inventaire</span></label>
+                <label><input type="radio" name="origine" value="Véhicule trouvé ailleurs" data-lbl="Origine" data-bascule="es-ext"><span>Un véhicule trouvé ailleurs<small>Déjà en Haïti</small></span></label>
+              </div>
+            </fieldset>
+            <div id="es-inv" class="champ"><label for="es-v">Véhicule</label><select id="es-v" name="vehicule" data-lbl="Véhicule" data-vselect="disponible" required></select></div>
+            <div id="es-ext" class="cache">
+              <div class="grille-champs">
+                <div class="champ large"><label for="es-desc">Marque, modèle et année</label><input id="es-desc" name="description" data-lbl="Véhicule décrit" type="text" placeholder="Honda CR-V 2017"></div>
+                <div class="champ large"><label for="es-lieu">Où se trouve le véhicule ?</label><input id="es-lieu" name="lieu" data-lbl="Lieu du véhicule" type="text" placeholder="Pétion-Ville, chez un particulier"></div>
+              </div>
+              <div class="encadre alerte" style="margin-top:14px"><svg aria-hidden="true"><use href="#i-info"/></svg><p>Ce véhicule reste la propriété de son vendeur. Elite Auto Deal vous accompagne pour la visite, la vérification ou l'essai, sans le présenter comme faisant partie de son inventaire.</p></div>
+            </div>
+            <fieldset><legend>Type de rendez-vous</legend>
+              <div class="choix">
+                <label><input type="radio" name="rdv" value="Visite" data-lbl="Rendez-vous" checked><span>Visite du véhicule</span></label>
+                <label><input type="radio" name="rdv" value="Essai routier" data-lbl="Rendez-vous"><span>Essai routier</span></label>
+                <label><input type="radio" name="rdv" value="Inspection" data-lbl="Rendez-vous"><span>Inspection mécanique et documents</span></label>
+              </div>
+            </fieldset>
+            <div class="grille-champs">
+              <div class="champ"><label for="es-date">Date souhaitée</label><input id="es-date" name="date" data-lbl="Date souhaitée" type="date" required></div>
+              <div class="champ"><label for="es-cren">Créneau</label><select id="es-cren" name="creneau" data-lbl="Créneau"><option>Matin (9 h – 12 h)</option><option>Après-midi (13 h – 16 h)</option><option>Peu importe</option></select></div>
+            </div>
+          </div>
+          <div class="bloc-form">
+            <h3>Vos coordonnées</h3>
+            <div class="grille-champs">
+              <div class="champ large"><label for="es-nom">Nom complet</label><input id="es-nom" name="nom" data-lbl="Nom complet" type="text" autocomplete="name" required></div>
+              <div class="champ"><label for="es-tel">Téléphone</label><input id="es-tel" name="tel" data-lbl="Téléphone" type="tel" placeholder="+509" required></div>
+              <div class="champ"><label for="es-wa">WhatsApp</label><input id="es-wa" name="whatsapp" data-lbl="WhatsApp" type="tel" placeholder="+509" required></div>
+            </div>
+          </div>
+          <div class="form-actions"><a class="lien" href="#accueil">Annuler</a><button class="btn btn-rouge" type="submit">Continuer</button></div>
+        </form>
+      </div>
+      <aside class="resume" aria-label="Montant à payer"></aside>
+    </div>
+  </div>
+</div>
+
+<!-- ============ VENDRE ============ -->
+<div class="vue" data-vue="vendre">
+  <div class="wrap">
+    <div class="page-tete"><div class="fil"><a href="#accueil">Accueil</a> / Vendre mon véhicule</div>
+      <div class="rang"><div><h1>Confier la vente de mon véhicule</h1><p class="lead">Envoyez la fiche, les photos et les vidéos depuis votre téléphone. L'annonce n'est publiée qu'après vérification et acceptation par Elite Auto Deal.</p></div>
+      <div class="etiquette-prix"><b>200 $</b><span>non remboursable</span></div></div>
+    </div>
+    <div class="parcours" data-service="vendre">
+      <div class="parcours-principal">
+        <ol class="etapier"><li>Informations</li><li>Récapitulatif</li><li>Paiement</li><li>Confirmation</li></ol>
+        <form class="form-service" novalidate>
+          <div class="bloc-form">
+            <h3>Votre véhicule</h3>
+            <div class="grille-champs">
+              <div class="champ"><label for="ve-marque">Marque</label><input id="ve-marque" name="marque" data-lbl="Marque" type="text" required list="liste-marques"></div>
+              <div class="champ"><label for="ve-modele">Modèle</label><input id="ve-modele" name="modele" data-lbl="Modèle" type="text" required></div>
+              <div class="champ"><label for="ve-annee">Année</label><input id="ve-annee" name="annee" data-lbl="Année" type="number" min="1980" max="2027" inputmode="numeric" required></div>
+              <div class="champ"><label for="ve-km">Kilométrage (miles)</label><input id="ve-km" name="km" data-lbl="Kilométrage" type="number" min="0" inputmode="numeric" required></div>
+              <div class="champ"><label for="ve-prix">Prix demandé (USD)</label><input id="ve-prix" name="prix" data-lbl="Prix demandé" type="number" min="0" step="100" inputmode="numeric" required></div>
+              <div class="champ"><label for="ve-loc">Localisation</label><input id="ve-loc" name="localisation" data-lbl="Localisation" type="text" placeholder="Delmas 33" required></div>
+              <div class="champ large"><label for="ve-etat">État mécanique</label><select id="ve-etat" name="etat" data-lbl="État mécanique" required><option value="">Choisir</option><option>Excellent, aucun défaut connu</option><option>Bon, entretien à jour</option><option>Moyen, réparations à prévoir</option><option>À réparer</option></select></div>
+              <div class="champ large"><label for="ve-det">Détails sur l'état</label><textarea id="ve-det" name="details" data-lbl="Détails" placeholder="Dernier entretien, accidents, réparations récentes"></textarea></div>
+            </div>
+            <fieldset><legend>Documents disponibles</legend>
+              <div class="choix deux">
+                <label><input type="checkbox" name="docs" value="Titre de propriété" data-lbl="Documents"><span>Titre de propriété</span></label>
+                <label><input type="checkbox" name="docs" value="Immatriculation" data-lbl="Documents"><span>Immatriculation</span></label>
+                <label><input type="checkbox" name="docs" value="Assurance" data-lbl="Documents"><span>Assurance</span></label>
+                <label><input type="checkbox" name="docs" value="Factures d'entretien" data-lbl="Documents"><span>Factures d'entretien</span></label>
+              </div>
+            </fieldset>
+          </div>
+          <div class="bloc-form">
+            <h3>Photos et vidéos</h3>
+            <div class="champ"><span class="lbl" id="lbl-photos">Photos extérieures et intérieures</span>
+              <div class="depot"><svg aria-hidden="true"><use href="#i-upload"/></svg><div><b>Ajouter des photos</b><span>Avant, arrière, côtés, intérieur, compteur. 6 photos minimum conseillées.</span></div><input type="file" name="photos" data-lbl="Photos" accept="image/*" multiple required aria-labelledby="lbl-photos"></div>
+              <div class="apercus" data-apercu="photos"></div>
+            </div>
+            <div class="champ"><span class="lbl" id="lbl-videos">Vidéos du véhicule</span>
+              <div class="depot"><svg aria-hidden="true"><use href="#i-upload"/></svg><div><b>Ajouter des vidéos</b><span>Moteur en marche, tour du véhicule.</span></div><input type="file" name="videos" data-lbl="Vidéos" accept="video/*" multiple aria-labelledby="lbl-videos"></div>
+              <div class="apercus" data-apercu="videos"></div>
+            </div>
+          </div>
+          <div class="bloc-form">
+            <h3>Coordonnées du propriétaire</h3>
+            <div class="grille-champs">
+              <div class="champ large"><label for="ve-nom">Nom complet</label><input id="ve-nom" name="nom" data-lbl="Nom complet" type="text" autocomplete="name" required></div>
+              <div class="champ"><label for="ve-tel">Téléphone</label><input id="ve-tel" name="tel" data-lbl="Téléphone" type="tel" placeholder="+509" required></div>
+              <div class="champ"><label for="ve-wa">WhatsApp</label><input id="ve-wa" name="whatsapp" data-lbl="WhatsApp" type="tel" placeholder="+509" required></div>
+            </div>
+          </div>
+          <div class="form-actions"><a class="lien" href="#accueil">Annuler</a><button class="btn btn-rouge" type="submit">Continuer</button></div>
+        </form>
+      </div>
+      <aside class="resume" aria-label="Montant à payer"></aside>
+    </div>
+  </div>
+</div>
+
+<!-- ============ FINANCEMENT ============ -->
+<div class="vue" data-vue="financement">
+  <div class="wrap">
+    <div class="page-tete"><div class="fil"><a href="#accueil">Accueil</a> / Financement</div>
+      <div class="rang"><div><h1>Demande de financement</h1><p class="lead">Un parcours distinct, avec vérification de vos documents. Aucune approbation n'est automatique : la décision revient à Elite Auto Deal après examen.</p></div>
+      <div class="etiquette-prix"><b>25 $</b><span>frais de dossier, ou l'équivalent en gourdes</span></div></div>
+    </div>
+    <div class="parcours" data-service="financement">
+      <div class="parcours-principal">
+        <ol class="etapier"><li>Informations</li><li>Récapitulatif</li><li>Paiement</li><li>Confirmation</li></ol>
+        <div class="encadre" style="margin:0 0 14px"><svg aria-hidden="true"><use href="#i-info"/></svg><p><b>Ce que couvrent les 25 $ :</b> l'ouverture et l'examen de votre dossier. Ce n'est ni un acompte sur le véhicule ni une garantie d'approbation. Votre dossier passe par ces statuts : demande reçue, dossier complet, en cours d'examen, puis approbation ou refus.</p></div>
+        <div class="encadre rouge cache" id="fi-depuis-achat" style="margin:0 0 14px"><svg aria-hidden="true"><use href="#i-info"/></svg><p>Vous avez choisi le financement pour votre achat. Complétez ce dossier ; le véhicule choisi est déjà indiqué.</p></div>
+        <form class="form-service" novalidate>
+          <div class="bloc-form">
+            <h3>Votre projet</h3>
+            <div class="grille-champs">
+              <div class="champ large"><label for="fi-v">Véhicule souhaité</label><select id="fi-v" name="vehicule" data-lbl="Véhicule souhaité" data-vselect="tous" data-autre="1" required></select></div>
+              <div class="champ"><label for="fi-budget">Budget (USD)</label><input id="fi-budget" name="budget" data-lbl="Budget" type="number" min="0" step="500" inputmode="numeric" required></div>
+              <div class="champ"><label for="fi-apport">Apport personnel envisagé (USD)</label><input id="fi-apport" name="apport" data-lbl="Apport envisagé" type="number" min="0" step="100" inputmode="numeric" required></div>
+            </div>
+          </div>
+          <div class="bloc-form">
+            <h3>Vos informations</h3>
+            <div class="grille-champs">
+              <div class="champ large"><label for="fi-nom">Nom complet</label><input id="fi-nom" name="nom" data-lbl="Nom complet" type="text" autocomplete="name" required></div>
+              <div class="champ"><label for="fi-tel">Téléphone</label><input id="fi-tel" name="tel" data-lbl="Téléphone" type="tel" placeholder="+509" required></div>
+              <div class="champ"><label for="fi-wa">WhatsApp</label><input id="fi-wa" name="whatsapp" data-lbl="WhatsApp" type="tel" placeholder="+509"></div>
+              <div class="champ large"><label for="fi-adr">Adresse</label><input id="fi-adr" name="adresse" data-lbl="Adresse" type="text" autocomplete="street-address" required></div>
+            </div>
+            <fieldset><legend>Justificatif de revenus</legend>
+              <div class="choix deux">
+                <label><input type="radio" name="garantie" value="Preuve de revenus" data-lbl="Justificatif" checked><span>Preuve de revenus</span></label>
+                <label><input type="radio" name="garantie" value="Avaliseur" data-lbl="Justificatif"><span>Avaliseur</span></label>
+              </div>
+            </fieldset>
+          </div>
+          <div class="bloc-form">
+            <h3>Documents</h3>
+            <div class="champ"><span class="lbl" id="lbl-id">Carte d'identité</span><div class="depot"><svg aria-hidden="true"><use href="#i-upload"/></svg><div><b>Ajouter la pièce d'identité</b><span>Photo ou PDF, recto et verso</span></div><input type="file" name="identite" data-lbl="Carte d'identité" accept="image/*,application/pdf" multiple required aria-labelledby="lbl-id"></div><div class="apercus" data-apercu="identite"></div></div>
+            <div class="champ"><span class="lbl" id="lbl-adr">Preuve d'adresse</span><div class="depot"><svg aria-hidden="true"><use href="#i-upload"/></svg><div><b>Ajouter la preuve d'adresse</b><span>Facture récente ou attestation</span></div><input type="file" name="preuve_adresse" data-lbl="Preuve d'adresse" accept="image/*,application/pdf" required aria-labelledby="lbl-adr"></div><div class="apercus" data-apercu="preuve_adresse"></div></div>
+            <div class="champ"><span class="lbl" id="lbl-rev">Preuve de revenus ou documents de l'avaliseur</span><div class="depot"><svg aria-hidden="true"><use href="#i-upload"/></svg><div><b>Ajouter les justificatifs</b><span>Lettre d'emploi, fiches de paie ou pièces de l'avaliseur</span></div><input type="file" name="revenus" data-lbl="Revenus / avaliseur" accept="image/*,application/pdf" multiple required aria-labelledby="lbl-rev"></div><div class="apercus" data-apercu="revenus"></div></div>
+            <div class="champ"><span class="lbl" id="lbl-rel">Relevés de compte des six derniers mois</span><div class="depot"><svg aria-hidden="true"><use href="#i-upload"/></svg><div><b>Ajouter les relevés</b><span>Six relevés mensuels</span></div><input type="file" name="releves" data-lbl="Relevés (6 mois)" accept="image/*,application/pdf" multiple required aria-labelledby="lbl-rel"></div><div class="apercus" data-apercu="releves"></div></div>
+            <label class="case"><input type="checkbox" name="consentement" required><span>J'autorise Elite Auto Deal à traiter mes données et documents uniquement pour l'examen de ma demande de financement.</span></label>
+          </div>
+          <div class="form-actions"><a class="lien" href="#accueil">Annuler</a><button class="btn btn-rouge" type="submit">Continuer</button></div>
+        </form>
+      </div>
+      <aside class="resume" aria-label="Montant à payer"></aside>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SUIVI ============ -->
+<div class="vue" data-vue="suivi">
+  <div class="wrap" style="padding-bottom:clamp(40px,6vw,80px)">
+    <div class="page-tete"><div class="fil"><a href="#accueil">Accueil</a> / Suivi</div>
+      <h1>Suivre mon dossier</h1><p class="lead">Entrez la référence reçue après votre paiement, par exemple EAD-2026-10482.</p>
+    </div>
+    <form class="suivi-form" id="suivi-form" novalidate>
+      <label class="sr" for="suivi-ref">Référence du dossier</label>
+      <input id="suivi-ref" type="text" placeholder="EAD-2026-00000" autocomplete="off" required>
+      <button class="btn btn-noir" type="submit">Afficher le suivi</button>
+    </form>
+    <p class="muted" data-seulement-demo style="margin-top:10px;font-size:14px">Références de démonstration : <button class="lien" type="button" data-demo-ref="EAD-2026-10482">EAD-2026-10482</button>, <button class="lien" type="button" data-demo-ref="EAD-2026-20931">EAD-2026-20931</button>, <button class="lien" type="button" data-demo-ref="EAD-2026-30517">EAD-2026-30517</button></p>
+    <div id="suivi-resultat" aria-live="polite"></div>
+  </div>
+</div>
+
+<!-- ============ RETOUR PAIEMENT ============ -->
+<div class="vue" data-vue="retour">
+  <div class="wrap" style="padding-bottom:clamp(40px,6vw,80px)">
+    <div class="page-tete"><div class="fil"><a href="#accueil">Accueil</a> / Paiement</div>
+      <h1>Votre paiement</h1><p class="lead">Nous attendons la confirmation de Freda Pay Issuing avant de valider votre dossier.</p>
+    </div>
+    <div id="retour-zone" aria-live="polite" style="max-width:760px"></div>
+  </div>
+</div>
+
+<!-- ============ ESPACE CLIENT ============ -->
+<div class="vue" data-vue="compte">
+  <div class="wrap" style="padding-bottom:clamp(40px,6vw,80px)">
+    <div class="compte-fil"><div class="fil"><a href="#accueil">Accueil</a> / Mon espace</div></div>
+    <div id="compte-zone" aria-live="polite"></div>
+  </div>
+</div>
+<div class="vue" data-vue="compte-dossier">
+  <div class="wrap" style="padding-bottom:clamp(40px,6vw,80px);padding-top:clamp(12px,2vw,20px)">
+    <div id="compte-dossier-zone"></div>
+  </div>
+</div>
+
+<!-- ============ CONDITIONS ============ -->
+<div class="vue" data-vue="conditions">
+  <div class="wrap legal" style="padding-bottom:clamp(40px,6vw,80px)">
+    <div class="page-tete"><div class="fil"><a href="#accueil">Accueil</a> / Conditions</div><h1>Conditions des services</h1><p class="lead">Ces conditions sont présentées avant chaque paiement. Texte type à valider par Elite Auto Deal.</p></div>
+    <h2>Frais de service</h2>
+    <p>Consultation (150 $), recherche ou achat accompagné (150 $), visite ou essai (150 $), vente d'un véhicule confié (200 $) et dossier de financement (25 $ ou l'équivalent en gourdes) sont des frais de service. Ils ne constituent ni le prix d'un véhicule, ni un acompte de réservation, ni des frais de financement.</p>
+    <h2>Remboursement</h2>
+    <p>Les frais de dossier de financement, de consultation et de vente sont non remboursables. Les frais de recherche et de visite sont acquis dès la prise en charge du dossier.</p>
+    <h2>Précommande</h2>
+    <ul><li>90 % du prix sont versés à la précommande ; le solde de 10 % est dû à l'arrivée du véhicule en Haïti.</li><li>Le délai estimé est indiqué sur la fiche du véhicule avant le paiement.</li><li>En cas de retard, le client est informé par WhatsApp avec une nouvelle date estimée.</li><li>Les conditions d'annulation sont communiquées et acceptées avant le paiement.</li></ul>
+    <h2>Paiements</h2>
+    <p>Un paiement est confirmé uniquement par le prestataire de paiement, jamais sur la base d'une capture d'écran. Les montants en gourdes sont calculés au taux affiché au moment du paiement.</p>
+    <h2>Données personnelles</h2>
+    <p>Les informations et documents transmis servent uniquement au traitement de votre demande et sont conservés de manière sécurisée.</p>
+    <h2>Véhicules de tiers</h2>
+    <p>Un véhicule trouvé ailleurs par le client reste la propriété de son vendeur. Elite Auto Deal ne le présente jamais comme faisant partie de son inventaire.</p>
+  </div>
+</div>
+
+</main>
+
+<footer class="pied">
+  <div class="wrap">
+    <div class="pied-grille">
+      <div>
+        <svg class="logo" aria-label="Elite Auto Deal" role="img"><use href="#logo"/></svg>
+        <p class="muted" style="font-size:14.5px;max-width:30ch">Votre satisfaction, notre priorité.</p>
+      </div>
+      <div><h4>Véhicules</h4><ul><li><a href="#vehicules">Inventaire</a></li><li><a href="#precommande">Précommande</a></li><li><a href="#achat">Acheter</a></li><li><a href="#suivi">Suivre mon dossier</a></li></ul></div>
+      <div><h4>Services</h4><ul><li><a href="#consultation">Consultation</a></li><li><a href="#recherche">Recherche personnalisée</a></li><li><a href="#essai">Visite ou essai</a></li><li><a href="#vendre">Vendre mon véhicule</a></li><li><a href="#financement">Financement</a></li></ul></div>
+      <div><h4>Contact</h4><ul>
+        <li><a href="tel:+50942405729">+509 4240 5729</a></li>
+        <li><a href="mailto:lakougroup@gmail.com">lakougroup@gmail.com</a></li>
+        <li style="color:var(--gris-700);font-size:15px;padding:6px 0">33, Rue Faustin 1er, Delmas 33, Port-au-Prince</li>
+        <li><a href="https://www.instagram.com/eliteautodeal.ht/" target="_blank" rel="noopener">Instagram</a></li>
+        <li><a href="https://www.facebook.com/eliteautodeal" target="_blank" rel="noopener">Facebook</a></li>
+        <li><a href="https://www.tiktok.com/@eliteautodeal" target="_blank" rel="noopener">TikTok</a></li>
+      </ul></div>
+    </div>
+    <div class="pied-bas"><span>© 2026 Elite Auto Deal. Tous droits réservés.</span><span><a href="#conditions" style="min-height:0">Conditions des services</a> &nbsp; <a href="#conditions" style="min-height:0">Données personnelles</a></span></div>
+  </div>
+</footer>
+
+<button class="wa-flottant" type="button" data-ouvrir-wa aria-label="Écrire sur WhatsApp"><svg style="color:#fff"><use href="#i-wa"/></svg></button>
+
+<div class="modale" id="modale-wa" role="dialog" aria-modal="true" aria-labelledby="wa-titre">
+  <div class="modale-boite">
+    <div class="modale-tete"><h3 id="wa-titre">Écrire sur WhatsApp</h3><button class="fermer" type="button" data-fermer aria-label="Fermer"><svg width="18" height="18"><use href="#i-x"/></svg></button></div>
+    <p class="muted" style="font-size:14.5px">Copiez ce message, complétez-le, puis envoyez-le au +509 4240 5729. Pour un paiement, utilisez plutôt le formulaire du service : votre dossier est créé immédiatement.</p>
+    <div class="message-wa" id="wa-texte"></div>
+    <div style="display:grid;gap:10px">
+      <a class="btn btn-wa" id="wa-lien" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#i-wa"/></svg>Ouvrir WhatsApp avec ce message</a>
+      <button class="btn btn-contour" type="button" id="wa-copier">Copier le message</button>
+    </div>
+    <p class="muted" style="font-size:12.5px">L'ouverture de WhatsApp ne vaut pas envoi : pensez à appuyer sur Envoyer dans l'application.</p>
+  </div>
+</div>
+
+<div class="modale" id="modale-recu" role="dialog" aria-modal="true" aria-labelledby="recu-titre"><div class="modale-boite"></div></div>
+
+<div class="toast" id="toast" role="status"></div>
+<datalist id="liste-marques"><option>Toyota</option><option>Honda</option><option>Hyundai</option><option>Kia</option><option>Nissan</option><option>Jeep</option><option>Mercedes-Benz</option><option>Subaru</option><option>Suzuki</option><option>Porsche</option><option>Ford</option><option>Mitsubishi</option></datalist>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------- Réglages ---------- */
+let TAUX_HTG = 132;           // 1 USD = 132 HTG (taux affiché, modifiable par l'administrateur)
+let TAUX_DATE = "12 novembre 2026";
+const TARIFS = {consultation:150,recherche:150,essai:150,vendre:200,financement:25};
+let MODE_REEL = false, CONFIG = null;
+let WA_NUM = "50942405729";
+const ANNEE = 2026;
+
+const LOCALITES = ["Delmas","Port-au-Prince","Pétion-Ville","Tabarre","Croix-des-Bouquets","Carrefour","Kenscoff","Cap-Haïtien (sur confirmation)","Autre zone (sur confirmation)"];
+
+/* ---------- Inventaire ---------- */
+const V = [
+ {id:"gle17",marque:"Mercedes-Benz",modele:"GLE 2017",annee:2017,couleur:"Rouge",hex:"#8E1419",km:75000,prix:26500,statut:"disponible",type:"SUV",forme:"suv",moteur:"V6",trans:"Automatique",traction:"4x4",places:5,note:"Financement disponible"},
+ {id:"cay16",marque:"Porsche",modele:"Cayenne 2016",annee:2016,couleur:"Gris",hex:"#6F7379",km:73000,prix:28000,statut:"precommande",type:"SUV",forme:"suv",moteur:"V6",trans:"Automatique",traction:"4x4",places:5,delai:"5 à 8 semaines"},
+ {id:"fro21",marque:"Nissan",modele:"Frontier LE 2021",annee:2021,couleur:"Rouge",hex:"#A3141A",km:90000,prix:43500,statut:"transit",type:"Pick-up",forme:"pickup",moteur:"V6",trans:"Automatique",traction:"4x4",places:5,delai:"2 à 3 semaines",note:"Prix ferme"},
+ {id:"rav16",marque:"Toyota",modele:"RAV4 2016",annee:2016,couleur:"Noir",hex:"#202226",km:33000,prix:22500,statut:"precommande",type:"SUV",forme:"suv",moteur:"4 cylindres",trans:"Automatique",traction:"Traction avant",places:5,delai:"4 à 6 semaines"},
+ {id:"jgc21",marque:"Jeep",modele:"Grand Cherokee Laredo 2021",annee:2021,couleur:"Gris",hex:"#7D8187",km:78000,prix:24000,statut:"disponible",type:"SUV",forme:"suv",moteur:"V6",trans:"Automatique",traction:"4x4",places:5},
+ {id:"vit19",marque:"Suzuki",modele:"Vitara 2019",annee:2019,couleur:"Blanc",hex:"#E9EAEC",km:77000,prix:18000,statut:"disponible",type:"SUV",forme:"suv",moteur:"4 cylindres",trans:"Automatique",traction:"Traction avant",places:5,note:"Payable en deux versements"},
+ {id:"for14",marque:"Subaru",modele:"Forester 2014",annee:2014,couleur:"Rouge",hex:"#7E1620",km:82000,prix:15000,statut:"precommande",type:"SUV",forme:"suv",moteur:"4 cylindres",trans:"Automatique",traction:"4x4",places:5,delai:"4 à 6 semaines"},
+ {id:"spo12",marque:"Kia",modele:"Sportage 2012",annee:2012,couleur:"Noir",hex:"#1F2023",km:71000,prix:13500,statut:"disponible",type:"SUV",forme:"suv",moteur:"4 cylindres",trans:"Automatique",traction:"Traction avant",places:5},
+ {id:"san15",marque:"Hyundai",modele:"Santa Fe Sport 2015",annee:2015,couleur:"Blanc",hex:"#ECEDEF",km:60000,prix:12000,statut:"disponible",type:"SUV",forme:"suv",moteur:"4 cylindres",trans:"Automatique",traction:"Traction avant",places:5},
+ {id:"spo24",marque:"Kia",modele:"Sportage 2024",annee:2024,couleur:"Noir",hex:"#18191C",km:null,prix:30000,statut:"precommande",type:"SUV",forme:"suv",moteur:"4 cylindres",trans:"Automatique",traction:"Traction avant",places:5,delai:"6 à 8 semaines"},
+ {id:"for18",marque:"Subaru",modele:"Forester 2018",annee:2018,couleur:"Rouge",hex:"#8A1820",km:null,prix:20500,statut:"transit",type:"SUV",forme:"suv",moteur:"4 cylindres",trans:"Automatique",traction:"4x4",places:5,delai:"2 à 3 semaines"},
+ {id:"sor15",marque:"Kia",modele:"Sorento 2015",annee:2015,couleur:"Noir",hex:"#1C1D20",km:null,prix:14000,statut:"precommande",type:"SUV",forme:"suv",moteur:"V6",trans:"Automatique",traction:"Traction avant",places:7,delai:"4 à 6 semaines",note:"Prix tout compris : transport et dédouanement inclus"},
+ {id:"4ru",marque:"Toyota",modele:"4Runner",annee:2019,couleur:"Blanc",hex:"#E6E7EA",km:66000,prix:null,statut:"disponible",type:"4x4",forme:"suv",moteur:"V6 4.0L",trans:"Automatique",traction:"4x4",places:7},
+ {id:"wra",marque:"Jeep",modele:"Wrangler Unlimited",annee:2014,couleur:"Noir",hex:"#1A1B1E",km:195000,prix:null,statut:"disponible",type:"4x4",forme:"suv",moteur:"V6",trans:"Automatique",traction:"4x4",places:5},
+ {id:"jgc15",marque:"Jeep",modele:"Grand Cherokee 2015",annee:2015,couleur:"Rouge",hex:"#8C1A1F",km:75000,prix:21500,statut:"vendu",type:"SUV",forme:"suv",moteur:"V6",trans:"Automatique",traction:"4x4",places:5}
+];
+let VEDETTES = ["gle17","fro21","cay16","rav16"];
+const STATUTS = {disponible:"Disponible en Haïti",transit:"En transit",precommande:"Précommandable",vendu:"Vendu",indisponible:"Indisponible"};
+const STCLS = {disponible:"st-disponible",transit:"st-transit",precommande:"st-precommande",vendu:"st-vendu",indisponible:"st-indisponible"};
+const parId = id => V.find(v=>v.id===id);
+const nomV = v => v.marque+" "+v.modele;
+const usd = n => n==null ? "Prix sur demande" : Math.round(n).toLocaleString("fr-FR").replace(/ | /g," ")+" $";
+const htg = n => Math.round(n*TAUX_HTG).toLocaleString("fr-FR").replace(/ | /g," ")+" HTG";
+const miles = n => n==null ? null : (n/1000).toLocaleString("fr-FR")+"k miles";
+const esc = s => String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const precommandable = v => v.statut==="precommande"||v.statut==="transit";
+
+/* ---------- Illustration voiture ---------- */
+let uid=0;
+function mix(hex,t,to){const c=parseInt(hex.slice(1),16),r=c>>16,g=c>>8&255,b=c&255,T=to==="w"?255:0;const f=x=>Math.round(x+(T-x)*t);return "#"+[f(r),f(g),f(b)].map(x=>x.toString(16).padStart(2,"0")).join("");}
+function voitureSVG(v,cls){
+  const ph=v.photo||(v.photos&&v.photos[0]);
+  if(ph)return `<img class="voiture photo ${cls||""}" src="${esc(ph)}" alt="${esc(nomV(v))}, ${esc((v.couleur||"").toLowerCase())}" loading="lazy" decoding="async">`;
+  return `<div class="voiture vide ${cls||""}" role="img" aria-label="${esc(nomV(v))} : photo bientôt disponible"><svg aria-hidden="true"><use href="#marque"/></svg><span>Photo bientôt disponible</span></div>`;
+}
+
+/* ---------- Cartes ---------- */
+function badge(v){return `<span class="badge ${STCLS[v.statut]}"><span>${STATUTS[v.statut]}</span></span>`;}
+function boutonsV(v){
+  if(v.statut==="vendu"||v.statut==="indisponible") return `<a class="btn btn-contour seul" href="#recherche">Trouver un véhicule similaire</a>`;
+  if(precommandable(v)) return `<button class="btn btn-rouge seul" type="button" data-aller="precommande" data-v="${v.id}">Précommander ce véhicule</button>`;
+  return `<button class="btn btn-rouge" type="button" data-aller="achat" data-v="${v.id}">Acheter</button><button class="btn btn-contour" type="button" data-aller="essai" data-v="${v.id}">Réserver mon essai</button>`;
+}
+function carte(v){
+  const specs=[v.annee, miles(v.km), v.moteur, v.traction].filter(Boolean);
+  return `<article class="vcarte">
+   <button class="vcarte-media" type="button" data-aller="vehicule" data-v="${v.id}" aria-label="Voir la fiche ${esc(nomV(v))}">
+     <span class="annee" aria-hidden="true">${v.annee}</span>${voitureSVG(v)}${badge(v)}
+   </button>
+   <div class="vcarte-corps">
+     <h3>${esc(v.marque)} ${esc(v.modele.replace(/\s\d{4}$/,""))}<small>${esc(v.couleur)}, ${v.places} places, ${esc(v.trans.toLowerCase())}</small></h3>
+     <ul class="specs">${specs.map(s=>`<li>${esc(s)}</li>`).join("")}</ul>
+     <div class="vcarte-pied">
+       <div class="prix-ligne"><span class="prix">${usd(v.prix)}</span>${precommandable(v)&&v.prix?`<span class="prix-note">90 % : ${usd(v.prix*.9)}</span>`:(v.note?`<span class="prix-note">${esc(v.note)}</span>`:"")}</div>
+       <div class="vcarte-btns">${boutonsV(v)}</div>
+     </div>
+   </div></article>`;
+}
+
+/* ---------- Héros ---------- */
+const H={i:0,t:null};
+const elA=document.getElementById("heros-annee"),elV=document.getElementById("heros-voiture"),elI=document.getElementById("heros-info"),elP=document.getElementById("heros-points");
+const reduit=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+/* Vitrine du hero : modèles sur demande (photos détourées) */
+const IMG_VITRINE=__VITRINE_JSON__;
+const VITRINE=[
+ {id:"audi-q3",marque:"Audi",modele:"Q3 Sportback",filigrane:"Q3",accroche:"SUV coupé, élégant et compact"},
+ {id:"audi-q8",marque:"Audi",modele:"Q8",filigrane:"Q8",accroche:"Le grand SUV coupé haut de gamme"},
+ {id:"jetour-x70",marque:"Jetour",modele:"X70 Plus",filigrane:"X70",accroche:"Spacieux, bien équipé, 7 places"}
+];
+function herosPoints(){elP.innerHTML=VITRINE.map((m,i)=>`<button type="button" aria-label="${esc(m.marque+" "+m.modele)}" data-i="${i}"></button>`).join("");}
+function herosAfficher(i,anim){
+  H.i=(i+VITRINE.length)%VITRINE.length;const m=VITRINE[H.i];
+  const poser=()=>{
+    elV.innerHTML=`<img class="vitrine-img" src="${IMG_VITRINE[m.id]}" alt="${esc(m.marque+" "+m.modele)}" decoding="async">`;
+    elA.textContent=m.filigrane;
+    elI.innerHTML=`<span><span class="badge st-transit"><span>Sur demande</span></span></span><strong>${esc(m.marque+" "+m.modele)}</strong><span class="ligne"><span>${esc(m.accroche)}</span><button class="lien" type="button" data-vitrine="${m.id}">Je veux ce modèle</button></span>`;
+    elP.querySelectorAll("button").forEach((b,k)=>b.setAttribute("aria-current",k===H.i?"true":"false"));
+  };
+  if(!anim||reduit){poser();return;}
+  elV.classList.add("sortie");elA.style.opacity="0";
+  setTimeout(()=>{poser();elV.classList.remove("sortie");elV.classList.add("entree");void elV.offsetWidth;elV.classList.remove("entree");elA.style.opacity="1";},420);
+}
+document.addEventListener("click",e=>{
+  const b=e.target.closest("[data-vitrine]");if(!b)return;
+  const m=VITRINE.find(x=>x.id===b.dataset.vitrine);aller("recherche");
+  setTimeout(()=>{const f=document.querySelector('.vue[data-vue="recherche"] form');if(!f)return;
+    if(f.marque)f.marque.value=m.marque;if(f.modele)f.modele.value=m.modele;
+    f.dispatchEvent(new Event("input",{bubbles:true}));},30);
+});
+function herosAuto(){clearInterval(H.t);if(!reduit)H.t=setInterval(()=>herosAfficher(H.i+1,true),6500);}
+document.getElementById("heros-prec").onclick=()=>{herosAfficher(H.i-1,true);herosAuto();};
+document.getElementById("heros-suiv").onclick=()=>{herosAfficher(H.i+1,true);herosAuto();};
+elP.onclick=e=>{const b=e.target.closest("button");if(b){herosAfficher(+b.dataset.i,true);herosAuto();}};
+const heros=document.getElementById("heros");
+heros.addEventListener("mouseenter",()=>clearInterval(H.t));heros.addEventListener("mouseleave",herosAuto);
+heros.addEventListener("focusin",()=>clearInterval(H.t));
+herosPoints();herosAfficher(0,false);herosAuto();
+
+/* ---------- Flotte accueil ---------- */
+const flotte=document.getElementById("flotte");
+function rendreFlotte(f){
+  let l=V.filter(v=>v.statut!=="vendu");
+  if(f==="disponible")l=l.filter(v=>v.statut==="disponible");
+  else if(f==="precommande")l=l.filter(precommandable);
+  else if(f==="SUV"||f==="Pick-up")l=l.filter(v=>v.type===f);
+  else if(f==="budget")l=l.filter(v=>v.prix&&v.prix<20000);
+  flotte.innerHTML=l.slice(0,6).map(carte).join("")||`<div class="vide"><p>Aucun véhicule dans cette catégorie pour le moment.</p><a class="btn btn-noir" href="#recherche">Confier ma recherche</a></div>`;
+}
+document.getElementById("flotte-puces").onclick=e=>{const b=e.target.closest(".puce");if(!b)return;document.querySelectorAll("#flotte-puces .puce").forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false"));rendreFlotte(b.dataset.f);};
+rendreFlotte("tous");
+
+/* ---------- Inventaire ---------- */
+const fm=document.getElementById("f-marque");
+function remplirMarques(){const cur=fm.value;fm.querySelectorAll("option:not(:first-child)").forEach(o=>o.remove());[...new Set(V.map(v=>v.marque))].sort().forEach(m=>fm.insertAdjacentHTML("beforeend",`<option>${esc(m)}</option>`));fm.value=cur;}
+remplirMarques();
+function rendreInventaire(){
+  const q=document.getElementById("f-q").value.trim().toLowerCase(),st=document.getElementById("f-statut").value,ma=fm.value,bu=document.getElementById("f-budget").value,ty=document.getElementById("f-type").value;
+  let l=V.filter(v=>{
+    if(q&&!(nomV(v)+" "+v.annee+" "+v.couleur).toLowerCase().includes(q))return false;
+    if(st&&v.statut!==st)return false;
+    if(ma&&v.marque!==ma)return false;
+    if(ty&&v.type!==ty)return false;
+    if(bu){const[a,b]=bu.split("-").map(Number);if(v.prix==null||v.prix<a||v.prix>b)return false;}
+    return true;});
+  l.sort((a,b)=>(a.statut==="vendu")-(b.statut==="vendu"));
+  document.getElementById("compte").textContent=l.length+(l.length>1?" véhicules":" véhicule");
+  document.getElementById("inventaire").innerHTML=l.map(carte).join("")||`<div class="vide"><b>Aucun véhicule ne correspond à ces filtres.</b><p class="muted">Modifiez les filtres ou confiez-nous la recherche du véhicule exact.</p><a class="btn btn-rouge" href="#recherche">Confier ma recherche</a></div>`;
+}
+document.getElementById("filtres").addEventListener("input",rendreInventaire);
+rendreInventaire();
+
+/* ---------- Détail ---------- */
+function rendreDetail(){
+  const v=parId(etat.v);const d=document.getElementById("detail");
+  if(!v){d.innerHTML=`<div class="vide"><p>Choisissez un véhicule dans l'inventaire.</p><a class="btn btn-noir" href="#vehicules">Voir les véhicules</a></div>`;return;}
+  document.getElementById("fil-v").textContent=nomV(v);
+  const fiche=[["Année",v.annee],["Kilométrage",miles(v.km)||"À confirmer"],["Moteur",v.moteur],["Transmission",v.trans],["Traction",v.traction],["Couleur",v.couleur],["Places",v.places],["Statut",STATUTS[v.statut]]];
+  let bloc="";
+  if(precommandable(v)&&v.prix){
+    bloc=`<div><h3 style="margin-bottom:10px">Paiement en deux temps</h3><div class="repartition"><div><span>À la précommande (90 %)</span><b>${usd(v.prix*.9)}</b></div><div><span>À l'arrivée en Haïti (10 %)</span><b>${usd(v.prix*.1)}</b></div></div></div>
+    <div class="encadre" style="margin:0"><svg aria-hidden="true"><use href="#i-info"/></svg><ul class="conditions">
+      <li><b>Délai estimé :</b> ${esc(v.delai||"communiqué avant paiement")} après confirmation${v.statut==="transit"?" ; le véhicule est déjà en route":""}.</li>
+      <li><b>Annulation :</b> possible avant l'expédition selon les conditions acceptées au paiement ; le solde n'est jamais prélevé automatiquement.</li>
+      <li><b>Retard :</b> vous êtes prévenu sur WhatsApp avec une nouvelle date estimée.</li>
+      <li><b>Solde :</b> les 10 % sont dus à l'arrivée du véhicule en Haïti, avant la livraison.</li></ul></div>`;
+  }
+  let btns;
+  if(v.statut==="vendu"||v.statut==="indisponible") btns=`<div class="encadre" style="margin:0"><svg aria-hidden="true"><use href="#i-info"/></svg><p>Ce véhicule n'est plus disponible. Nous pouvons en rechercher un similaire.</p></div><a class="btn btn-rouge" href="#recherche">Trouver un véhicule similaire</a>`;
+  else if(precommandable(v)) btns=`<div class="detail-btns"><button class="btn btn-rouge" type="button" data-aller="precommande" data-v="${v.id}">Précommander ce véhicule</button><button class="btn btn-contour" type="button" data-aller="financement" data-v="${v.id}">Demander un financement</button></div>`;
+  else btns=`<div class="detail-btns"><button class="btn btn-rouge" type="button" data-aller="achat" data-v="${v.id}">Acheter</button><button class="btn btn-noir" type="button" data-aller="essai" data-v="${v.id}">Réserver mon essai</button><button class="btn btn-contour" type="button" data-aller="financement" data-v="${v.id}">Demander un financement</button></div>`;
+  d.innerHTML=`<div class="detail-scene"><div class="annee-geante" aria-hidden="true">${v.annee}</div>${voitureSVG(v)}</div>
+   <div class="detail-info">${badge(v)}<h1 style="font-size:clamp(30px,4vw,46px)">${esc(nomV(v))}</h1>
+     <div><span class="prix" style="font-size:34px">${usd(v.prix)}</span>${v.note?`<p class="muted" style="margin-top:4px">${esc(v.note)}</p>`:""}</div>
+     <dl class="fiche">${fiche.map(([a,b])=>`<div><dt>${a}</dt><dd>${esc(b)}</dd></div>`).join("")}</dl>
+     ${bloc}${btns}</div>`;
+}
+
+/* ---------- Routage ---------- */
+const etat={v:null,depuisAchat:false};
+const VUES=["accueil","vehicules","vehicule","precommande","achat","consultation","recherche","essai","vendre","financement","suivi","conditions","retour","compte","compte-dossier"];
+function route(){
+  let h=(location.hash||"#accueil").slice(1);
+  if(h==="contenu")h="accueil";
+  if(!VUES.includes(h))h="accueil";
+  document.querySelectorAll(".vue").forEach(x=>x.classList.toggle("active",x.dataset.vue===h));
+  document.querySelectorAll(".nav a").forEach(a=>{if(a.getAttribute("href")==="#"+h)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current");});
+  fermerMenu();
+  if(h!=="retour")arreterRetour();
+  if(h==="retour")afficherRetour();
+  if(h==="vehicule")rendreDetail();
+  if(h==="vehicules")rendreInventaire();
+  if(h!=="compte-dossier")clearTimeout(CPT.t);
+  if(h==="compte")rendreCompte(true);
+  if(h==="compte-dossier")rendreDossierCompte();
+  document.querySelectorAll(".btn-compte").forEach(a=>{if(h==="compte"||h==="compte-dossier")a.setAttribute("aria-current","page");else a.removeAttribute("aria-current");});
+  const p=document.querySelector(`.vue[data-vue="${h}"] .parcours`);
+  if(p){flux(p).entrer();preremplir(p);}
+  if(h==="financement")document.getElementById("fi-depuis-achat").classList.toggle("cache",!etat.depuisAchat);
+  window.scrollTo({top:0,behavior:"instant"in window?"instant":"auto"});
+  document.title=(h==="accueil"?"Elite Auto Deal — Véhicules et services automobiles en Haïti":(document.querySelector(`.vue[data-vue="${h}"] h1`)?.textContent||"Elite Auto Deal")+" | Elite Auto Deal");
+}
+function aller(vue,vid){if(vid)etat.v=vid;if(vue!=="financement")etat.depuisAchat=false;if(location.hash==="#"+vue)route();else location.hash=vue;}
+window.addEventListener("hashchange",route);
+document.addEventListener("click",e=>{
+  const b=e.target.closest("[data-aller]");
+  if(b){e.preventDefault();aller(b.dataset.aller,b.dataset.v);}
+});
+
+/* ---------- Menu mobile ---------- */
+const burger=document.querySelector(".burger"),menu=document.getElementById("menu-mobile");
+function fermerMenu(){menu.classList.remove("ouvert");burger.setAttribute("aria-expanded","false");burger.setAttribute("aria-label","Ouvrir le menu");}
+burger.onclick=()=>{const o=!menu.classList.contains("ouvert");menu.classList.toggle("ouvert",o);burger.setAttribute("aria-expanded",String(o));burger.setAttribute("aria-label",o?"Fermer le menu":"Ouvrir le menu");};
+
+/* ---------- Toast ---------- */
+const toastEl=document.getElementById("toast");let tt;
+function toast(m){toastEl.textContent=m;toastEl.classList.add("vu");clearTimeout(tt);tt=setTimeout(()=>toastEl.classList.remove("vu"),2400);}
+async function copier(t,m){try{await navigator.clipboard.writeText(t);toast(m||"Copié");}catch(_){toast("Copie impossible ici : sélectionnez le texte");}}
+
+/* ---------- WhatsApp ---------- */
+const MSG_ACCUEIL=`🚘 ELITE AUTO DEAL vous souhaite la bienvenue !
+
+Merci de votre intérêt et de votre confiance.
+
+Afin de mieux répondre à votre demande, veuillez nous communiquer les informations suivantes :
+
+Marque :
+Année :
+Modèle :
+Budget :
+Mode de paiement : Comptant ou financement ?
+Type de demande : Achat, précommande, recherche personnalisée ou réservation d'un essai ?
+
+ELITE AUTO DEAL — Votre satisfaction, notre priorité ! 🤝`;
+const MSG_CLIENT=`Bonjour Elite Auto Deal,
+
+Marque :
+Année :
+Modèle :
+Budget :
+Mode de paiement : Comptant ou financement ?
+Type de demande : Achat, précommande, recherche personnalisée ou réservation d'un essai ?`;
+const waUrl=t=>`https://wa.me/${WA_NUM}?text=${encodeURIComponent(t)}`;
+const modale=document.getElementById("modale-wa");let dernierFocus;
+function ouvrirWa(){dernierFocus=document.activeElement;document.getElementById("wa-texte").textContent=MSG_CLIENT;document.getElementById("wa-lien").href=waUrl(MSG_CLIENT);modale.classList.add("ouverte");modale.querySelector(".fermer").focus();}
+function fermerWa(){modale.classList.remove("ouverte");dernierFocus&&dernierFocus.focus();}
+document.querySelectorAll("[data-ouvrir-wa]").forEach(b=>b.addEventListener("click",ouvrirWa));
+modale.addEventListener("click",e=>{if(e.target===modale||e.target.closest("[data-fermer]"))fermerWa();});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&modale.classList.contains("ouverte"))fermerWa();});
+document.getElementById("wa-copier").onclick=()=>copier(MSG_CLIENT,"Message copié");
+
+/* ---------- Champs communs ---------- */
+document.querySelectorAll("[data-localites]").forEach(s=>{s.innerHTML=`<option value="">Choisir une localité</option>`+LOCALITES.map(l=>`<option>${esc(l)}</option>`).join("");});
+function remplirSelectV(s){
+  const t=s.dataset.vselect,cur=s.value;
+  let l=V.filter(v=>t==="tous"?v.statut!=="vendu":t==="precommande"?precommandable(v):v.statut==="disponible");
+  s.innerHTML=`<option value="">Choisir un véhicule</option>`+l.map(v=>`<option value="${v.id}">${esc(nomV(v))} — ${usd(v.prix)}</option>`).join("")+(s.dataset.autre?`<option value="autre">Autre véhicule (à préciser sur WhatsApp)</option>`:"");
+  if(etat.v&&l.some(v=>v.id===etat.v))s.value=etat.v;else if(cur)s.value=cur;
+}
+const dateEssai=document.getElementById("es-date");
+{const d=new Date();d.setDate(d.getDate()+1);dateEssai.min=d.toISOString().slice(0,10);}
+// Bascule essai inventaire / externe
+document.querySelectorAll("[data-bascule]").forEach(r=>r.addEventListener("change",()=>{
+  const inv=document.getElementById("es-inv"),ext=document.getElementById("es-ext"),interne=r.dataset.bascule==="es-inv";
+  inv.classList.toggle("cache",!interne);ext.classList.toggle("cache",interne);
+  document.getElementById("es-v").required=interne;
+  document.getElementById("es-desc").required=!interne;document.getElementById("es-lieu").required=!interne;
+  document.querySelector('[data-service="essai"]').__flux&&document.querySelector('[data-service="essai"]').__flux.resume();
+}));
+// Aperçus fichiers
+document.querySelectorAll('input[type=file]').forEach(inp=>inp.addEventListener("change",()=>{
+  const box=inp.closest(".champ").querySelector(`[data-apercu]`);if(!box)return;
+  box.innerHTML="";[...inp.files].slice(0,24).forEach(f=>{
+    const fig=document.createElement("figure");let el;
+    if(f.type.startsWith("image/")){el=document.createElement("img");el.src=URL.createObjectURL(f);el.alt="";}
+    else if(f.type.startsWith("video/")){el=document.createElement("video");el.src=URL.createObjectURL(f);el.muted=true;el.playsInline=true;}
+    else{el=document.createElement("div");el.style.cssText="display:grid;place-items:center;height:100%;font-size:12px;font-weight:700;color:#4A4A50";el.textContent="PDF";}
+    fig.appendChild(el);const cap=document.createElement("figcaption");cap.textContent=f.name;fig.appendChild(cap);box.appendChild(fig);
+  });
+}));
+
+/* ---------- Services ---------- */
+const SERV={
+ precommande:{titre:"Précommande d'un véhicule",court:"Précommande",
+   montant:f=>{const v=parId(f.vehicule.value);return v&&v.prix?v.prix*.9:0;},
+   nature:"Paiement initial de 90 % du prix du véhicule",
+   cond:"J'ai pris connaissance du délai estimé, des conditions d'annulation, du traitement d'un éventuel retard et du solde de 10 % dû à l'arrivée en Haïti.",
+   suite:["Votre précommande est enregistrée et le véhicule vous est réservé.","Vous recevez les mises à jour d'expédition sur WhatsApp.","À l'arrivée en Haïti, un lien de paiement du solde de 10 % vous est envoyé.","La livraison est planifiée après règlement du solde."],
+   statuts:["Paiement initial (90 %) confirmé","Véhicule en préparation à l'expédition","En transit vers Haïti","Arrivé en Haïti — solde de 10 % à régler","Livré"]},
+ achat:{titre:"Achat comptant d'un véhicule",court:"Achat",
+   montant:f=>{const v=parId(f.vehicule.value);return v&&v.prix?v.prix:0;},
+   nature:"Prix du véhicule, paiement comptant",
+   cond:"Je confirme l'achat comptant de ce véhicule au prix affiché. La livraison est proposée dans les zones accessibles après confirmation logistique.",
+   suite:["Votre paiement est rattaché au véhicule choisi.","Un conseiller vous contacte sur WhatsApp pour la remise des documents.","La livraison est planifiée selon votre localité."],
+   statuts:["Paiement confirmé","Préparation du véhicule et des documents","Livraison planifiée","Livré"]},
+ consultation:{titre:"Consultation automobile",court:"Consultation",montant:()=>TARIFS.consultation,
+   nature:"Frais de service — consultation",
+   cond:"J'accepte que les frais de consultation de 150 $ sont non remboursables et ne constituent pas un acompte sur un véhicule.",
+   suite:["Un conseiller vous écrit sur WhatsApp dans les 24 heures ouvrables.","Vous convenez ensemble de la date de la consultation."],
+   statuts:["Paiement confirmé","Prise de contact sur WhatsApp","Consultation planifiée","Consultation effectuée"]},
+ recherche:{titre:"Recherche personnalisée ou achat accompagné",court:"Recherche",montant:()=>TARIFS.recherche,
+   nature:"Frais de service — recherche ou accompagnement",
+   cond:"Je comprends que les 150 $ sont des frais de service : ce n'est ni le prix du véhicule, ni un acompte, ni des frais de financement.",
+   suite:["Votre demande est prise en charge par un conseiller.","Nous vous écrivons sur WhatsApp pour affiner vos critères.","Vous recevez les véhicules correspondants dès qu'ils sont trouvés."],
+   statuts:["Paiement confirmé","Prise de contact sur WhatsApp","Recherche en cours","Proposition de véhicule","Dossier clôturé"]},
+ essai:{titre:"Réservation d'une visite ou d'un essai",court:"Visite ou essai",montant:()=>TARIFS.essai,
+   nature:"Frais de service — visite, essai ou inspection",
+   cond:"Je comprends que les 150 $ sont des frais de service et non un acompte sur le véhicule, et que le rendez-vous est confirmé selon la disponibilité réelle du véhicule.",
+   suite:["Nous vérifions la disponibilité réelle du véhicule.","Vous recevez la confirmation du rendez-vous sur WhatsApp.","Le jour venu, un conseiller vous accompagne."],
+   statuts:["Paiement confirmé","Disponibilité du véhicule vérifiée","Rendez-vous confirmé","Visite ou essai effectué"]},
+ vendre:{titre:"Service de vente d'un véhicule",court:"Vente",montant:()=>TARIFS.vendre,
+   nature:"Frais de service — vente accompagnée",
+   cond:"J'accepte que les frais de 200 $ sont non remboursables et que l'annonce n'est publiée qu'après vérification et acceptation par Elite Auto Deal.",
+   suite:["Votre dossier, vos photos et vos vidéos sont enregistrés.","Nous vérifions le véhicule et les documents.","Vous êtes informé de l'acceptation avant toute publication."],
+   statuts:["Dossier reçu et payé","Vérification du véhicule et des documents","Accepté — annonce en préparation","Annonce publiée","Vendu"]},
+ financement:{titre:"Dossier de financement",court:"Financement",montant:()=>TARIFS.financement,
+   nature:"Frais de dossier de financement",
+   cond:"J'accepte que les 25 $ couvrent l'examen de mon dossier, ne sont pas remboursables, ne constituent pas un acompte et ne garantissent pas l'approbation.",
+   suite:["Votre demande est reçue.","Nous vérifions que le dossier est complet.","Le dossier passe en examen.","Vous recevez la décision : approbation ou refus."],
+   statuts:["Demande reçue","Dossier complet","Dossier en cours d'examen","Décision : approbation ou refus"]}
+};
+
+/* Registre des dossiers (session) */
+const REG={
+ "EAD-2026-10482":{service:"precommande",etape:3,nom:"Client démo",date:"28 oct. 2026",detail:"Toyota RAV4 2016"},
+ "EAD-2026-20931":{service:"financement",etape:2,nom:"Client démo",date:"5 nov. 2026",detail:"Jeep Grand Cherokee Laredo 2021"},
+ "EAD-2026-30517":{service:"vendre",etape:1,nom:"Client démo",date:"10 nov. 2026",detail:"Honda CR-V 2017"}
+};
+try{const s=JSON.parse(sessionStorage.getItem("ead-dossiers")||"{}");Object.assign(REG,s);}catch(_){}
+function sauver(ref,d){REG[ref]=d;try{const s=JSON.parse(sessionStorage.getItem("ead-dossiers")||"{}");s[ref]=d;sessionStorage.setItem("ead-dossiers",JSON.stringify(s));}catch(_){}}
+function nouvelleRef(){let r;do{r="EAD-"+ANNEE+"-"+String(Math.floor(10000+Math.random()*90000));}while(REG[r]);return r;}
+
+/* ---------- Moteur de parcours ---------- */
+function flux(p){
+  if(p.__flux)return p.__flux;
+  const nom=p.dataset.service,S=SERV[nom],form=p.querySelector("form.form-service"),principal=p.querySelector(".parcours-principal"),aside=p.querySelector(".resume"),etapier=p.querySelectorAll(".etapier li");
+  const zone=document.createElement("div");principal.appendChild(zone);
+  const F={etape:0,devise:"USD",moyen:"MonCash",paie:false,methode:"mobile",email:"",cond:false};
+  const autres=[...principal.children].filter(x=>x!==zone&&!x.classList.contains("etapier"));
+  function marquer(){etapier.forEach((li,i)=>{li.classList.toggle("fait",i<F.etape);li.classList.toggle("encours",i===F.etape);});}
+  function montant(){return S.montant(form);}
+  function vehicule(){return form.vehicule?parId(form.vehicule.value):null;}
+  function resume(){
+    const m=montant(),v=vehicule();
+    let lignes=`<div><dt>Service</dt><dd>${esc(S.court)}</dd></div>`;
+    if(v)lignes+=`<div><dt>Véhicule</dt><dd>${esc(nomV(v))}</dd></div>`;
+    if(nom==="precommande"&&v&&v.prix)lignes+=`<div><dt>Prix du véhicule</dt><dd>${usd(v.prix)}</dd></div><div><dt>Maintenant (90 %)</dt><dd>${usd(v.prix*.9)}</dd></div><div><dt>À l'arrivée (10 %)</dt><dd>${usd(v.prix*.1)}</dd></div>`;
+    lignes+=`<div><dt>En gourdes</dt><dd>${m?htg(m):"—"}</dd></div>`;
+    let note;
+    if(nom==="precommande")note="Le délai estimé, les conditions d'annulation et de retard sont affichés avant le paiement. Le solde n'est jamais prélevé automatiquement.";
+    else if(nom==="achat")note="Paiement du prix du véhicule. Si vous choisissez le financement, vous êtes redirigé vers la demande de financement, sans paiement du véhicule à cette étape.";
+    else if(nom==="financement")note="Frais de dossier : ni acompte, ni garantie d'approbation.";
+    else note="Frais de service : ce n'est ni le prix d'un véhicule, ni un acompte de réservation, ni des frais de financement."+(nom==="vendre"||nom==="consultation"?" Non remboursables.":"");
+    aside.innerHTML=`<h3>Ce que vous payez</h3><div class="montant">${m?usd(m):"—"}</div><p class="muted" style="font-size:13.5px">${esc(S.nature)}</p><dl>${lignes}</dl><p class="note">${note}</p><p class="note" style="border:0;padding:0;margin-top:-6px">Taux affiché : 1 USD = ${TAUX_HTG} HTG (mis à jour le ${TAUX_DATE}).</p>`;
+  }
+  function detailsPrecommande(){
+    const box=document.getElementById("pc-details");if(!box)return;const v=vehicule();
+    if(!v){box.innerHTML="";return;}
+    box.innerHTML=`<div class="grille-v" style="grid-template-columns:1fr"><div style="display:grid;grid-template-columns:minmax(0,150px) 1fr;gap:16px;align-items:center;padding:12px;border-radius:14px;background:var(--gris-50)"><div>${voitureSVG(v)}</div><div>${badge(v)}<p style="margin-top:6px;font-weight:700">${esc(nomV(v))} — ${usd(v.prix)}</p>${v.note?`<p class="muted" style="font-size:13px">${esc(v.note)}</p>`:""}</div></div></div>
+    <div class="repartition" style="margin-top:14px"><div><span>Maintenant (90 %)</span><b>${usd(v.prix*.9)}</b></div><div><span>À l'arrivée (10 %)</span><b>${usd(v.prix*.1)}</b></div></div>
+    <ul class="conditions" style="margin-top:14px"><li><b>Délai estimé :</b> ${esc(v.delai||"communiqué avant paiement")}.</li><li><b>Annulation :</b> possible avant l'expédition selon les conditions acceptées au paiement.</li><li><b>Retard :</b> vous êtes prévenu sur WhatsApp avec une nouvelle date estimée.</li><li><b>Solde :</b> 10 % à l'arrivée en Haïti, avant la livraison.</li></ul>`;
+  }
+  function montrer(nodes){autres.forEach(x=>x.classList.toggle("cache",!nodes));zone.classList.toggle("cache",nodes);}
+  function haut(){const y=p.getBoundingClientRect().top+window.scrollY-110;if(window.scrollY>y)window.scrollTo({top:y});}
+  function masque(el){const c=el.closest(".cache");return !!c&&c!==form&&form.contains(c);}
+  function collecte(){
+    const out=[],vu=new Set();
+    [...form.elements].forEach(el=>{
+      if(!el.name||vu.has(el.name)||masque(el))return;
+      if(el.type==="checkbox"&&!el.dataset.lbl)return;
+      const lbl=el.dataset.lbl;if(!lbl)return;
+      let val="";
+      if(el.type==="radio"){vu.add(el.name);const c=form.querySelector(`input[name="${el.name}"]:checked`);val=c?c.value:"";}
+      else if(el.type==="checkbox"){vu.add(el.name);val=[...form.querySelectorAll(`input[name="${el.name}"]:checked`)].map(x=>x.value).join(", ");}
+      else if(el.type==="file"){val=el.files.length?el.files.length+(el.files.length>1?" fichiers":" fichier"):"";}
+      else if(el.tagName==="SELECT"){val=el.value?el.selectedOptions[0].textContent:"";}
+      else if(el.type==="number"&&el.value&&/budget|prix|apport/i.test(el.name)){val=usd(+el.value);}
+      else if(el.type==="date"&&el.value){val=new Date(el.value+"T12:00").toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long",year:"numeric"});}
+      else val=el.value.trim();
+      if(val)out.push([lbl,val]);
+    });return out;
+  }
+  function recap(){
+    F.etape=1;marquer();montrer(false);
+    const lignes=collecte();
+    zone.innerHTML=`<div class="bloc-form"><h3>Vérifiez votre demande</h3><ul class="recap">${lignes.map(([a,b])=>`<li><span>${esc(a)}</span><span>${esc(b)}</span></li>`).join("")}</ul>
+      <div class="encadre" style="margin:0"><svg aria-hidden="true"><use href="#i-info"/></svg><p><b>Montant à payer : ${usd(montant())}</b> — ${esc(S.nature.toLowerCase())}.</p></div></div>
+      <div class="form-actions"><button class="lien" type="button" data-r="modifier">Modifier mes informations</button><button class="btn btn-rouge" type="button" data-r="payer">Passer au paiement</button></div>`;
+    zone.querySelector('[data-r=modifier]').onclick=()=>{F.etape=0;marquer();montrer(true);haut();};
+    zone.querySelector('[data-r=payer]').onclick=paiement;
+    haut();zone.querySelector("h3").setAttribute("tabindex","-1");zone.querySelector("h3").focus({preventScroll:true});
+  }
+  function paiement(){
+    F.etape=2;marquer();
+    if(MODE_REEL){paiementReel();return;}
+    const m=montant();
+    const moyens=[["Carte bancaire","Visa, Mastercard"],["MonCash","Digicel"],["NatCash","Natcom"],["Virement ou dépôt","Confirmé par la banque"]];
+    const r=()=>{
+      zone.innerHTML=`<div class="bloc-form">
+        <div class="demo"><svg width="18" height="18" aria-hidden="true"><use href="#i-info"/></svg><span>Démonstration : aucun paiement réel n'est effectué. Le prestataire de paiement sera branché lors de la mise en production.</span></div>
+        <h3>Paiement sécurisé</h3>
+        <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between"><span class="lbl" style="font-weight:600;font-size:14px">Devise</span>
+          <div class="devises" role="group" aria-label="Devise"><button type="button" aria-pressed="${F.devise==="USD"}" data-d="USD">USD</button><button type="button" aria-pressed="${F.devise==="HTG"}" data-d="HTG">HTG</button></div></div>
+        <div class="a-payer"><div><span>Montant à payer</span><br><b>${F.devise==="USD"?usd(m):htg(m)}</b></div><span>${F.devise==="HTG"?`${usd(m)} × ${TAUX_HTG} HTG (taux affiché)`:`Soit ${htg(m)} au taux de ${TAUX_HTG} HTG`}</span></div>
+        <fieldset><legend>Moyen de paiement</legend><div class="choix deux">${moyens.map(([a,b])=>`<label><input type="radio" name="moyen-${nom}" value="${a}" ${F.moyen===a?"checked":""}><span>${a}<small>${b}</small></span></label>`).join("")}</div></fieldset>
+        <label class="case"><input type="checkbox" id="cond-${nom}"><span>${esc(S.cond)} <a href="#conditions">Conditions</a></span></label>
+        <p class="aide muted" id="err-${nom}" style="font-size:13.5px;color:var(--rouge);display:none">Cochez les conditions pour continuer.</p>
+      </div>
+      <div class="form-actions"><button class="lien" type="button" data-r="retour">Retour au récapitulatif</button><button class="btn btn-rouge" type="button" data-r="go"><svg aria-hidden="true"><use href="#i-cadenas"/></svg>Payer ${F.devise==="USD"?usd(m):htg(m)}</button></div>`;
+      zone.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{F.devise=b.dataset.d;r();zone.querySelector(`[data-d="${F.devise}"]`).focus();});
+      zone.querySelectorAll(`input[name="moyen-${nom}"]`).forEach(x=>x.onchange=()=>F.moyen=x.value);
+      zone.querySelector("[data-r=retour]").onclick=recap;
+      zone.querySelector("[data-r=go]").onclick=payer;
+    };
+    r();haut();
+  }
+  function paiementReel(){
+    const m=montant(),meths=(CONFIG.methodes&&CONFIG.methodes.length?CONFIG.methodes:["mobile"]).filter(x=>x==="mobile"||x==="carte");
+    if(!meths.includes(F.methode))F.methode=meths[0];
+    const lib={mobile:["MonCash ou Natcash","Payé en gourdes : "+htg(m)],carte:["Carte bancaire","Payé en dollars : "+usd(m)]};
+    const r=()=>{
+      const carte=F.methode==="carte";
+      zone.innerHTML=`<div class="bloc-form">
+        <h3>Paiement sécurisé</h3>
+        <fieldset><legend>Moyen de paiement</legend><div class="choix deux">${meths.map(k=>`<label><input type="radio" name="methode-${nom}" value="${k}" ${F.methode===k?"checked":""}><span>${lib[k][0]}<small>${lib[k][1]}</small></span></label>`).join("")}</div></fieldset>
+        <div class="a-payer"><div><span>Montant à payer</span><br><b>${carte?usd(m):htg(m)}</b></div><span>${carte?"Payé en dollars par carte":`${usd(m)} au taux affiché de ${TAUX_HTG.toLocaleString("fr-FR")} HTG pour 1 USD`}</span></div>
+        ${carte?`<div class="champ"><label for="email-${nom}">Email pour le reçu de la carte</label><input id="email-${nom}" type="email" autocomplete="email" required value="${esc(F.email||(CPT.client&&CPT.client.email)||"")}"></div>`:""}
+        <label class="case"><input type="checkbox" id="cond-${nom}" ${F.cond?"checked":""}><span>${esc(S.cond)} <a href="#conditions">Conditions</a></span></label>
+        <p class="muted" style="font-size:13.5px">Vous serez redirigé vers la page de paiement sécurisée Freda Pay Issuing. Votre dossier est validé seulement quand Freda Pay Issuing confirme le paiement.</p>
+        <div class="erreur-paie cache" id="err-${nom}" role="alert"></div>
+      </div>
+      <div class="form-actions"><button class="lien" type="button" data-r="retour">Retour au récapitulatif</button><button class="btn btn-rouge" type="button" data-r="go"><svg aria-hidden="true"><use href="#i-cadenas"/></svg>Payer ${carte?usd(m):htg(m)}</button></div>`;
+      zone.querySelectorAll(`input[name="methode-${nom}"]`).forEach(x=>x.onchange=()=>{F.methode=x.value;const e=zone.querySelector(`#email-${nom}`);if(e)F.email=e.value;F.cond=document.getElementById("cond-"+nom).checked;r();zone.querySelector(`input[value="${F.methode}"]`).focus();});
+      zone.querySelector("[data-r=retour]").onclick=recap;
+      zone.querySelector("[data-r=go]").onclick=payerReel;
+    };
+    r();haut();
+  }
+  function erreurPaie(t){const e=document.getElementById("err-"+nom);if(!e)return toast(t);e.textContent=t;e.classList.remove("cache");}
+  function payerReel(){
+    if(F.paie)return;
+    const errEl=document.getElementById("err-"+nom);errEl.classList.add("cache");
+    const c=document.getElementById("cond-"+nom),em=document.getElementById("email-"+nom);
+    if(em&&!em.checkValidity()){erreurPaie("Entrez une adresse email valide pour recevoir le reçu de la carte.");em.focus();return;}
+    if(!c.checked){erreurPaie("Cochez les conditions pour continuer.");c.focus();return;}
+    const fd=new FormData(),v=vehicule();
+    fd.append("service",nom);
+    if(v)fd.append("vehicule_id",v.id);
+    fd.append("methode",F.methode);
+    fd.append("client_nom",form.nom?form.nom.value.trim():"");
+    fd.append("client_tel",(form.tel||form.telephone)?(form.tel||form.telephone).value.trim():"");
+    fd.append("client_whatsapp",form.whatsapp?form.whatsapp.value.trim():"");
+    const email=em?em.value.trim():(form.email?form.email.value.trim():"");
+    if(email)fd.append("client_email",email);
+    fd.append("conditions_acceptees","1");
+    const champs={},fch=[];
+    [...form.elements].forEach(el=>{
+      if(!el.name||masque(el))return;
+      if(el.type==="file"){[...el.files].forEach(f=>{fd.append("fichiers",f,f.name);fch.push(el.name);});return;}
+      if((el.type==="radio"||el.type==="checkbox")&&!el.checked)return;
+      if(el.type==="checkbox"){(champs[el.name]=champs[el.name]||[]).push(el.value);return;}
+      champs[el.name]=el.value;
+    });
+    fd.append("donnees",JSON.stringify({lignes:collecte(),champs}));
+    fd.append("fichiers_champs",JSON.stringify(fch));
+    F.paie=true;const btn=zone.querySelector("[data-r=go]");btn.disabled=true;
+    const avecFichiers=fch.length>0;
+    btn.insertAdjacentHTML("beforebegin",`<div class="verif" role="status" style="flex-wrap:wrap"><span class="spin"></span><span id="etat-${nom}">${avecFichiers?"Envoi de vos fichiers…":"Création de votre dossier…"}</span>${avecFichiers?`<div class="progres" style="flex-basis:100%"><span id="barre-${nom}"></span></div>`:""}</div>`);
+    const fin=()=>{F.paie=false;btn.disabled=false;const x=zone.querySelector(".verif");x&&x.remove();};
+    const xhr=new XMLHttpRequest();
+    xhr.open("POST","/api/dossiers");xhr.timeout=600000;
+    xhr.upload.onprogress=e=>{if(!e.lengthComputable)return;const b=document.getElementById("barre-"+nom);if(b)b.style.width=Math.round(e.loaded/e.total*100)+"%";if(e.loaded>=e.total){const t=document.getElementById("etat-"+nom);if(t)t.textContent="Création de votre dossier…";}};
+    xhr.onload=()=>{
+      let d=null;try{d=JSON.parse(xhr.responseText);}catch(_){}
+      if(xhr.status>=200&&xhr.status<300&&d&&d.ref){
+        try{localStorage.setItem("ead-derniere-ref",d.ref);localStorage.setItem("ead-derniere-methode",d.methode||F.methode);}catch(_){}
+        if(d.checkout_url){const t=document.getElementById("etat-"+nom);if(t)t.textContent="Redirection vers la page de paiement sécurisée Freda Pay Issuing…";location.href=d.checkout_url;}
+        else{location.hash="retour";}
+        return;
+      }
+      fin();erreurPaie(d&&d.error&&d.error.message?d.error.message:"Le paiement n'a pas pu être lancé. Réessayez dans un instant ou écrivez-nous sur WhatsApp.");
+    };
+    xhr.onerror=xhr.ontimeout=()=>{fin();erreurPaie("Connexion impossible. Vérifiez votre connexion internet et réessayez.");};
+    xhr.send(fd);
+  }
+  function payer(){
+    if(F.paie)return;
+    const c=document.getElementById("cond-"+nom);
+    if(!c.checked){document.getElementById("err-"+nom).style.display="block";c.focus();return;}
+    F.paie=true;const btn=zone.querySelector("[data-r=go]");btn.disabled=true;
+    btn.insertAdjacentHTML("beforebegin",`<div class="verif" role="status"><span class="spin"></span>Vérification de la confirmation auprès du prestataire…</div>`);
+    setTimeout(confirmation,1500);
+  }
+  function confirmation(){
+    F.etape=3;marquer();
+    const ref=nouvelleRef(),m=montant(),v=vehicule(),now=new Date();
+    const nomClient=form.nom?form.nom.value.trim():"";
+    sauver(ref,{service:nom,etape:1,montant_usd:m,lignes:collecte(),iso:now.toISOString(),nom:nomClient,date:now.toLocaleDateString("fr-FR",{day:"numeric",month:"short",year:"numeric"}),detail:v?nomV(v):(form.marque?`${form.marque.value} ${form.modele.value}`:S.court)});
+    const paye=F.devise==="USD"?usd(m):htg(m);
+    const txt=`Bonjour Elite Auto Deal, je viens de payer en ligne.\nRéférence : ${ref}\nService : ${S.titre}${v?"\nVéhicule : "+nomV(v):""}\nMontant : ${paye}\nNom : ${nomClient}`;
+    zone.innerHTML=`<div class="bloc-form confirme">
+      <div class="confirme-tete"><div class="coche"><svg><use href="#i-check"/></svg></div><div><h3 style="font-size:clamp(20px,3vw,26px)" tabindex="-1">Paiement confirmé</h3><p class="muted">Confirmation reçue du prestataire (démonstration). Un reçu vous est envoyé.</p></div></div>
+      <div class="ref"><div><span class="muted" style="font-size:13px">Référence du dossier</span><br><b>${ref}</b></div><button class="btn btn-contour btn-sm" type="button" data-r="copier">Copier la référence</button></div>
+      <div><h3 style="font-size:16px;margin-bottom:6px">Reçu</h3><ul class="recap">
+        <li><span>Service</span><span>${esc(S.titre)}</span></li>
+        ${v?`<li><span>Véhicule</span><span>${esc(nomV(v))}</span></li>`:""}
+        <li><span>Montant payé</span><span>${paye}</span></li>
+        ${nom==="precommande"&&v?`<li><span>Solde à l'arrivée</span><span>${usd(v.prix*.1)}</span></li>`:""}
+        <li><span>Moyen de paiement</span><span>${esc(F.moyen)}</span></li>
+        <li><span>Date</span><span>${now.toLocaleString("fr-FR",{dateStyle:"long",timeStyle:"short"})}</span></li>
+        <li><span>Statut du dossier</span><span>${esc(S.statuts[0])}</span></li></ul></div>
+      <div><h3 style="font-size:16px;margin-bottom:8px">Prochaines étapes</h3><ol class="suite">${S.suite.map(s=>`<li>${esc(s)}</li>`).join("")}</ol></div>
+      <div style="display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))">
+        <a class="btn btn-wa" href="${waUrl(txt)}" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#i-wa"/></svg>Ouvrir WhatsApp avec ma référence</a>
+        <button class="btn btn-noir" type="button" data-r="suivi">Suivre mon dossier</button></div>
+      <p class="muted" style="font-size:12.5px">Le bouton ouvre WhatsApp avec un message prérempli ; il n'est envoyé que lorsque vous appuyez sur Envoyer. Notre équipe est aussi notifiée de votre paiement.</p>
+    </div>`;
+    zone.querySelector(".confirme").insertAdjacentHTML("beforeend",blocCompte(ref));
+    zone.querySelector("[data-r=copier]").onclick=()=>copier(ref,"Référence copiée");
+    zone.querySelector("[data-r=suivi]").onclick=()=>{document.getElementById("suivi-ref").value=ref;aller("suivi");setTimeout(()=>afficherSuivi(ref),0);};
+    haut();zone.querySelector("h3").focus({preventScroll:true});
+  }
+  function soumettre(e){
+    e.preventDefault();
+    if(!form.checkValidity()){form.reportValidity();return;}
+    if(nom==="achat"){const mode=form.querySelector('input[name=mode]:checked').value;if(mode==="Financement"){etat.v=form.vehicule.value;etat.depuisAchat=true;location.hash="financement";return;}}
+    if(!montant()){toast("Ce véhicule n'a pas de prix affiché : contactez-nous sur WhatsApp.");return;}
+    recap();
+  }
+  form.addEventListener("submit",soumettre);
+  form.addEventListener("input",()=>{resume();if(nom==="precommande")detailsPrecommande();});
+  form.addEventListener("change",()=>{resume();if(nom==="precommande")detailsPrecommande();});
+  const api={entrer(){
+      if(F.etape===3){form.reset();zone.innerHTML="";F.paie=false;}
+      F.etape=0;F.paie=false;marquer();montrer(true);zone.innerHTML="";
+      form.querySelectorAll("[data-vselect]").forEach(remplirSelectV);
+      if(nom==="essai"&&etat.v&&parId(etat.v)?.statut==="disponible"){form.querySelector('input[value="Inventaire Elite Auto Deal"]').click();}
+      resume();if(nom==="precommande")detailsPrecommande();
+    },resume};
+  p.__flux=api;return api;
+}
+document.querySelectorAll(".parcours").forEach(p=>flux(p));
+
+/* ---------- Mode réel : API ---------- */
+const montantDevise=(m,d)=>d==="HTG"?Math.round(m).toLocaleString("fr-FR").replace(/[\u202f\u00a0]/g," ")+" HTG":usd(m);
+async function api(url,opt){
+  const r=await fetch(url,Object.assign({headers:{"Accept":"application/json"}},opt||{}));
+  let d=null;try{d=await r.json();}catch(_){}
+  if(!r.ok){const e=new Error(d&&d.error&&d.error.message?d.error.message:"Le service est momentanément indisponible. Réessayez dans un instant.");e.status=r.status;throw e;}
+  return d;
+}
+function chronoHTML(statuts,etape){return `<ol class="chrono">${statuts.map((s,i)=>`<li class="${i<etape?"fait":i===etape?"encours":""}"><span class="pt"></span><b>${esc(s)}</b><span>${i<etape?"Terminé":i===etape?"Étape en cours":"À venir"}</span></li>`).join("")}</ol>`;}
+async function suiviReel(ref,out){
+  out.innerHTML=`<div class="verif" role="status"><span class="spin"></span>Recherche du dossier…</div>`;
+  let d;
+  try{d=await api("/api/dossiers/"+encodeURIComponent(ref));}
+  catch(e){out.innerHTML=`<div class="carte-suivi"><b>${e.status===404?"Aucun dossier ne porte la référence "+esc(ref)+".":esc(e.message)}</b><p class="muted" style="margin-top:6px">Vérifiez le format EAD-2026-00000, ou écrivez-nous sur WhatsApp avec votre reçu.</p></div>`;return;}
+  const pai=d.paiement||{};
+  const etatPai=pai.statut==="succeeded"?"Paiement confirmé par Freda Pay Issuing":pai.statut==="failed"?"Paiement non abouti":"Paiement en attente de confirmation";
+  out.innerHTML=`<div class="carte-suivi"><div class="tete"><div><span class="muted" style="font-size:13px">${esc(d.titre||"")}</span><h3 style="font-size:22px;margin-top:2px">${esc(d.ref)}</h3></div><span class="muted" style="font-size:14px">${esc(d.detail||"")}${d.cree_le?", ouvert le "+esc(new Date(d.cree_le).toLocaleDateString("fr-FR",{day:"numeric",month:"short",year:"numeric"})):""}</span></div>
+   <p style="font-weight:600">${etatPai}${pai.montant!=null?" : "+montantDevise(pai.montant,pai.devise):""}</p>
+   ${pai.statut==="succeeded"?chronoHTML(d.statuts||[],d.etape||0):""}
+   ${d.solde_usd?`<p class="muted">Solde à régler à l'arrivée en Haïti : <b>${usd(d.solde_usd)}</b></p>`:""}
+   ${pai.statut!=="succeeded"?`<button class="btn btn-rouge btn-sm" type="button" data-suivre-paiement="${esc(d.ref)}">Voir l'état du paiement</button>`:""}
+   <a class="btn btn-wa btn-sm" target="_blank" rel="noopener" href="${waUrl("Bonjour Elite Auto Deal, je souhaite un point sur mon dossier "+d.ref+".")}"><svg aria-hidden="true"><use href="#i-wa"/></svg>Poser une question sur WhatsApp</a></div>`;
+  const b=out.querySelector("[data-suivre-paiement]");if(b)b.onclick=()=>{try{localStorage.setItem("ead-derniere-ref",d.ref);}catch(_){}location.hash="retour";};
+}
+
+/* Retour de la page de paiement */
+const RT={t:null,debut:0,ref:null,enCours:false};
+function arreterRetour(){clearTimeout(RT.t);RT.t=null;RT.enCours=false;}
+function refRetour(){let r=null;try{r=localStorage.getItem("ead-derniere-ref");}catch(_){}return r;}
+function afficherRetour(){
+  const z=document.getElementById("retour-zone");arreterRetour();
+  const ref=refRetour();
+  if(!MODE_REEL){z.innerHTML=`<div class="carte-suivi"><b>Aucun paiement en cours sur cet appareil.</b><p class="muted" style="margin-top:6px">Retrouvez votre dossier avec sa référence dans la page de suivi.</p><a class="btn btn-noir btn-sm" href="#suivi">Suivre mon dossier</a></div>`;return;}
+  if(!ref){z.innerHTML=`<div class="carte-suivi"><b>Aucun paiement en cours sur cet appareil.</b><p class="muted" style="margin-top:6px">Si vous avez déjà payé, retrouvez votre dossier avec la référence reçue.</p><a class="btn btn-noir btn-sm" href="#suivi">Suivre mon dossier</a></div>`;return;}
+  let sref=null;try{sref=localStorage.getItem("ead-solde-ref");}catch(_){}
+  if(sref&&sref===ref){try{localStorage.removeItem("ead-solde-ref");}catch(_){}memoRef(ref);CPT.avis="Paiement du solde en cours de vérification auprès de Freda Pay Issuing. Cette page se met à jour toute seule.";location.hash="compte-dossier";return;}
+  RT.ref=ref;RT.debut=Date.now();RT.enCours=true;
+  z.innerHTML=`<div class="bloc-form"><div class="verif" role="status"><span class="spin"></span>Vérification du paiement du dossier ${esc(ref)} auprès de Freda Pay Issuing…</div></div>`;
+  sonder();
+}
+async function sonder(){
+  if(!RT.enCours)return;
+  const z=document.getElementById("retour-zone"),ref=RT.ref;
+  let d=null;
+  try{d=await api("/api/dossiers/"+encodeURIComponent(ref));}
+  catch(e){if(e.status===404){RT.enCours=false;z.innerHTML=`<div class="carte-suivi"><b>Dossier ${esc(ref)} introuvable.</b><a class="btn btn-noir btn-sm" href="#suivi">Suivre un autre dossier</a></div>`;return;}}
+  if(!RT.enCours)return;
+  const st=d&&d.paiement?d.paiement.statut:"pending";
+  if(st==="succeeded"){RT.enCours=false;ecranSucces(d);return;}
+  if(st==="failed"){RT.enCours=false;ecranEchec(d);return;}
+  if(Date.now()-RT.debut>600000){RT.enCours=false;ecranEchec(d,true);return;}
+  z.innerHTML=`<div class="bloc-form"><div class="verif" role="status"><span class="spin"></span>Paiement en attente de confirmation…</div>
+    <p class="muted">Dossier <b>${esc(ref)}</b>${d&&d.paiement&&d.paiement.montant!=null?", "+montantDevise(d.paiement.montant,d.paiement.devise):""}. Si vous payez par MonCash ou Natcash, validez la transaction sur votre téléphone. Cette page se met à jour toute seule.</p></div>`;
+  RT.t=setTimeout(sonder,4000);
+}
+function ecranSucces(d){
+  const z=document.getElementById("retour-zone"),S=SERV[d.service]||{suite:[]},p=d.paiement||{};
+  const meth=p.methode==="carte"?"Carte bancaire":"MonCash ou Natcash";
+  const paye=montantDevise(p.montant,p.devise);
+  const txt=`Bonjour Elite Auto Deal, je viens de payer en ligne.\nRéférence : ${d.ref}\nService : ${d.titre||""}${d.detail?"\nDétail : "+d.detail:""}\nMontant : ${paye}${d.prenom?"\nNom : "+d.prenom:""}`;
+  z.innerHTML=`<div class="bloc-form confirme">
+    <div class="confirme-tete"><div class="coche"><svg><use href="#i-check"/></svg></div><div><h3 style="font-size:clamp(20px,3vw,26px)" tabindex="-1">Paiement confirmé</h3><p class="muted">Confirmation reçue de Freda Pay Issuing. Votre dossier est enregistré.</p></div></div>
+    <div class="ref"><div><span class="muted" style="font-size:13px">Référence du dossier</span><br><b>${esc(d.ref)}</b></div><button class="btn btn-contour btn-sm" type="button" data-r="copier">Copier la référence</button></div>
+    <div><h3 style="font-size:16px;margin-bottom:6px">Reçu</h3><ul class="recap">
+      <li><span>Service</span><span>${esc(d.titre||"")}</span></li>
+      ${d.detail?`<li><span>Détail</span><span>${esc(d.detail)}</span></li>`:""}
+      <li><span>Montant payé</span><span>${paye}</span></li>
+      ${d.solde_usd?`<li><span>Solde à l'arrivée</span><span>${usd(d.solde_usd)}</span></li>`:""}
+      <li><span>Moyen de paiement</span><span>${meth}</span></li>
+      ${p.confirme_le?`<li><span>Date</span><span>${new Date(p.confirme_le).toLocaleString("fr-FR",{dateStyle:"long",timeStyle:"short"})}</span></li>`:""}
+      <li><span>Statut du dossier</span><span>${esc((d.statuts||[])[d.etape||0]||"")}</span></li></ul></div>
+    ${S.suite.length?`<div><h3 style="font-size:16px;margin-bottom:8px">Prochaines étapes</h3><ol class="suite">${S.suite.map(s=>`<li>${esc(s)}</li>`).join("")}</ol></div>`:""}
+    <div style="display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))">
+      <a class="btn btn-wa" href="${waUrl(txt)}" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#i-wa"/></svg>Ouvrir WhatsApp avec ma référence</a>
+      <button class="btn btn-noir" type="button" data-r="suivi">Suivre mon dossier</button></div>
+    <p class="muted" style="font-size:12.5px">Le bouton ouvre WhatsApp avec un message prérempli ; il n'est envoyé que lorsque vous appuyez sur Envoyer. Notre équipe est aussi notifiée de votre paiement.</p></div>`;
+  z.querySelector(".confirme").insertAdjacentHTML("beforeend",blocCompte(d.ref));
+  z.querySelector("[data-r=copier]").onclick=()=>copier(d.ref,"Référence copiée");
+  z.querySelector("[data-r=suivi]").onclick=()=>{document.getElementById("suivi-ref").value=d.ref;aller("suivi");setTimeout(()=>afficherSuivi(d.ref),0);};
+  const h=z.querySelector("h3");h&&h.focus({preventScroll:true});
+}
+function ecranEchec(d,delai){
+  const z=document.getElementById("retour-zone"),ref=RT.ref;
+  const meths=(CONFIG&&CONFIG.methodes&&CONFIG.methodes.length?CONFIG.methodes:["mobile"]).filter(x=>x==="mobile"||x==="carte");
+  let m=null;try{m=localStorage.getItem("ead-derniere-methode");}catch(_){}
+  if(!meths.includes(m))m=meths[0];
+  const r=()=>{
+    z.innerHTML=`<div class="bloc-form">
+      <h3>${delai?"Paiement non confirmé":"Le paiement n'a pas abouti"}</h3>
+      <p class="muted">${delai?"Nous n'avons pas reçu de confirmation de Freda Pay Issuing pour le dossier ":"Freda Pay Issuing n'a pas validé le paiement du dossier "}<b>${esc(ref)}</b>. Aucun montant n'a été validé pour ce dossier. Vous pouvez réessayer.</p>
+      <fieldset><legend>Moyen de paiement</legend><div class="choix deux">${meths.map(k=>`<label><input type="radio" name="methode-retour" value="${k}" ${m===k?"checked":""}><span>${k==="carte"?"Carte bancaire<small>Payé en dollars</small>":"MonCash ou Natcash<small>Payé en gourdes</small>"}</span></label>`).join("")}</div></fieldset>
+      ${m==="carte"?`<div class="champ"><label for="email-retour">Email pour le reçu de la carte</label><input id="email-retour" type="email" autocomplete="email" required></div>`:""}
+      <div class="erreur-paie cache" id="err-retour" role="alert"></div>
+      <div class="form-actions"><a class="lien" href="#suivi">Suivre mon dossier</a><button class="btn btn-rouge" type="button" data-r="relancer">Réessayer le paiement</button></div></div>`;
+    z.querySelectorAll('input[name="methode-retour"]').forEach(x=>x.onchange=()=>{m=x.value;r();});
+    z.querySelector("[data-r=relancer]").onclick=async e=>{
+      const btn=e.currentTarget,err=document.getElementById("err-retour"),em=document.getElementById("email-retour");
+      err.classList.add("cache");
+      if(em&&!em.checkValidity()){err.textContent="Entrez une adresse email valide pour recevoir le reçu de la carte.";err.classList.remove("cache");em.focus();return;}
+      btn.disabled=true;
+      try{
+        const body={methode:m};if(em)body.client_email=em.value.trim();
+        const d2=await api("/api/dossiers/"+encodeURIComponent(ref)+"/relancer",{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify(body)});
+        try{localStorage.setItem("ead-derniere-methode",m);}catch(_){}
+        btn.textContent="Redirection vers Freda Pay Issuing…";location.href=d2.checkout_url;
+      }catch(x){btn.disabled=false;err.textContent=x.message;err.classList.remove("cache");}
+    };
+  };
+  r();
+}
+
+
+/* ---------- Espace client ---------- */
+const CPT={client:null,dossiers:[],stats:null,pret:false,onglet:"connexion",panneau:null,ref:null,detail:null,reinit:null,aRattacher:null,t:null,tours:0,avis:null,demoFichiers:{}};
+try{CPT.ref=sessionStorage.getItem("ead-compte-ref");}catch(_){}
+const CLE_DEMO="ead-compte-demo";
+const prenomDe=n=>String(n||"").trim().split(/\s+/)[0]||"";
+function dateFr(d,h){if(!d)return "";const x=new Date(d);if(isNaN(x))return String(d);return h?x.toLocaleString("fr-FR",{dateStyle:"medium",timeStyle:"short"}):x.toLocaleDateString("fr-FR",{day:"numeric",month:"short",year:"numeric"});}
+function taille(o){if(!o&&o!==0)return "";if(o<1024)return o+" o";if(o<1048576)return Math.round(o/1024)+" Ko";return (o/1048576).toFixed(1).replace(".",",")+" Mo";}
+function jenvoi(url,body,method){return api(url,{method:method||"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify(body||{})});}
+function zoneCompte(){return document.getElementById("compte-zone");}
+function erreurForm(f,msg){const e=f.querySelector(".erreur-paie");if(!e)return toast(msg);e.textContent=msg;e.classList.remove("cache");e.focus&&e.setAttribute("tabindex","-1");}
+function occupe(f,oui,txt){const b=f.querySelector("button[type=submit]");if(!b)return;if(oui){b.dataset.txt=b.textContent;b.disabled=true;b.textContent=txt||"Patientez…";}else{b.disabled=false;if(b.dataset.txt)b.textContent=b.dataset.txt;}}
+function memoRef(r){CPT.ref=r;try{sessionStorage.setItem("ead-compte-ref",r);}catch(_){}}
+
+/* Démonstration : compte enregistré sur cet appareil */
+const DEMO_MONTANTS={precommande:20250,consultation:150,recherche:150,essai:150,vendre:200,financement:25};
+function lireDemo(){try{return JSON.parse(localStorage.getItem(CLE_DEMO)||"null");}catch(_){return null;}}
+function ecrireDemo(c){try{c?localStorage.setItem(CLE_DEMO,JSON.stringify(c)):localStorage.removeItem(CLE_DEMO);}catch(_){}}
+function demoDossiers(){
+  return Object.entries(REG).map(([ref,d])=>{
+    const S=SERV[d.service]||{titre:d.service,statuts:[]},m=d.montant_usd||DEMO_MONTANTS[d.service]||0;
+    return {ref,service:d.service,titre:S.titre,service_titre:S.titre,detail:d.detail||"",cree_le:d.iso||null,date:d.date||"",etape:d.service==="precommande"&&d.etape<3?3:d.etape,statuts:S.statuts,
+      paiement:{statut:"succeeded",montant:m,devise:"USD",methode:"mobile",confirme_le:d.iso||null},montant_usd:m,lignes:d.lignes||[],
+      solde_usd:d.service==="precommande"?Math.round(m/9):null};
+  }).reverse();
+}
+function demoStats(l){return{en_cours:l.filter(d=>d.etape<(d.statuts||[]).length).length,payes_usd:l.reduce((s,d)=>s+(d.montant_usd||0),0),soldes_usd:l.reduce((s,d)=>s+(d.solde_usd||0),0)};}
+function demoDetail(ref){
+  const d=demoDossiers().find(x=>x.ref===ref);if(!d)return null;
+  const S=SERV[d.service];
+  const hist=d.statuts.slice(0,Math.min(d.etape,d.statuts.length)).map((s,i)=>({quand:null,texte:s})).reverse();
+  hist.push({quand:null,texte:"Dossier créé"});
+  return Object.assign({},d,{
+    paiements:[{id:"demo-"+ref,type:"initial",montant:d.montant_usd,devise:"USD",methode:"mobile",statut:"succeeded",cree_le:null,confirme_le:null}],
+    fichiers:CPT.demoFichiers[ref]||[],historique:hist,
+    solde:d.service==="precommande"?{prix_usd:d.montant_usd+d.solde_usd,paye_usd:d.montant_usd,solde_usd:d.solde_usd,statut:"a_envoyer",arrive:true}:null,
+    peut_payer_solde:d.service==="precommande",lignes:d.lignes&&d.lignes.length?d.lignes:[["Service",S.titre],["Détail",d.detail]]});
+}
+
+/* Session */
+async function chargerCompte(){
+  if(!MODE_REEL){
+    CPT.client=lireDemo();CPT.dossiers=CPT.client?demoDossiers():[];CPT.stats=demoStats(CPT.dossiers);CPT.pret=true;majEntete();return;
+  }
+  try{const d=await api("/api/compte");CPT.client=d.client||null;CPT.dossiers=d.dossiers||[];CPT.stats=d.stats||null;}
+  catch(e){if(e.status===401){CPT.client=null;CPT.dossiers=[];CPT.stats=null;}else{CPT.erreur=e.message;}}
+  CPT.pret=true;majEntete();
+}
+function majEntete(){
+  const c=CPT.client,p=c?prenomDe(c.nom):"";
+  document.querySelectorAll(".btn-compte").forEach(a=>{a.classList.toggle("connecte",!!c);a.querySelector(".txt").textContent=c?p:"Mon espace";a.setAttribute("aria-label",c?"Mon espace, connecté en tant que "+p:"Mon espace : connexion ou création de compte");});
+  const m=document.getElementById("compte-menu-etat");if(m)m.textContent=c?p:"Connexion";
+}
+async function apresConnexion(c,msg){
+  CPT.client=c;CPT.panneau=null;
+  if(CPT.aRattacher&&MODE_REEL){try{await jenvoi("/api/compte/rattacher",{ref:CPT.aRattacher,tel:c.tel});}catch(_){}}
+  CPT.aRattacher=null;
+  await chargerCompte();toast(msg);
+  if(location.hash==="#compte")rendreCompte();else aller("compte");
+  document.querySelectorAll(".parcours").forEach(preremplir);
+}
+
+/* Écran : connexion, inscription, oubli, réinitialisation */
+const champMdp=(id,lbl,auto,aide)=>`<div class="champ"><label for="${id}">${lbl}</label><div class="mdp"><input id="${id}" name="${id}" type="password" autocomplete="${auto}" ${auto==="current-password"?"":'minlength="8"'} required><button type="button" class="voir-mdp" data-voir="${id}" aria-pressed="false" aria-label="Afficher le mot de passe">Afficher</button></div>${aide?`<span class="aide">${aide}</span>`:""}</div>`;
+const demoNote=`<div class="demo" data-seulement-demo><svg width="18" height="18" aria-hidden="true"><use href="#i-info"/></svg><span>Démonstration : le compte est fictif et reste sur cet appareil. Tout identifiant fonctionne.</span></div>`;
+function ecranAuth(){
+  const o=CPT.onglet;
+  let corps;
+  if(CPT.reinit){
+    corps=`<h1 tabindex="-1">Nouveau mot de passe</h1><p class="muted">Choisissez un nouveau mot de passe pour votre espace Elite Auto Deal.</p>
+    <form class="form-compte" id="f-reinit" novalidate>${champMdp("ri-mdp","Nouveau mot de passe","new-password","8 caractères minimum.")}${champMdp("ri-mdp2","Confirmer le mot de passe","new-password")}
+      <div class="erreur-paie cache" role="alert"></div><button class="btn btn-rouge" type="submit">Enregistrer et me connecter</button></form>`;
+  }else if(o==="oubli"){
+    corps=`<h1 tabindex="-1">Mot de passe oublié</h1><p class="muted">Indiquez le téléphone ou l'email de votre compte. Un conseiller Elite Auto Deal vous enverra un lien de réinitialisation sur WhatsApp, valable 24 heures.</p>
+    <form class="form-compte" id="f-oubli" novalidate><div class="champ"><label for="ou-id">Téléphone ou email</label><input id="ou-id" type="text" autocomplete="username" required></div>
+      <div class="erreur-paie cache" role="alert"></div><div id="ou-ok"></div>
+      <div class="form-actions" style="margin-top:0"><button class="lien" type="button" data-onglet="connexion">Retour à la connexion</button><button class="btn btn-noir" type="submit">Envoyer la demande</button></div></form>`;
+  }else{
+    const ins=o==="inscription";
+    corps=`<h1 tabindex="-1">${ins?"Créer mon espace":"Mon espace"}</h1>
+    <div class="onglets" role="tablist" aria-label="Connexion ou inscription"><button type="button" role="tab" id="tab-co" aria-controls="pan-co" aria-selected="${!ins}" data-onglet="connexion">Connexion</button><button type="button" role="tab" id="tab-ins" aria-controls="pan-ins" aria-selected="${ins}" data-onglet="inscription">Créer un compte</button></div>
+    ${CPT.aRattacher?`<div class="encadre" style="margin:0"><svg aria-hidden="true"><use href="#i-info"/></svg><p>Le dossier <b>${esc(CPT.aRattacher)}</b> sera ajouté à votre espace si vous utilisez le téléphone indiqué dans la demande.</p></div>`:""}
+    ${ins?`<form class="form-compte" id="f-inscription" role="tabpanel" aria-labelledby="tab-ins" novalidate>
+      <div class="champ"><label for="in-nom">Nom complet</label><input id="in-nom" type="text" autocomplete="name" required></div>
+      <div class="grille-champs g2"><div class="champ"><label for="in-tel">Téléphone</label><input id="in-tel" type="tel" autocomplete="tel" placeholder="+509 0000 0000" required></div>
+      <div class="champ"><label for="in-wa">WhatsApp <span class="muted" style="font-weight:400">(si différent)</span></label><input id="in-wa" type="tel" autocomplete="tel" placeholder="+509 0000 0000"></div></div>
+      <div class="champ"><label for="in-email">Email <span class="muted" style="font-weight:400">(facultatif)</span></label><input id="in-email" type="email" autocomplete="email"></div>
+      ${champMdp("in-mdp","Mot de passe","new-password","8 caractères minimum.")}
+      <label class="case"><input type="checkbox" id="in-cons" required><span>J'accepte que mes données soient utilisées par Elite Auto Deal pour traiter mes demandes et me contacter sur WhatsApp. <a href="#conditions">Données personnelles</a></span></label>
+      <div class="erreur-paie cache" role="alert"></div>
+      <button class="btn btn-rouge" type="submit">Créer mon espace</button></form>`
+    :`<form class="form-compte" id="f-connexion" role="tabpanel" aria-labelledby="tab-co" novalidate>
+      <div class="champ"><label for="co-id">Téléphone ou email</label><input id="co-id" type="text" autocomplete="username" required></div>
+      ${champMdp("co-mdp","Mot de passe","current-password")}
+      <div class="erreur-paie cache" role="alert"></div>
+      <div class="form-actions" style="margin-top:0"><button class="lien" type="button" data-onglet="oubli">Mot de passe oublié ?</button><button class="btn btn-noir" type="submit">Se connecter</button></div></form>`}`;
+  }
+  return `<div class="compte-auth"><div class="bloc-form auth-carte">${demoNote}${corps}</div>
+    <aside class="auth-avantages"><h2>Vos dossiers, au même endroit</h2><ul>
+      <li><svg aria-hidden="true"><use href="#i-check"/></svg><span><b>Suivi en direct</b>L'avancement de chaque demande, étape par étape.</span></li>
+      <li><svg aria-hidden="true"><use href="#i-check"/></svg><span><b>Reçus de paiement</b>Confirmés par Freda Pay Issuing, consultables à tout moment.</span></li>
+      <li><svg aria-hidden="true"><use href="#i-check"/></svg><span><b>Documents</b>Ajoutez photos, vidéos et pièces depuis votre téléphone.</span></li>
+      <li><svg aria-hidden="true"><use href="#i-check"/></svg><span><b>Solde de précommande</b>Réglez les 10 % à l'arrivée de votre véhicule, en ligne.</span></li></ul>
+      <svg class="filigrane" aria-hidden="true" viewBox="0 0 680 118"><use href="#marque"/></svg></aside></div>`;
+}
+function brancherAuth(z){
+  const fc=z.querySelector("#f-connexion"),fi=z.querySelector("#f-inscription"),fo=z.querySelector("#f-oubli"),fr=z.querySelector("#f-reinit");
+  if(fc)fc.onsubmit=async e=>{e.preventDefault();
+    if(!fc.checkValidity()){fc.reportValidity();return;}
+    const id=fc.querySelector("#co-id").value.trim(),mdp=fc.querySelector("#co-mdp").value;
+    if(!MODE_REEL){const c=lireDemo()||{id:"demo",nom:/@|\d/.test(id)?"Client Démo":id,tel:/\d/.test(id)?id:"+509 3700 0000",whatsapp:"",email:/@/.test(id)?id:"",cree_le:new Date().toISOString()};ecrireDemo(c);apresConnexion(c,"Connecté");return;}
+    occupe(fc,true,"Connexion…");
+    try{const d=await jenvoi("/api/compte/connexion",{identifiant:id,mot_de_passe:mdp});apresConnexion(d.client,"Connecté");}
+    catch(x){occupe(fc,false);erreurForm(fc,x.message);}
+  };
+  if(fi)fi.onsubmit=async e=>{e.preventDefault();
+    if(!fi.checkValidity()){fi.reportValidity();return;}
+    const v=id=>fi.querySelector(id).value.trim();
+    const corps={nom:v("#in-nom"),tel:v("#in-tel"),whatsapp:v("#in-wa")||v("#in-tel"),email:v("#in-email")||undefined,mot_de_passe:fi.querySelector("#in-mdp").value};
+    if(!MODE_REEL){const c={id:"demo",nom:corps.nom,tel:corps.tel,whatsapp:corps.whatsapp,email:corps.email||"",cree_le:new Date().toISOString()};ecrireDemo(c);apresConnexion(c,"Espace créé");return;}
+    occupe(fi,true,"Création…");
+    try{const d=await jenvoi("/api/compte/inscription",corps);apresConnexion(d.client,"Votre espace est créé");}
+    catch(x){occupe(fi,false);erreurForm(fi,x.message);}
+  };
+  if(fo)fo.onsubmit=async e=>{e.preventDefault();
+    if(!fo.checkValidity()){fo.reportValidity();return;}
+    const ok=fo.querySelector("#ou-ok"),def="Demande reçue. Un conseiller vous enverra un lien de réinitialisation sur WhatsApp. Le lien est valable 24 heures.";
+    let msg=def;
+    if(MODE_REEL){occupe(fo,true,"Envoi…");try{const d=await jenvoi("/api/compte/oubli",{identifiant:fo.querySelector("#ou-id").value.trim()});msg=d&&d.message||def;}catch(x){occupe(fo,false);erreurForm(fo,x.message);return;}occupe(fo,false);}
+    ok.innerHTML=`<div class="encadre" style="margin:0"><svg aria-hidden="true"><use href="#i-check" stroke="currentColor"/></svg><p>${esc(msg)}</p></div>`;
+  };
+  if(fr)fr.onsubmit=async e=>{e.preventDefault();
+    if(!fr.checkValidity()){fr.reportValidity();return;}
+    const a=fr.querySelector("#ri-mdp").value,b=fr.querySelector("#ri-mdp2").value;
+    if(a!==b){erreurForm(fr,"Les deux mots de passe ne correspondent pas.");return;}
+    const fin=c=>{CPT.reinit=null;try{const u=new URL(location.href);u.searchParams.delete("reinit");history.replaceState(null,"",u.pathname+u.search+u.hash);}catch(_){}apresConnexion(c,"Mot de passe enregistré");};
+    if(!MODE_REEL){const c=lireDemo()||{id:"demo",nom:"Client Démo",tel:"+509 3700 0000",whatsapp:"",email:""};ecrireDemo(c);fin(c);return;}
+    occupe(fr,true,"Enregistrement…");
+    try{const d=await jenvoi("/api/compte/reinitialiser",{jeton:CPT.reinit,mot_de_passe:a});fin(d.client);}
+    catch(x){occupe(fr,false);erreurForm(fr,x.message);}
+  };
+}
+
+/* Tableau de bord */
+function badgePaie(p){
+  const s=p&&p.statut;
+  if(s==="succeeded")return `<span class="badge st-disponible"><span>Payé</span></span>`;
+  if(s==="failed")return `<span class="badge st-echec"><span>Paiement non abouti</span></span>`;
+  return `<span class="badge st-transit"><span>Paiement en attente</span></span>`;
+}
+function avancement(d){
+  const st=d.statuts||[],n=st.length||1,paye=d.paiement&&d.paiement.statut==="succeeded";
+  if(!paye)return{pct:0,lbl:"En attente du paiement"};
+  const e=Math.min(d.etape||0,n);
+  return{pct:Math.max(6,Math.round(e/n*100)),lbl:e>=n?"Terminé":st[e]};
+}
+function carteDossier(d){
+  const a=avancement(d),t=d.service_titre||d.titre||(SERV[d.service]||{}).titre||"";
+  return `<a class="carte-dossier" href="#compte-dossier" data-ouvrir-dossier="${esc(d.ref)}">
+    <span class="cd-tete"><span class="muted">${esc(t)}</span>${badgePaie(d.paiement)}</span>
+    <strong>${esc(d.detail||t)}</strong><span class="cd-ref">${esc(d.ref)}</span>
+    <span class="progres fixe" aria-hidden="true"><span style="width:${a.pct}%"></span></span>
+    <span class="cd-pied"><span>${esc(a.lbl)}</span><span class="muted">${esc(d.cree_le?dateFr(d.cree_le):(d.date||""))}</span></span></a>`;
+}
+function panneauHTML(){
+  const c=CPT.client||{};
+  if(CPT.panneau==="rattacher")return `<form class="bloc-form panneau-compte" id="f-rattacher" novalidate><div class="pan-tete"><h3 tabindex="-1">Ajouter un dossier existant</h3><button class="fermer" type="button" data-panneau="" aria-label="Fermer"><svg width="18" height="18"><use href="#i-x"/></svg></button></div>
+    <p class="muted" style="font-size:14.5px">Pour un dossier créé avant votre inscription. Indiquez sa référence et le téléphone utilisé dans la demande.</p>
+    <div class="grille-champs g2"><div class="champ"><label for="ra-ref">Référence du dossier</label><input id="ra-ref" type="text" placeholder="EAD-2026-00000" autocomplete="off" required pattern="[Ee][Aa][Dd]-\\d{4}-\\d{5}"></div>
+    <div class="champ"><label for="ra-tel">Téléphone de la demande</label><input id="ra-tel" type="tel" autocomplete="tel" value="${esc(c.tel||"")}" required></div></div>
+    <div class="erreur-paie cache" role="alert"></div><div class="form-actions" style="margin-top:0"><span></span><button class="btn btn-noir" type="submit">Ajouter le dossier</button></div></form>`;
+  if(CPT.panneau==="profil")return `<div class="bloc-form panneau-compte"><div class="pan-tete"><h3 tabindex="-1">Mon profil</h3><button class="fermer" type="button" data-panneau="" aria-label="Fermer"><svg width="18" height="18"><use href="#i-x"/></svg></button></div>
+    <form class="form-compte" id="f-profil" novalidate><div class="grille-champs g2">
+      <div class="champ"><label for="pr-nom">Nom complet</label><input id="pr-nom" type="text" autocomplete="name" value="${esc(c.nom||"")}" required></div>
+      <div class="champ"><label for="pr-email">Email</label><input id="pr-email" type="email" autocomplete="email" value="${esc(c.email||"")}"></div>
+      <div class="champ"><label for="pr-tel">Téléphone</label><input id="pr-tel" type="tel" autocomplete="tel" value="${esc(c.tel||"")}" required></div>
+      <div class="champ"><label for="pr-wa">WhatsApp</label><input id="pr-wa" type="tel" autocomplete="tel" value="${esc(c.whatsapp||"")}"></div></div>
+      <div class="erreur-paie cache" role="alert"></div><div class="form-actions" style="margin-top:0"><span class="muted" style="font-size:13px">${c.cree_le?"Espace créé le "+esc(dateFr(c.cree_le)):""}</span><button class="btn btn-noir" type="submit">Enregistrer</button></div></form>
+    <form class="form-compte" id="f-mdp" novalidate style="border-top:1px solid var(--gris-100);padding-top:18px"><h3 style="font-size:16px">Changer le mot de passe</h3><div class="grille-champs g2">${champMdp("mp-actuel","Mot de passe actuel","current-password")}${champMdp("mp-nouveau","Nouveau mot de passe","new-password","8 caractères minimum.")}</div>
+      <div class="erreur-paie cache" role="alert"></div><div class="form-actions" style="margin-top:0"><span></span><button class="btn btn-contour" type="submit">Changer le mot de passe</button></div></form></div>`;
+  return "";
+}
+function tableauHTML(){
+  const c=CPT.client,s=CPT.stats||demoStats(CPT.dossiers),l=CPT.dossiers||[];
+  return `${demoNote}<div class="compte-tete"><div><span class="muted" style="font-weight:600">Mon espace</span><h1 tabindex="-1">Bonjour ${esc(prenomDe(c.nom))}</h1><p class="lead">Suivez vos dossiers, vos paiements et vos documents.</p></div>
+    <div class="compte-actions"><button class="btn btn-contour btn-sm" type="button" data-panneau="rattacher">Ajouter un dossier existant</button><button class="btn btn-contour btn-sm" type="button" data-panneau="profil">Mon profil</button><button class="btn btn-contour btn-sm" type="button" data-deconnexion>Se déconnecter</button></div></div>
+    <div id="compte-panneau">${panneauHTML()}</div>
+    <div class="stats-compte"><div class="stat"><span>Dossiers en cours</span><b>${s.en_cours||0}</b></div><div class="stat"><span>Total payé</span><b>${usd(s.payes_usd||0)}</b></div><div class="stat${s.soldes_usd>0?" du":""}"><span>Solde à régler</span><b>${usd(s.soldes_usd||0)}</b></div></div>
+    <div class="rang-titre"><h2>Mes dossiers</h2><a class="btn btn-rouge btn-sm" href="#accueil" data-nouvelle>Nouvelle demande</a></div>
+    ${l.length?`<div class="grille-dossiers">${l.map(carteDossier).join("")}</div>`
+    :`<div class="vide-compte"><b>Aucun dossier pour le moment.</b><p class="muted">Lancez une demande : elle apparaîtra ici dès sa création. Un dossier créé avant votre inscription peut être ajouté avec sa référence.</p><div class="compte-actions"><a class="btn btn-noir btn-sm" href="#recherche">Trouver un véhicule</a><a class="btn btn-contour btn-sm" href="#vehicules">Voir les véhicules</a><button class="btn btn-contour btn-sm" type="button" data-panneau="rattacher">Ajouter un dossier existant</button></div></div>`}`;
+}
+function brancherPanneau(z){
+  const fr=z.querySelector("#f-rattacher"),fp=z.querySelector("#f-profil"),fm=z.querySelector("#f-mdp");
+  if(fr)fr.onsubmit=async e=>{e.preventDefault();
+    if(!fr.checkValidity()){fr.reportValidity();return;}
+    const ref=fr.querySelector("#ra-ref").value.trim().toUpperCase(),tel=fr.querySelector("#ra-tel").value.trim();
+    if(!MODE_REEL){if(REG[ref]){CPT.panneau=null;toast("Dossier ajouté à votre espace");rendreCompte();}else erreurForm(fr,"Aucun dossier ne correspond à cette référence et à ce téléphone.");return;}
+    occupe(fr,true,"Ajout…");
+    try{await jenvoi("/api/compte/rattacher",{ref,tel});CPT.panneau=null;await chargerCompte();toast("Dossier ajouté à votre espace");rendreCompte();}
+    catch(x){occupe(fr,false);erreurForm(fr,x.message);}
+  };
+  if(fp)fp.onsubmit=async e=>{e.preventDefault();
+    if(!fp.checkValidity()){fp.reportValidity();return;}
+    const v=id=>fp.querySelector(id).value.trim(),corps={nom:v("#pr-nom"),tel:v("#pr-tel"),whatsapp:v("#pr-wa"),email:v("#pr-email")};
+    if(!MODE_REEL){const c=Object.assign(lireDemo()||{},corps);ecrireDemo(c);CPT.client=c;majEntete();toast("Profil enregistré");rendreCompte();return;}
+    occupe(fp,true,"Enregistrement…");
+    try{const d=await jenvoi("/api/compte",corps,"PATCH");CPT.client=d.client;majEntete();toast("Profil enregistré");rendreCompte();}
+    catch(x){occupe(fp,false);erreurForm(fp,x.message);}
+  };
+  if(fm)fm.onsubmit=async e=>{e.preventDefault();
+    if(!fm.checkValidity()){fm.reportValidity();return;}
+    if(!MODE_REEL){fm.reset();toast("Mot de passe changé (démonstration)");return;}
+    occupe(fm,true,"Enregistrement…");
+    try{await jenvoi("/api/compte/mot-de-passe",{actuel:fm.querySelector("#mp-actuel").value,nouveau:fm.querySelector("#mp-nouveau").value});occupe(fm,false);fm.reset();toast("Mot de passe changé");}
+    catch(x){occupe(fm,false);erreurForm(fm,x.message);}
+  };
+}
+async function rendreCompte(rafraichir){
+  const z=zoneCompte();if(!z)return;
+  if(!CPT.pret){z.innerHTML=`<div class="verif" role="status" style="margin-top:20px"><span class="spin"></span>Chargement de votre espace…</div>`;return;}
+  if(rafraichir&&CPT.client&&MODE_REEL){chargerCompte().then(()=>{if(location.hash==="#compte")rendreCompte();});}
+  if(rafraichir&&!MODE_REEL&&CPT.client){CPT.dossiers=demoDossiers();CPT.stats=demoStats(CPT.dossiers);}
+  if(!CPT.client||CPT.reinit){z.innerHTML=ecranAuth();brancherAuth(z);}
+  else{z.innerHTML=tableauHTML();brancherPanneau(z);}
+  if(CPT.panneau){const h=z.querySelector("#compte-panneau h3");h&&h.focus({preventScroll:true});}
+}
+
+/* Détail d'un dossier */
+const LIB_METH={mobile:"MonCash ou Natcash",carte:"Carte bancaire"};
+function libStatutPaie(s){return s==="succeeded"?"Payé":s==="failed"?"Non abouti":"En attente";}
+function detailHTML(d){
+  const p=d.paiement||{},paye=p.statut==="succeeded",S=SERV[d.service]||{};
+  const titre=d.service_titre||d.titre||S.titre||"";
+  const txtWa=`Bonjour Elite Auto Deal, je souhaite un point sur mon dossier ${d.ref}${d.detail?" ("+d.detail+")":""}.`;
+  const meths=(MODE_REEL&&CONFIG&&CONFIG.methodes&&CONFIG.methodes.length?CONFIG.methodes:["mobile","carte"]).filter(x=>x==="mobile"||x==="carte");
+  const so=d.solde;
+  const blocSolde=so?`<section class="bloc-form solde-bloc"><h3>Solde de la précommande</h3>
+      <div class="repartition" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,140px),1fr))"><div><span>Prix du véhicule</span><b>${usd(so.prix_usd)}</b></div><div><span>Déjà payé</span><b>${usd(so.paye_usd)}</b></div><div><span>Solde (10 %)</span><b>${usd(so.solde_usd)}</b></div></div>
+      <p class="statut-solde">${so.statut==="paye"?"Le solde est réglé. La livraison est en cours de planification.":so.arrive?"Votre véhicule est arrivé en Haïti : le solde peut être réglé.":"Le solde sera à régler à l'arrivée du véhicule en Haïti. Vous serez prévenu sur WhatsApp."}</p>
+      ${d.peut_payer_solde?`<fieldset><legend>Moyen de paiement</legend><div class="choix deux">${meths.map((k,i)=>`<label><input type="radio" name="methode-solde" value="${k}" ${i===0?"checked":""}><span>${LIB_METH[k]}<small>${k==="carte"?"Payé en dollars : "+usd(so.solde_usd):"Payé en gourdes : "+htg(so.solde_usd)}</small></span></label>`).join("")}</div></fieldset>
+      <div class="erreur-paie cache" id="err-solde" role="alert"></div>
+      <button class="btn btn-rouge" type="button" data-payer-solde><svg aria-hidden="true"><use href="#i-cadenas"/></svg>Payer le solde</button>
+      <p class="muted" style="font-size:13px">Vous serez redirigé vers la page de paiement sécurisée Freda Pay Issuing.</p>`:""}</section>`:"";
+  const pais=d.paiements||[];
+  const fich=d.fichiers||[];
+  return `<a class="retour-lien" href="#compte"><svg aria-hidden="true"><use href="#i-fleche-g"/></svg>Mes dossiers</a>
+   ${demoNote}
+   <div class="dossier-tete"><div><span class="muted" style="font-weight:600">${esc(titre)}</span><h1 tabindex="-1">${esc(d.detail||titre)}</h1>
+     <div class="ref-ligne"><span>Référence <b>${esc(d.ref)}</b></span><button class="lien" type="button" data-copier-ref="${esc(d.ref)}" style="min-height:32px">Copier</button>${badgePaie(p)}<span class="muted">${d.cree_le?"Ouvert le "+esc(dateFr(d.cree_le)):d.date?"Ouvert le "+esc(d.date):""}</span></div></div>
+     <a class="btn btn-wa btn-sm" target="_blank" rel="noopener" href="${waUrl(txtWa)}"><svg aria-hidden="true"><use href="#i-wa"/></svg>Écrire sur WhatsApp</a></div>
+   ${CPT.avis?`<div class="encadre alerte" style="margin:0 0 14px"><svg aria-hidden="true"><use href="#i-info"/></svg><p>${esc(CPT.avis)}</p></div>`:""}
+   <div class="dossier-grille"><div class="col">
+     <section class="bloc-form"><h3>Avancement</h3>${paye?chronoHTML(d.statuts||[],d.etape||0):`<p>${p.statut==="failed"?"Le paiement n'a pas abouti. Votre dossier sera traité dès que le paiement est confirmé.":"Votre dossier sera traité dès que Freda Pay Issuing confirme le paiement."}</p><button class="btn btn-rouge btn-sm" type="button" data-etat-paie="${esc(d.ref)}">Voir l'état du paiement</button>`}</section>
+     ${blocSolde}
+     <section class="bloc-form"><h3>Paiements</h3>${pais.length?`<ul class="liste-simple">${pais.map(x=>`<li><div><b>${x.type==="solde"?"Solde de 10 %":"Paiement du dossier"}</b><span class="sous">${esc(LIB_METH[x.methode]||x.methode||"")}${x.confirme_le||x.cree_le?", "+esc(dateFr(x.confirme_le||x.cree_le,true)):""}</span></div>
+       <div class="pl-droite"><b>${montantDevise(x.montant,x.devise)}</b><span class="badge ${x.statut==="succeeded"?"st-disponible":x.statut==="failed"?"st-echec":"st-transit"}"><span>${libStatutPaie(x.statut)}</span></span>${x.statut==="succeeded"?`<button class="lien" type="button" data-recu="${esc(String(x.id))}">Voir le reçu</button>`:""}</div></li>`).join("")}</ul>`:`<p class="muted">Aucun paiement enregistré.</p>`}</section>
+     <section class="bloc-form"><h3>Documents</h3>
+       ${fich.length?`<ul class="liste-simple">${fich.map(f=>`<li><div><a href="${esc(f.url||"/api/compte/fichiers/"+f.id)}" target="_blank" rel="noopener">${esc(f.nom)}</a><span class="sous">${esc([taille(f.taille),f.cree_le?dateFr(f.cree_le):""].filter(Boolean).join(", "))}</span></div></li>`).join("")}</ul>`:`<p class="muted">Aucun document pour ce dossier.</p>`}
+       <label class="depot-mini"><input class="sr" type="file" id="cpt-fichiers" multiple accept="image/*,video/*,application/pdf"><svg aria-hidden="true"><use href="#i-upload"/></svg><span>Ajouter des documents<small>Photos, vidéos ou PDF : 10 fichiers par envoi, 60 Mo maximum chacun</small></span></label>
+       <div id="cpt-envoi"></div></section>
+   </div><div class="col">
+     <section class="bloc-form"><h3>Votre demande</h3>${(d.lignes||[]).length?`<ul class="recap">${d.lignes.map(([a,b])=>`<li><span>${esc(a)}</span><span>${esc(b)}</span></li>`).join("")}</ul>`:`<p class="muted">Détails transmis avec votre demande.</p>`}</section>
+     <section class="bloc-form"><h3>Historique</h3>${(d.historique||[]).length?`<ul class="histo">${d.historique.map(h=>`<li>${h.quand?`<time datetime="${esc(h.quand)}">${esc(dateFr(h.quand,true))}</time>`:""}<span>${esc(h.texte)}</span></li>`).join("")}</ul>`:`<p class="muted">Rien pour le moment.</p>`}</section>
+   </div></div>`;
+}
+async function rendreDossierCompte(silencieux){
+  const z=document.getElementById("compte-dossier-zone");if(!z)return;
+  clearTimeout(CPT.t);
+  if(!CPT.pret){z.innerHTML=`<div class="verif" role="status" style="margin-top:20px"><span class="spin"></span>Chargement…</div>`;return;}
+  if(!CPT.client||!CPT.ref){location.hash="compte";return;}
+  if(!silencieux){CPT.tours=0;z.innerHTML=`<div class="verif" role="status" style="margin-top:20px"><span class="spin"></span>Chargement du dossier ${esc(CPT.ref)}…</div>`;}
+  let d=null;
+  if(MODE_REEL){try{d=await api("/api/compte/dossiers/"+encodeURIComponent(CPT.ref));}catch(e){if(e.status===401){CPT.client=null;majEntete();location.hash="compte";return;}z.innerHTML=`<a class="retour-lien" href="#compte"><svg aria-hidden="true"><use href="#i-fleche-g"/></svg>Mes dossiers</a><div class="carte-suivi"><b>${esc(e.message)}</b></div>`;return;}}
+  else d=demoDetail(CPT.ref);
+  if(!d){z.innerHTML=`<a class="retour-lien" href="#compte"><svg aria-hidden="true"><use href="#i-fleche-g"/></svg>Mes dossiers</a><div class="carte-suivi"><b>Dossier introuvable dans votre espace.</b></div>`;return;}
+  if(location.hash!=="#compte-dossier")return;
+  CPT.detail=d;
+  const y=window.scrollY;
+  z.innerHTML=detailHTML(d);
+  if(silencieux)window.scrollTo(0,y);else{const h=z.querySelector("h1");h&&h.focus({preventScroll:true});document.title=(d.detail||d.ref)+" | Mon espace | Elite Auto Deal";}
+  const enAttente=(d.paiements||[]).some(x=>x.statut==="pending");
+  if(MODE_REEL&&enAttente&&CPT.tours<60){CPT.tours++;CPT.t=setTimeout(()=>rendreDossierCompte(true),5000);}
+  else if(CPT.avis&&!enAttente)CPT.avis=null;
+}
+function envoyerDocuments(inp){
+  const fs=[...inp.files],box=document.getElementById("cpt-envoi");
+  if(!fs.length)return;
+  if(fs.length>10){toast("10 fichiers maximum par envoi");inp.value="";return;}
+  const trop=fs.find(f=>f.size>60*1024*1024);if(trop){toast(trop.name+" dépasse 60 Mo");inp.value="";return;}
+  const ref=CPT.ref;
+  if(!MODE_REEL){(CPT.demoFichiers[ref]=CPT.demoFichiers[ref]||[]).push(...fs.map((f,i)=>({id:"l"+Date.now()+i,nom:f.name,type:f.type,taille:f.size,cree_le:new Date().toISOString(),url:URL.createObjectURL(f)})));toast(fs.length>1?"Documents ajoutés":"Document ajouté");rendreDossierCompte(true);return;}
+  const fd=new FormData();fs.forEach(f=>fd.append("fichiers",f,f.name));
+  box.innerHTML=`<div class="verif" role="status" style="flex-wrap:wrap"><span class="spin"></span><span id="cpt-envoi-txt">Envoi de ${fs.length} fichier${fs.length>1?"s":""}…</span><div class="progres" style="flex-basis:100%"><span id="cpt-barre"></span></div></div>`;
+  inp.disabled=true;
+  const x=new XMLHttpRequest();x.open("POST","/api/compte/dossiers/"+encodeURIComponent(ref)+"/fichiers");x.timeout=600000;
+  x.upload.onprogress=e=>{if(!e.lengthComputable)return;const b=document.getElementById("cpt-barre");if(b)b.style.width=Math.round(e.loaded/e.total*100)+"%";if(e.loaded>=e.total){const t=document.getElementById("cpt-envoi-txt");if(t)t.textContent="Enregistrement…";}};
+  x.onload=()=>{let d=null;try{d=JSON.parse(x.responseText);}catch(_){}
+    if(x.status>=200&&x.status<300&&d){toast(fs.length>1?"Documents envoyés":"Document envoyé");if(location.hash==="#compte-dossier"){CPT.detail=d;const y=window.scrollY;document.getElementById("compte-dossier-zone").innerHTML=detailHTML(d);window.scrollTo(0,y);}return;}
+    inp.disabled=false;box.innerHTML=`<div class="erreur-paie" role="alert">${esc(d&&d.error&&d.error.message?d.error.message:"L'envoi a échoué. Réessayez.")}</div>`;};
+  x.onerror=x.ontimeout=()=>{inp.disabled=false;box.innerHTML=`<div class="erreur-paie" role="alert">Connexion impossible. Vérifiez votre connexion internet et réessayez.</div>`;};
+  x.send(fd);
+}
+async function payerSolde(btn){
+  const d=CPT.detail;if(!d)return;
+  const m=(document.querySelector('input[name="methode-solde"]:checked')||{}).value||"mobile",err=document.getElementById("err-solde");
+  err&&err.classList.add("cache");
+  if(!MODE_REEL){toast("Démonstration : aucun paiement réel n'est effectué");return;}
+  btn.disabled=true;btn.textContent="Création du lien de paiement…";
+  try{const r=await jenvoi("/api/compte/dossiers/"+encodeURIComponent(d.ref)+"/solde",{methode:m});
+    try{localStorage.setItem("ead-derniere-ref",d.ref);localStorage.setItem("ead-solde-ref",d.ref);localStorage.setItem("ead-derniere-methode",m);}catch(_){}
+    btn.textContent="Redirection vers Freda Pay Issuing…";location.href=r.checkout_url;}
+  catch(x){btn.disabled=false;btn.innerHTML=`<svg aria-hidden="true"><use href="#i-cadenas"/></svg>Payer le solde`;if(err){err.textContent=x.message;err.classList.remove("cache");}else toast(x.message);}
+}
+
+/* Reçu */
+const modaleRecu=document.getElementById("modale-recu");let focusRecu;
+async function ouvrirRecu(id){
+  focusRecu=document.activeElement;
+  const boite=modaleRecu.querySelector(".modale-boite");
+  boite.innerHTML=`<div class="verif" role="status"><span class="spin"></span>Chargement du reçu…</div>`;modaleRecu.classList.add("ouverte");
+  let r;
+  if(MODE_REEL){try{r=await api("/api/compte/paiements/"+encodeURIComponent(id)+"/recu");}catch(e){boite.innerHTML=`<div class="modale-tete"><h3 id="recu-titre">Reçu indisponible</h3><button class="fermer" type="button" data-fermer-recu aria-label="Fermer"><svg width="18" height="18"><use href="#i-x"/></svg></button></div><p>${esc(e.message)}</p>`;return;}}
+  else{const d=CPT.detail||{},p=(d.paiements||[]).find(x=>String(x.id)===String(id))||{};r={numero:"R-"+String(d.ref||"").replace(/\D/g,"").slice(-9),date:new Date().toISOString(),client:CPT.client?CPT.client.nom:"",ref:d.ref,service:d.service_titre||d.titre,detail:d.detail,montant:p.montant,devise:p.devise||"USD",montant_usd:p.montant,methode:p.methode,prestataire:"Freda Pay Issuing",freda_id:"démonstration",statut:"succeeded"};}
+  const meth=LIB_METH[r.methode]||r.methode||"";
+  const lignes=[["Client",r.client],["Dossier",r.ref],["Service",r.service],["Détail",r.detail],["Moyen de paiement",meth],["Prestataire",r.prestataire||"Freda Pay Issuing"],["Transaction",r.freda_id],["Date",dateFr(r.date,true)]].filter(x=>x[1]);
+  if(r.devise==="HTG"&&r.montant_usd!=null)lignes.splice(5,0,["Équivalent",usd(r.montant_usd)]);
+  const texte=`ELITE AUTO DEAL\nReçu ${r.numero}\n`+lignes.map(([a,b])=>`${a} : ${b}`).join("\n")+`\nMontant payé : ${montantDevise(r.montant,r.devise)}\nStatut : payé, confirmé par Freda Pay Issuing\n33, Rue Faustin 1er, Delmas 33, Port-au-Prince. +509 4240 5729`;
+  boite.innerHTML=`<div class="recu"><div class="recu-tete"><svg class="logo-recu" role="img" aria-label="Elite Auto Deal"><use href="#logo"/></svg><div class="recu-num">Reçu de paiement<b>${esc(r.numero||"")}</b></div></div>
+    <h3 id="recu-titre" class="sr">Reçu ${esc(r.numero||"")}</h3>
+    <div class="recu-montant"><div><span class="muted" style="font-size:13px">Montant payé</span><br><b>${montantDevise(r.montant,r.devise)}</b></div><span class="paye">Payé</span></div>
+    <ul class="recap">${lignes.map(([a,b])=>`<li><span>${esc(a)}</span><span>${esc(b)}</span></li>`).join("")}</ul>
+    <p class="recu-pied">Paiement confirmé par Freda Pay Issuing. Elite Auto Deal, 33, Rue Faustin 1er, Delmas 33, Port-au-Prince. +509 4240 5729. Les frais de service ne constituent pas un acompte sur un véhicule.${MODE_REEL?"":" Reçu de démonstration."}</p>
+    <div class="sans-impr" style="display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr))">
+      ${MODE_REEL?`<button class="btn btn-noir" type="button" data-imprimer>Imprimer ou PDF</button>`:""}<button class="btn btn-contour" type="button" data-copier-recu>Copier le reçu</button><button class="btn btn-contour" type="button" data-fermer-recu>Fermer</button></div></div>`;
+  boite.querySelector("[data-copier-recu]").onclick=()=>copier(texte,"Reçu copié");
+  const ip=boite.querySelector("[data-imprimer]");if(ip)ip.onclick=()=>{document.body.classList.add("impr-recu");try{window.print();}catch(_){toast("Impression impossible ici");}setTimeout(()=>document.body.classList.remove("impr-recu"),500);};
+  const f=boite.querySelector("[data-fermer-recu]");f&&f.focus();
+}
+function fermerRecu(){modaleRecu.classList.remove("ouverte");focusRecu&&focusRecu.focus&&focusRecu.focus();}
+modaleRecu.addEventListener("click",e=>{if(e.target===modaleRecu||e.target.closest("[data-fermer-recu]"))fermerRecu();});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&modaleRecu.classList.contains("ouverte"))fermerRecu();});
+
+/* Pré-remplissage des formulaires */
+function preremplir(p){
+  const c=CPT.client;if(!c)return;
+  const f=p.querySelector("form.form-service");if(!f)return;
+  const mettre=(el,v)=>{if(el&&!el.value&&v){el.value=v;}};
+  mettre(f.nom,c.nom);mettre(f.tel||f.telephone,c.tel);mettre(f.whatsapp,c.whatsapp||c.tel);mettre(f.email,c.email);
+}
+
+/* Bloc compte sur l'écran de confirmation */
+function blocCompte(ref){
+  if(CPT.client)return `<div class="bloc-compte"><p><b>Ce dossier est dans votre espace.</b> Retrouvez l'avancement, vos reçus et vos documents.</p><button class="btn btn-noir btn-sm" type="button" data-voir-espace="${esc(ref)}">Voir dans mon espace</button></div>`;
+  return `<div class="bloc-compte"><p><b>Créez votre espace pour suivre vos dossiers.</b> L'avancement, vos reçus et vos documents au même endroit.</p><button class="btn btn-rouge btn-sm" type="button" data-creer-espace="${esc(ref)}">Créer mon espace</button></div>`;
+}
+
+/* Actions déléguées */
+document.addEventListener("click",e=>{
+  const t=e.target;let b;
+  if((b=t.closest("[data-voir]"))){const i=document.getElementById(b.dataset.voir);if(i){const v=i.type==="password";i.type=v?"text":"password";b.textContent=v?"Masquer":"Afficher";b.setAttribute("aria-pressed",String(v));b.setAttribute("aria-label",v?"Masquer le mot de passe":"Afficher le mot de passe");}return;}
+  if((b=t.closest("[data-onglet]"))){CPT.onglet=b.dataset.onglet;rendreCompte();const f=zoneCompte().querySelector(CPT.onglet==="oubli"?"#ou-id":`[data-onglet="${CPT.onglet}"][role=tab]`);f&&f.focus();return;}
+  if((b=t.closest("[data-panneau]"))){CPT.panneau=b.dataset.panneau||null;rendreCompte();if(!CPT.panneau){const x=zoneCompte().querySelector("h1");x&&x.focus({preventScroll:true});}return;}
+  if((b=t.closest("[data-deconnexion]"))){(async()=>{if(MODE_REEL){try{await jenvoi("/api/compte/deconnexion",{});}catch(_){}}else ecrireDemo(null);CPT.client=null;CPT.dossiers=[];CPT.stats=null;CPT.panneau=null;CPT.onglet="connexion";majEntete();toast("Vous êtes déconnecté");rendreCompte();})();return;}
+  if((b=t.closest("[data-ouvrir-dossier]"))){memoRef(b.dataset.ouvrirDossier);if(location.hash==="#compte-dossier"){e.preventDefault();rendreDossierCompte();}return;}
+  if((b=t.closest("[data-recu]"))){ouvrirRecu(b.dataset.recu);return;}
+  if((b=t.closest("[data-payer-solde]"))){payerSolde(b);return;}
+  if((b=t.closest("[data-copier-ref]"))){copier(b.dataset.copierRef,"Référence copiée");return;}
+  if((b=t.closest("[data-etat-paie]"))){try{localStorage.setItem("ead-derniere-ref",b.dataset.etatPaie);}catch(_){}location.hash="retour";return;}
+  if((b=t.closest("[data-voir-espace]"))){memoRef(b.dataset.voirEspace);location.hash="compte-dossier";return;}
+  if((b=t.closest("[data-creer-espace]"))){CPT.aRattacher=b.dataset.creerEspace;CPT.onglet="inscription";aller("compte");return;}
+});
+document.addEventListener("change",e=>{if(e.target&&e.target.id==="cpt-fichiers")envoyerDocuments(e.target);});
+
+/* Démarrage de l'espace (démonstration) et lien de réinitialisation */
+{const ri=new URLSearchParams(location.search).get("reinit");if(ri){CPT.reinit=ri;if(location.hash!=="#compte")location.hash="compte";}}
+chargerCompte();
+
+/* Démarrage : détection du serveur */
+function rerendre(){
+  VEDETTES=V.filter(v=>v.vedette).map(v=>v.id);
+  if(!VEDETTES.length)VEDETTES=V.filter(v=>v.statut!=="vendu").slice(0,4).map(v=>v.id);
+  /* le hero garde la vitrine */
+  rendreFlotte(document.querySelector('#flotte-puces .puce[aria-pressed="true"]')?.dataset.f||"tous");
+  remplirMarques();rendreInventaire();
+  document.querySelectorAll("[data-vselect]").forEach(remplirSelectV);
+}
+async function demarrer(){
+  if(!/^https?:$/.test(location.protocol))return;
+  let cfg=null;
+  try{
+    const ctl=new AbortController(),t=setTimeout(()=>ctl.abort(),4000);
+    const r=await fetch("/api/config",{signal:ctl.signal,headers:{"Accept":"application/json"}});clearTimeout(t);
+    if(!r.ok||!/json/i.test(r.headers.get("content-type")||""))return;
+    cfg=await r.json();
+  }catch(_){return;}
+  if(!cfg||typeof cfg!=="object"||!cfg.tarifs)return;
+  CONFIG=cfg;MODE_REEL=true;document.documentElement.classList.add("mode-reel");
+  if(cfg.taux_htg)TAUX_HTG=+cfg.taux_htg;
+  if(cfg.taux_date){const d=new Date(cfg.taux_date+"T12:00");TAUX_DATE=isNaN(d)?cfg.taux_date:d.toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"});}
+  Object.assign(TARIFS,cfg.tarifs);
+  if(cfg.whatsapp)WA_NUM=String(cfg.whatsapp);
+  const q=new URLSearchParams(location.search).get("ref");
+  if(q){try{localStorage.setItem("ead-derniere-ref",q.trim().toUpperCase());}catch(_){}if(!location.hash||location.hash==="#accueil")location.hash="retour";}
+  const ri=new URLSearchParams(location.search).get("reinit");if(ri){CPT.reinit=ri;if(location.hash!=="#compte")location.hash="compte";}
+  CPT.pret=false;CPT.client=null;
+  await Promise.all([(async()=>{try{const l=await api("/api/vehicules");if(Array.isArray(l)){V.length=0;l.forEach(v=>V.push(v));rerendre();}}catch(_){}})(),chargerCompte()]);
+  route();
+}
+
+/* ---------- Suivi ---------- */
+function afficherSuivi(ref){
+  ref=(ref||"").trim().toUpperCase();const out=document.getElementById("suivi-resultat");
+  if(MODE_REEL){suiviReel(ref,out);return;}
+  const d=REG[ref];
+  if(!d){out.innerHTML=`<div class="carte-suivi"><b>Aucun dossier ne porte la référence ${esc(ref||"saisie")}.</b><p class="muted" style="margin-top:6px">Vérifiez le format EAD-2026-00000, ou écrivez-nous sur WhatsApp avec votre reçu.</p></div>`;return;}
+  const S=SERV[d.service];
+  out.innerHTML=`<div class="carte-suivi"><div class="tete"><div><span class="muted" style="font-size:13px">${esc(S.titre)}</span><h3 style="font-size:22px;margin-top:2px">${esc(ref)}</h3></div><span class="muted" style="font-size:14px">${esc(d.detail||"")}${d.date?", ouvert le "+esc(d.date):""}</span></div>
+   <ol class="chrono">${S.statuts.map((s,i)=>`<li class="${i<d.etape?"fait":i===d.etape?"encours":""}"><span class="pt"></span><b>${esc(s)}</b><span>${i<d.etape?"Terminé":i===d.etape?"Étape en cours":"À venir"}</span></li>`).join("")}</ol>
+   <a class="btn btn-wa btn-sm" target="_blank" rel="noopener" href="${waUrl("Bonjour Elite Auto Deal, je souhaite un point sur mon dossier "+ref+".")}"><svg aria-hidden="true"><use href="#i-wa"/></svg>Poser une question sur WhatsApp</a></div>`;
+}
+document.getElementById("suivi-form").addEventListener("submit",e=>{e.preventDefault();afficherSuivi(document.getElementById("suivi-ref").value);});
+document.querySelectorAll("[data-demo-ref]").forEach(b=>b.onclick=()=>{document.getElementById("suivi-ref").value=b.dataset.demoRef;afficherSuivi(b.dataset.demoRef);});
+
+route();
+demarrer();
+})();
+</script>
+</body>
+</html>

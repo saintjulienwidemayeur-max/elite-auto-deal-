@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: elite-auto-deal
+    runtime: node
+    plan: starter
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /sante
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase: { name: elite-auto-deal-db, property: connectionString }
+      - key: FREDA_SECRET_KEY
+        sync: false
+      - key: FREDA_WEBHOOK_SECRET
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: PUBLIC_URL
+        sync: false
+      - key: FREDA_METHODE_MOBILE
+        value: all
+      - key: CARTE_ACTIVE
+        value: "true"
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+databases:
+  - name: elite-auto-deal-db
+    plan: basic-256mb

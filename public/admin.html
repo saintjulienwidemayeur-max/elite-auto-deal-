@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tableau de bord — Elite Auto Deal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --noir:#0B0B0C;--graphite:#1C1C1F;--g700:#4A4A50;--g500:#6E6E75;--g300:#C9C9CC;--g200:#DCDCDA;--g100:#EDEDEB;--g50:#F6F6F4;--blanc:#fff;
+  --rouge:#D7191F;--rouge-f:#A80F14;--rouge-50:#FDEBEC;--succes:#1F8A4C;--succes-50:#E7F4EC;--alerte:#C77700;--alerte-50:#FBF1E0;--wa:#25D366;
+  --r-s:10px;--r-m:18px;--r-l:28px;--ombre:0 10px 30px rgba(11,11,12,.08);
+  --nav:248px;--top:68px;
+  --fh:'Montserrat',system-ui,sans-serif;--fb:'Inter',system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:var(--fb);color:var(--noir);background:var(--g50);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:var(--fh);margin:0;line-height:1.1;letter-spacing:-.01em}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:inherit}
+.num{font-variant-numeric:tabular-nums}
+:focus-visible{outline:3px solid var(--rouge);outline-offset:2px;border-radius:6px}
+#view:focus,#view:focus-visible{outline:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---------- Shell ---------- */
+.nav{position:fixed;inset:0 auto 0 0;width:var(--nav);background:var(--noir);color:#fff;display:flex;flex-direction:column;padding:22px 14px 18px;z-index:40}
+.nav .brand{display:flex;flex-direction:column;gap:6px;padding:4px 10px 22px;border-bottom:1px solid #2a2a2e;margin-bottom:14px}
+.nav .brand svg{width:132px;height:auto;color:#fff}
+.nav .brand b{font-family:var(--fh);font-weight:800;font-size:15px;letter-spacing:.02em}
+.nav .brand small{color:#9a9aa0;font-size:12px}
+.nav a.item{display:flex;align-items:center;gap:12px;min-height:44px;padding:0 12px;border-radius:var(--r-s);text-decoration:none;color:#c8c8cc;font-weight:500;position:relative}
+.nav a.item:hover{background:#1d1d21;color:#fff}
+.nav a.item[aria-current="page"]{background:#fff;color:var(--noir);font-weight:600}
+.nav a.item[aria-current="page"]::before{content:"";position:absolute;left:-14px;top:10px;bottom:10px;width:4px;border-radius:0 4px 4px 0;background:var(--rouge)}
+.nav a.item svg{width:20px;height:20px;flex:none}
+.nav .count{margin-left:auto;background:var(--rouge);color:#fff;font-size:12px;font-weight:600;border-radius:999px;padding:1px 8px}
+.nav a.item[aria-current="page"] .count{background:var(--rouge)}
+.nav .foot{margin-top:auto;font-size:12px;color:#8a8a90;padding:12px 10px 0;border-top:1px solid #2a2a2e}
+.nav .foot strong{color:#fff;font-weight:600;display:block;font-size:13px}
+
+.main{margin-left:var(--nav);min-height:100vh}
+.top{position:sticky;top:0;z-index:30;height:var(--top);display:flex;align-items:center;gap:14px;padding:0 28px;background:rgba(246,246,244,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--g100)}
+.top .menu-btn{display:none}
+.search{flex:1;max-width:460px;position:relative}
+.search input{width:100%;height:44px;border:1px solid var(--g200);background:#fff;border-radius:var(--r-s);padding:0 14px 0 42px}
+.search svg{position:absolute;left:14px;top:12px;width:20px;height:20px;color:var(--g500)}
+.top .spacer{flex:1}
+.demo-tag{font-size:12px;font-weight:600;color:var(--alerte);background:var(--alerte-50);border:1px solid #f0d9b0;border-radius:999px;padding:5px 12px;white-space:nowrap}
+.icon-btn{width:44px;height:44px;border-radius:var(--r-s);border:1px solid var(--g200);background:#fff;display:grid;place-items:center;position:relative}
+.icon-btn svg{width:20px;height:20px}
+.icon-btn .dot{position:absolute;top:6px;right:6px;min-width:18px;height:18px;border-radius:9px;background:var(--rouge);color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center;padding:0 4px;border:2px solid #fff}
+.avatar{width:44px;height:44px;border-radius:50%;background:var(--noir);color:#fff;display:grid;place-items:center;font-family:var(--fh);font-weight:700;font-size:14px}
+
+.view{padding:28px;max-width:1320px}
+.head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+.head h1{font-size:clamp(26px,3vw,34px);font-weight:800}
+.head p{margin:6px 0 0;color:var(--g500)}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+
+/* ---------- Buttons ---------- */
+.btn{min-height:44px;padding:0 18px;border-radius:var(--r-s);border:1px solid transparent;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;white-space:nowrap}
+.btn svg{width:18px;height:18px}
+.btn-p{background:var(--rouge);color:#fff}.btn-p:hover{background:var(--rouge-f)}
+.btn-n{background:var(--noir);color:#fff}.btn-n:hover{background:var(--graphite)}
+.btn-t{background:#fff;border-color:var(--g200)}.btn-t:hover{border-color:var(--g500)}
+.btn-wa{background:var(--wa);color:#06321a}
+.btn-sm{min-height:36px;padding:0 12px;font-size:13px}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+
+/* ---------- Surfaces ---------- */
+.card{background:#fff;border-radius:var(--r-m);border:1px solid var(--g100)}
+.card-h{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 20px 0}
+.card-h h2{font-size:17px;font-weight:700}
+.card-b{padding:16px 20px 20px}
+.muted{color:var(--g500)}
+.small{font-size:13px}
+
+/* KPI */
+.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-bottom:18px}
+.kpi{background:#fff;border:1px solid var(--g100);border-radius:var(--r-m);padding:16px 18px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.kpi .l{font-size:13px;color:var(--g500);font-weight:500}
+.kpi .v{font-family:var(--fh);font-weight:800;font-size:26px;line-height:1.05;letter-spacing:-.02em}
+.kpi .s{font-size:12.5px;color:var(--g500)}
+.kpi.hero{background:var(--noir);color:#fff;border-color:var(--noir);position:relative;overflow:hidden}
+.kpi.hero .l,.kpi.hero .s{color:#a9a9ae}
+.kpi.hero .v{font-size:30px}
+.kpi.hero svg.bgmark{position:absolute;right:-60px;bottom:-10px;width:220px;color:#232327}
+.kpi.hero > *{position:relative}
+.kpi .up{color:var(--succes);font-weight:600}
+.kpi.hero .up{color:#5fd08f}
+
+.grid2{display:grid;grid-template-columns:1.35fr 1fr;gap:18px}
+.stack{display:flex;flex-direction:column;gap:18px}
+
+/* Chart */
+.bars{display:flex;flex-direction:column;gap:12px}
+.bar-row{display:grid;grid-template-columns:150px 1fr 92px;align-items:center;gap:12px;font-size:14px}
+.bar-row .track{height:12px;background:var(--g100);border-radius:6px;overflow:hidden}
+.bar-row .fill{height:100%;background:var(--noir);border-radius:6px}
+.bar-row:first-child .fill{background:var(--rouge)}
+.bar-row .amt{text-align:right;font-weight:600}
+
+/* lists */
+.feed{list-style:none;margin:0;padding:0}
+.feed li{display:grid;grid-template-columns:34px 1fr auto;gap:12px;padding:12px 0;border-top:1px solid var(--g100);align-items:start}
+.feed li:first-child{border-top:0}
+.feed .ic{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--g100)}
+.feed .ic svg{width:16px;height:16px}
+.feed .ic.ok{background:var(--succes-50);color:var(--succes)}
+.feed .ic.bad{background:var(--rouge-50);color:var(--rouge)}
+.feed .ic.warn{background:var(--alerte-50);color:var(--alerte)}
+.feed time{font-size:12.5px;color:var(--g500);white-space:nowrap}
+.feed p{margin:0;font-size:14px}
+.feed p span{display:block;color:var(--g500);font-size:13px}
+
+.alert{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:var(--r-s);background:var(--g50);margin-top:10px;font-size:14px}
+.alert:first-child{margin-top:0}
+.alert b{display:block}
+.alert.bad{background:var(--rouge-50)}.alert.warn{background:var(--alerte-50)}
+.alert .grow{flex:1}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;border-radius:999px;padding:3px 10px;white-space:nowrap;background:var(--g100);color:var(--g700)}
+.badge::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;opacity:.9}
+.b-ok{background:var(--succes-50);color:var(--succes)}
+.b-bad{background:var(--rouge-50);color:var(--rouge)}
+.b-warn{background:var(--alerte-50);color:var(--alerte)}
+.b-n{background:var(--noir);color:#fff}
+.b-g{background:var(--g100);color:var(--g700)}
+.tag{display:inline-block;font-size:12px;font-weight:600;padding:2px 8px;border-radius:6px;background:var(--g100);color:var(--g700)}
+.tag.shield{background:#EAF1FB;color:#1f4f99}
+
+/* Tables */
+.tbl-wrap{overflow:auto}
+table.tbl{width:100%;border-collapse:collapse;font-size:14px}
+.tbl th{text-align:left;font-weight:600;color:var(--g500);font-size:13px;padding:12px 14px;border-bottom:1px solid var(--g100);white-space:nowrap;background:#fff;position:sticky;top:0}
+.tbl td{padding:12px 14px;border-bottom:1px solid var(--g100);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:0}
+.tbl tbody tr:hover{background:var(--g50)}
+.tbl .r{text-align:right}
+.tbl td.r b{white-space:nowrap}
+.veh-cell{display:flex;align-items:center;gap:12px;min-width:220px}
+.thumb{width:64px;height:42px;border-radius:8px;background:linear-gradient(180deg,#f4f4f2,#e4e4e1);display:grid;place-items:center;flex:none;overflow:hidden}
+.thumb .ph{width:100%;height:100%;display:grid;place-items:center;color:#b9b9bc}
+.thumb .ph svg{width:70%}
+.photos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px}
+.photo-it{border:1px solid var(--g100);border-radius:12px;overflow:hidden;background:#fff;display:flex;flex-direction:column}
+.photo-it .im{position:relative;aspect-ratio:4/3;background:var(--g100);overflow:hidden}
+.photo-it img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.photo-it .pmain{position:absolute;z-index:1;left:8px;top:8px;background:#fff;color:#0b0b0c;box-shadow:0 2px 8px rgba(11,11,12,.25);font-size:11.5px;font-weight:600;padding:3px 8px;border-radius:999px}
+.photo-it .pa{display:flex;flex-direction:column;gap:6px;padding:8px}
+.photo-it .pa .btn{width:100%;justify-content:center}
+.upbar{height:6px;border-radius:99px;background:var(--g100);overflow:hidden;margin-top:10px}
+.upbar span{display:block;height:100%;width:0;background:var(--rouge,#d7191f);transition:width .2s}
+.photos-empty{padding:28px 16px;text-align:center;border:1.5px dashed var(--g300);border-radius:var(--r-m);color:var(--g500);font-size:14px}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.veh-cell b{display:block;font-weight:600}
+.veh-cell span{font-size:13px;color:var(--g500)}
+select.inline,input.inline{height:38px;border:1px solid var(--g200);border-radius:8px;background:#fff;padding:0 10px;font-size:14px}
+input.inline.price{width:110px;text-align:right}
+
+/* Filters */
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.chip{min-height:38px;padding:0 14px;border-radius:999px;border:1px solid var(--g200);background:#fff;font-size:14px;font-weight:500}
+.chip[aria-pressed="true"]{background:var(--noir);border-color:var(--noir);color:#fff}
+.chip .n{opacity:.6;margin-left:4px}
+
+/* Kanban */
+.kanban{display:grid;grid-template-columns:repeat(5,minmax(200px,1fr));gap:12px;overflow-x:auto;padding-bottom:8px}
+.col{background:var(--g100);border-radius:var(--r-m);padding:12px;min-height:200px}
+.col h3{font-family:var(--fb);font-size:14px;font-weight:600;display:flex;justify-content:space-between;padding:4px 6px 10px}
+.col h3 span{color:var(--g500)}
+.col.human{background:#fff3f3;outline:1.5px dashed #efb0b2;outline-offset:-1.5px}
+.dcard{display:block;width:100%;text-align:left;background:#fff;border:1px solid var(--g100);border-radius:12px;padding:12px;margin-bottom:10px}
+.dcard:hover{border-color:var(--g300)}
+.dcard .t{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:4px 6px;font-size:12px;color:var(--g500)}
+.dcard .t > span:last-child{white-space:nowrap;font-size:11.5px;letter-spacing:-.01em}
+.dcard b{display:block;margin:6px 0 2px;font-weight:600;font-size:14.5px}
+.dcard p{margin:0;font-size:13px;color:var(--g700)}
+.dcard .f{display:flex;justify-content:space-between;align-items:center;margin-top:10px;gap:6px}
+.svc{white-space:nowrap;font-size:12px;font-weight:600;border-radius:6px;padding:2px 8px;background:var(--g50);border:1px solid var(--g100)}
+.mlist{display:none}
+
+/* Pipeline steps (financement) */
+.steps{display:flex;gap:4px;margin:8px 0 4px}
+.steps i{flex:1;height:6px;border-radius:3px;background:var(--g100)}
+.steps i.on{background:var(--noir)}
+.steps i.ok{background:var(--succes)}
+.steps i.ko{background:var(--rouge)}
+.fin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.fin{padding:18px}
+.fin .row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.fin h3{font-size:16px}
+.check{list-style:none;padding:0;margin:12px 0 0;font-size:14px}
+.check li{display:flex;align-items:center;gap:10px;padding:5px 0}
+.check .bx{width:20px;height:20px;border-radius:6px;display:grid;place-items:center;flex:none;border:1.5px solid var(--g300)}
+.check .bx.y{background:var(--succes);border-color:var(--succes);color:#fff}
+.check .bx svg{width:13px;height:13px}
+.stage-legend{display:flex;gap:6px;flex-wrap:wrap;font-size:12.5px;color:var(--g500);margin-bottom:16px;align-items:center}
+.stage-legend span{background:#fff;border:1px solid var(--g100);border-radius:999px;padding:4px 10px}
+
+/* Precommandes */
+.pre-list{display:grid;gap:14px}
+.pre{display:grid;grid-template-columns:minmax(230px,1.2fr) 2fr auto;gap:22px;align-items:center;padding:18px 20px}
+.pre .veh-cell{min-width:0}
+.split{display:flex;height:14px;border-radius:7px;overflow:hidden;background:var(--g100)}
+.split .p{background:var(--noir)}
+.split .b{background:var(--g200)}
+.split .b.paid{background:var(--succes)}
+.split .b.due{background:var(--rouge)}
+.split-legend{display:flex;justify-content:space-between;gap:10px;margin-top:8px;font-size:13px;flex-wrap:wrap}
+.split-legend b{font-weight:600}
+.pre .meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;font-size:13px;color:var(--g500);align-items:center}
+.pre .act{display:flex;flex-direction:column;gap:8px;align-items:stretch;min-width:210px}
+
+/* Reports */
+.rep-chart svg{width:100%;height:auto;display:block}
+.legend{display:flex;gap:16px;font-size:13px;color:var(--g700);flex-wrap:wrap}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+textarea.csv{width:100%;min-height:140px;border:1px solid var(--g200);border-radius:var(--r-s);padding:12px;font-size:12.5px;font-family:ui-monospace,Menlo,monospace;background:var(--g50)}
+
+/* Forms */
+.form{display:grid;gap:14px}
+.form .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:13.5px;font-weight:600}
+.field .hint{font-size:12.5px;color:var(--g500)}
+.field input,.field select,.field textarea{min-height:46px;border:1px solid var(--g200);border-radius:var(--r-s);padding:10px 12px;background:#fff;width:100%}
+.field textarea{min-height:150px;resize:vertical;line-height:1.5}
+.drop{border:1.5px dashed var(--g300);border-radius:var(--r-m);padding:18px;text-align:center;background:var(--g50);font-size:14px}
+.drop input{display:none}
+.previews{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px;margin-top:10px}
+.previews div{aspect-ratio:4/3;border-radius:8px;overflow:hidden;background:var(--g100);display:grid;place-items:center;font-size:11px;color:var(--g500);text-align:center;padding:4px}
+.previews img,.previews video{width:100%;height:100%;object-fit:cover}
+.set-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:18px;align-items:start}
+.tarifs .trow{display:grid;grid-template-columns:1fr 120px;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--g100)}
+.tarifs .trow:first-child{border-top:0}
+.tarifs input{height:42px;border:1px solid var(--g200);border-radius:8px;padding:0 10px;text-align:right;width:100%}
+.tpl-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+
+/* Drawer & modal */
+.scrim{position:fixed;inset:0;background:rgba(11,11,12,.45);z-index:60;opacity:0;pointer-events:none;transition:opacity .2s}
+.scrim.open{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(520px,100%);background:#fff;z-index:70;transform:translateX(102%);visibility:hidden;transition:transform .25s ease,visibility 0s .25s;display:flex;flex-direction:column;box-shadow:-20px 0 40px rgba(11,11,12,.12)}
+.drawer.open{transform:none;visibility:visible;transition:transform .25s ease}
+.drawer-h{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:20px 22px;border-bottom:1px solid var(--g100)}
+.drawer-h h2{font-size:20px}
+.drawer-b{padding:20px 22px;overflow:auto;flex:1}
+.drawer-f{padding:14px 22px;border-top:1px solid var(--g100);display:flex;gap:10px;flex-wrap:wrap;background:#fff}
+.drawer-f .btn{flex:1}
+.kv{display:grid;grid-template-columns:140px 1fr;gap:8px 14px;font-size:14px;margin:0}
+.kv dt{color:var(--g500)}
+.kv dd{margin:0;font-weight:500}
+.sec{margin-top:22px}
+.sec h3{font-size:15px;margin-bottom:10px}
+.files{display:grid;gap:8px}
+.file{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--g100);border-radius:var(--r-s);font-size:14px}
+.file svg{width:20px;height:20px;color:var(--g500)}
+.file span{flex:1}
+.human-note{display:flex;gap:10px;background:var(--rouge-50);color:#6e0c0f;border-radius:var(--r-s);padding:12px 14px;font-size:13.5px;margin-top:18px}
+.human-note svg{width:20px;height:20px;flex:none;color:var(--rouge)}
+.timeline{list-style:none;padding:0;margin:0;font-size:13.5px}
+.timeline li{position:relative;padding:0 0 12px 22px}
+.timeline li::before{content:"";position:absolute;left:5px;top:6px;width:8px;height:8px;border-radius:50%;background:var(--noir)}
+.timeline li::after{content:"";position:absolute;left:8.5px;top:16px;bottom:-2px;width:1px;background:var(--g200)}
+.timeline li:last-child::after{display:none}
+.timeline time{color:var(--g500);display:block;font-size:12.5px}
+
+.modal{position:fixed;inset:0;display:grid;place-items:center;z-index:90;padding:16px;pointer-events:none}
+.modal .box{background:#fff;border-radius:var(--r-l);padding:26px;width:min(440px,100%);box-shadow:var(--ombre);transform:scale(.96);opacity:0;transition:.18s}
+.modal.open{pointer-events:auto}
+.modal.open .box{transform:none;opacity:1}
+.modal h2{font-size:20px;margin-bottom:8px}
+.modal p{margin:0 0 18px;color:var(--g700)}
+.modal .row{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+
+.receipt{border:1px solid var(--g100);border-radius:var(--r-m);padding:22px;background:linear-gradient(#fff,#fff) padding-box}
+.receipt .logo svg{width:150px;color:var(--noir)}
+.receipt .amt{font-family:var(--fh);font-size:34px;font-weight:800;margin:14px 0 4px}
+.receipt hr{border:0;border-top:1px dashed var(--g300);margin:16px 0}
+
+
+.notif{position:fixed;top:72px;right:20px;width:min(380px,calc(100% - 24px));background:#fff;border-radius:var(--r-m);box-shadow:0 20px 50px rgba(11,11,12,.18);z-index:80;padding:16px;display:none}
+.notif.open{display:block}
+.notif h2{font-size:16px;margin-bottom:10px}
+
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,30px);background:var(--noir);color:#fff;padding:12px 18px;border-radius:12px;font-weight:500;z-index:100;opacity:0;transition:.2s;max-width:calc(100% - 32px);display:flex;gap:10px;align-items:center;pointer-events:none}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast svg{width:18px;height:18px;color:#5fd08f;flex:none}
+
+.empty{padding:36px 20px;text-align:center;color:var(--g500)}
+.empty b{display:block;color:var(--noir);font-family:var(--fh);font-size:17px;margin-bottom:4px}
+
+/* Mobile tab bar */
+.tabbar{display:none}
+
+/* ---------- Responsive ---------- */
+@media (max-width:1280px){
+  .kpis{grid-template-columns:repeat(3,1fr)}
+}
+@media (max-width:1100px){
+  .grid2,.set-grid{grid-template-columns:1fr}
+  .pre{grid-template-columns:1fr 1.6fr}
+  .pre .act{grid-column:1/-1;flex-direction:row;flex-wrap:wrap}
+  .pre .act .btn{flex:1}
+}
+@media (max-width:900px){
+  :root{--top:60px}
+  .nav{transform:translateX(-102%);visibility:hidden;transition:transform .25s,visibility 0s .25s;width:280px;z-index:75}
+  .nav.open{transform:none;visibility:visible;transition:transform .25s}
+  .main{margin-left:0;padding-bottom:calc(76px + env(safe-area-inset-bottom))}
+  .top{padding:0 14px;gap:10px}
+  .top .menu-btn{display:grid}
+  .top .spacer{display:none}
+  .search{max-width:none}
+  .kpi.hero,.kpis .kpi:last-child{grid-column:span 2}
+  .demo-tag{display:none}
+  .top .avatar{display:none}
+  .view{padding:18px 14px}
+  .kpis{grid-template-columns:1fr 1fr;gap:10px}
+  .kpi{padding:14px}
+  .kpi .v{font-size:22px}
+  .kpi.hero .v{font-size:24px}
+  .tabbar{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:50;background:#fff;border-top:1px solid var(--g100);padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+  .tabbar a,.tabbar button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:52px;font-size:11.5px;font-weight:500;color:var(--g500);text-decoration:none;background:none;border:0;position:relative}
+  .tabbar svg{width:22px;height:22px}
+  .tabbar [aria-current="page"]{color:var(--noir);font-weight:700}
+  .tabbar [aria-current="page"]::after{content:"";position:absolute;top:-6px;width:28px;height:3px;border-radius:0 0 3px 3px;background:var(--rouge)}
+  .tabbar .c{position:absolute;top:4px;left:calc(50% + 6px);background:var(--rouge);color:#fff;font-size:10px;font-weight:700;border-radius:8px;min-width:16px;height:16px;display:grid;place-items:center;padding:0 4px}
+  /* tables -> cards */
+  .tbl-wrap{overflow:visible}
+  table.tbl.cards thead{display:none}
+  table.tbl.cards,table.tbl.cards tbody,table.tbl.cards tr,table.tbl.cards td{display:block;width:100%}
+  table.tbl.cards tr{border:1px solid var(--g100);border-radius:14px;padding:12px 14px;margin-bottom:10px;background:#fff}
+  table.tbl.cards tbody tr:hover{background:#fff}
+  table.tbl.cards td{border:0;padding:5px 0;display:flex;justify-content:space-between;align-items:center;gap:12px;text-align:right}
+  table.tbl.cards td::before{content:attr(data-l);color:var(--g500);font-size:13px;font-weight:500;text-align:left}
+  table.tbl.cards td.full{display:block;text-align:left;padding-bottom:8px;border-bottom:1px solid var(--g100);margin-bottom:4px}
+  table.tbl.cards td.full::before{display:none}
+  table.tbl.cards td.acts{justify-content:flex-end;flex-wrap:wrap;padding-top:8px}
+  table.tbl.cards td.acts::before{display:none}
+  .veh-cell{min-width:0}
+  .card-tbl{background:transparent;border:0}
+  .card-tbl > .card-h{padding:0 0 10px}
+  .kanban{display:none}
+  .mlist{display:block}
+  .pre{grid-template-columns:1fr;gap:14px;padding:16px}
+  .bar-row{grid-template-columns:110px 1fr 80px;font-size:13px}
+  .head{margin-bottom:16px}
+  .head .actions{width:100%}
+  .head .actions .btn{flex:1}
+  .drawer{top:auto;height:92vh;width:100%;border-radius:var(--r-l) var(--r-l) 0 0;transform:translateY(102%)}
+  .drawer.open{transform:none}
+  .kv{grid-template-columns:120px 1fr}
+  .form .two{grid-template-columns:1fr}
+  .notif{top:64px;right:12px}
+  .toast{bottom:92px}
+}
+@media (max-width:380px){
+  .kpi .v{font-size:20px}
+  .search input{padding-left:38px}
+}
+/* ===== Mode réel : connexion, squelettes ===== */
+.login{position:fixed;inset:0;z-index:200;background:var(--g50);display:none;place-items:center;padding:24px 16px}
+body.need-login .login{display:grid}
+body.need-login .nav,body.need-login .main,body.need-login .tabbar{visibility:hidden}
+body.booting .main,body.booting .tabbar,body.booting .nav{visibility:hidden}
+.login-box{width:100%;max-width:420px;background:#fff;border:1px solid var(--g100);border-radius:var(--r-l);padding:32px 28px;box-shadow:var(--ombre)}
+.login-box .lg{width:200px;max-width:70%;display:block;color:var(--noir);margin-bottom:22px}
+.login-box h1{font-size:24px;margin-bottom:6px}
+.login-box p{color:var(--g500);margin:0 0 20px;font-size:14.5px}
+.login-box label{display:block;font-size:13.5px;font-weight:600;margin-bottom:6px}
+.login-box input{width:100%;min-height:48px;border:1px solid var(--g300);border-radius:var(--r-s);padding:0 14px;font:inherit;font-size:16px;background:#fff}
+.login-box input:focus{outline:2px solid var(--noir);outline-offset:1px;border-color:var(--noir)}
+.login-box .btn{width:100%;margin-top:16px;min-height:48px}
+.login-box .err{color:var(--rouge);font-size:13.5px;margin:10px 0 0;min-height:1em}
+.login-box .foot{margin:22px 0 0;font-size:12.5px;color:var(--g500)}
+.live-tag{font-size:12px;font-weight:600;color:var(--succes);background:var(--succes-50);border:1px solid #bfe3cc;border-radius:999px;padding:5px 12px;white-space:nowrap}
+.live-tag.sandbox{color:var(--alerte);background:var(--alerte-50);border-color:#f0d9b0}
+.live-tag{}@media (max-width:480px){.live-tag{display:none}}
+.logout{margin-top:10px;background:none;border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:var(--r-s);min-height:40px;padding:0 12px;font:inherit;font-size:13px;font-weight:600;width:100%}
+.logout:hover{background:rgba(255,255,255,.08)}
+@keyframes sk{0%{background-position:100% 0}100%{background-position:-100% 0}}
+.sk{border-radius:12px;background:linear-gradient(90deg,var(--g100) 25%,#f7f7f5 50%,var(--g100) 75%);background-size:200% 100%;animation:sk 1.2s linear infinite}
+.sk-head{height:34px;width:min(420px,80%);margin-bottom:10px}
+.sk-sub{height:16px;width:min(560px,90%);margin-bottom:24px}
+.sk-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:14px}
+.sk-card{height:110px;border-radius:var(--r-m)}
+.sk-row{height:64px;border-radius:14px;margin-top:10px}
+.toast.err svg{color:#ff8a8d}
+.link-box{display:flex;gap:8px;align-items:center;background:var(--g50);border:1px solid var(--g100);border-radius:12px;padding:10px 12px;margin:12px 0}
+.link-box code{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}
+.steps-list{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.steps-list li{display:flex;gap:10px;align-items:center;font-size:14px;color:var(--g500)}
+.steps-list li i{width:12px;height:12px;border-radius:50%;border:2px solid var(--g300);flex:none}
+.steps-list li.done{color:var(--noir)}.steps-list li.done i{background:var(--noir);border-color:var(--noir)}
+.steps-list li.cur{color:var(--noir);font-weight:600}.steps-list li.cur i{border-color:var(--rouge);background:var(--rouge)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.acct{display:inline-flex;align-items:center;gap:6px;font-weight:600}.acct svg{width:16px;height:16px;color:var(--gris-500)}
+.tbl td.acts .btn{white-space:nowrap}
+.telv{display:inline-flex;flex-direction:column;align-items:flex-end;gap:2px}@media (min-width:761px){.telv{align-items:flex-start}}
+@media (max-width:760px){.tbl td.acts .btn{white-space:normal;text-align:left}}
+</style>
+</head>
+<body class="booting">
+<div class="login" id="login" role="dialog" aria-labelledby="loginTitle">
+  <form class="login-box" id="loginForm" novalidate>
+    <svg class="lg" viewBox="0 0 680 207" aria-label="Elite Auto Deal"><path fill="currentColor" fill-rule="evenodd" d="M9.5,55.0 12.0,57.2 26.8,65.5 37.2,70.5 41.8,71.8 96.0,71.5 125.5,73.0 148.8,75.0 174.5,78.2 179.5,78.5 182.8,79.2 192.2,80.0 193.8,80.5 224.0,83.0 228.2,83.8 289.8,87.8 337.2,89.5 392.2,90.0 456.5,88.0 508.0,84.0 530.2,82.8 563.0,82.8 577.0,83.8 588.0,85.0 601.8,87.2 626.2,92.8 648.8,100.0 661.5,105.0 667.8,108.0 669.8,108.2 669.5,107.2 662.8,101.5 656.5,97.0 647.0,91.2 632.2,84.2 616.2,78.8 608.2,76.5 593.5,73.2 572.2,70.0 550.2,68.0 528.5,67.5 521.5,66.8 513.0,63.0 490.0,51.2 470.8,42.2 448.5,33.0 426.8,25.0 412.0,20.2 394.2,15.8 381.5,13.5 364.5,11.5 340.2,10.0 307.5,9.8 273.2,11.2 248.2,13.8 225.2,17.0 194.0,23.5 156.5,33.5 144.0,37.5 137.5,39.0 131.2,41.2 105.8,48.0 104.2,48.8 83.2,53.0 68.2,55.0 51.8,56.2 28.8,56.2 12.0,54.8ZM158.2,52.2 181.5,44.0 199.8,38.8 222.2,33.2 246.0,29.0 273.8,25.5 290.0,24.2 309.0,23.5 346.2,24.0 367.0,25.8 387.2,28.8 402.5,32.2 416.8,36.2 437.8,43.2 462.0,53.2 482.0,63.0 490.0,67.5 490.8,68.8 490.0,69.5 485.5,69.5 458.5,71.8 401.5,73.8 350.8,73.8 292.0,71.8 245.8,68.5 209.8,64.5 208.5,64.0 193.5,62.0 177.5,58.8 158.8,53.2Z"/><path fill="currentColor" fill-rule="evenodd" d="M638.0,152.0 637.5,152.5 637.5,195.8 638.2,196.2 668.2,196.2 668.8,195.8 668.5,188.0 647.8,187.8 647.0,187.0 646.8,152.5 646.0,151.8ZM547.0,152.0 546.5,152.8 546.8,196.0 547.5,196.5 580.0,196.2 580.5,195.8 580.5,188.8 579.8,188.0 556.8,188.0 555.8,187.0 555.8,179.2 556.8,178.0 576.2,178.0 577.5,177.0 577.5,171.5 576.8,170.0 556.8,169.8 555.8,168.8 555.8,160.8 556.5,160.0 579.0,160.0 579.8,159.5 579.8,152.5 579.0,151.8ZM497.5,151.8 497.0,152.5 497.2,196.0 505.8,196.5 517.8,196.2 525.5,194.0 529.5,191.8 532.5,189.2 535.2,185.8 536.8,183.0 537.8,180.0 538.5,174.8 537.8,168.2 535.2,162.5 531.8,158.2 528.8,155.8 524.2,153.5 520.2,152.2 516.2,151.8ZM507.0,160.2 516.2,160.2 520.2,161.2 523.5,163.2 526.0,165.8 527.2,168.0 528.5,173.0 528.2,176.5 527.5,179.2 525.5,182.8 523.0,185.2 521.0,186.5 516.5,187.8 507.2,187.8 506.5,187.2 506.2,161.0ZM340.0,152.0 339.5,152.5 339.5,181.2 340.5,186.0 343.8,191.5 349.0,195.2 351.5,196.2 357.8,197.2 360.5,197.2 366.0,196.2 372.0,193.0 375.0,189.8 376.5,187.0 377.8,183.2 378.2,177.0 378.0,152.5 377.0,151.8 369.2,152.0 369.0,177.5 367.8,183.5 363.5,187.5 360.8,188.2 357.0,188.2 353.0,186.8 350.0,183.5 349.0,180.5 348.8,152.2 348.0,151.8ZM419.2,151.8 384.5,151.8 383.5,152.5 383.2,159.0 383.8,159.8 393.2,160.2 395.8,160.0 397.2,161.2 397.2,195.5 398.0,196.2 405.5,196.2 406.5,195.2 406.5,162.0 407.5,160.2 419.5,160.0 420.0,159.5 420.0,153.0ZM603.8,151.5 602.2,153.8 596.0,169.0 584.2,194.8 584.2,195.8 584.8,196.2 593.2,196.2 595.0,193.5 597.2,187.2 598.2,186.2 616.2,186.2 618.0,187.8 620.8,195.2 621.8,196.2 631.0,196.2 631.5,195.8 631.2,194.2 626.0,183.5 612.8,152.2 612.0,151.5 610.2,151.2ZM607.5,164.5 608.8,165.0 613.5,176.5 613.5,177.2 612.5,178.0 602.8,178.0 602.0,177.2 605.2,168.5ZM306.8,151.5 305.0,154.5 298.8,170.0 289.5,190.5 287.8,195.8 288.2,196.2 296.8,196.2 298.0,194.2 300.5,187.5 302.0,186.2 319.2,186.2 321.0,187.2 324.5,196.0 334.0,196.2 334.2,194.5 328.0,181.0 315.8,152.2 314.5,151.2ZM310.5,164.5 311.8,165.0 316.5,176.2 316.5,177.2 315.5,178.0 306.2,178.0 305.2,177.2 305.8,174.8 307.8,170.8 309.2,166.2ZM444.2,150.8 439.8,151.5 435.2,153.2 430.2,156.5 426.8,160.2 424.2,164.8 423.0,168.8 422.8,178.0 425.2,185.2 430.5,191.8 433.0,193.5 439.2,196.2 445.5,197.2 448.8,197.2 453.5,196.2 458.2,194.2 464.8,189.0 467.0,185.8 469.2,181.0 470.2,176.5 470.2,172.0 469.8,168.5 468.0,163.8 466.0,160.2 462.5,156.5 457.8,153.2 453.2,151.5 448.5,150.8ZM444.8,159.5 450.0,159.8 455.0,162.2 458.2,166.0 459.5,168.5 460.2,171.8 459.8,178.0 457.0,183.5 453.2,186.8 451.2,187.8 447.8,188.5 445.2,188.5 442.0,187.8 439.0,186.2 435.8,183.2 434.0,180.5 432.8,177.0 433.0,170.2 433.8,167.8 435.5,164.8 439.5,161.2 441.5,160.2ZM73.5,131.0 73.0,131.5 73.2,196.5 118.5,196.5 119.0,195.8 119.0,185.0 118.2,184.0 88.2,184.0 87.5,183.5 87.0,131.5 86.5,131.0ZM214.8,131.0 214.2,131.8 214.5,196.5 264.5,196.8 265.0,196.0 265.0,185.2 264.2,184.5 230.5,184.8 228.5,183.8 228.5,170.8 229.8,169.8 259.5,169.8 260.2,169.0 260.0,158.2 259.5,157.8 229.0,157.5 228.2,156.0 228.5,144.0 230.2,143.0 263.5,143.2 264.0,142.5 263.8,131.0ZM151.0,131.0 150.2,132.2 150.2,142.0 151.0,143.2 168.8,143.2 170.5,144.2 170.8,196.0 172.2,196.8 184.8,196.2 185.0,144.5 185.8,143.5 205.2,143.2 205.8,142.0 205.2,131.2 204.2,130.8ZM129.2,130.8 128.2,131.0 127.5,132.0 127.5,195.5 128.8,196.8 141.0,196.5 141.8,195.8 141.8,131.8 140.0,130.8ZM12.0,131.0 11.5,131.5 11.2,144.2 11.5,196.2 12.5,196.8 61.2,196.8 62.0,196.0 62.0,185.2 61.2,184.2 27.5,184.8 26.0,184.2 25.5,183.5 25.5,170.8 26.2,170.0 56.2,169.8 57.0,169.0 56.8,158.0 55.2,157.5 26.8,157.8 26.0,157.5 25.2,156.2 25.8,143.5 27.2,143.0 60.5,143.2 61.0,142.5 61.0,131.5 60.2,130.8Z"/></svg>
+    <h1 id="loginTitle">Espace administrateur</h1>
+    <p>Connectez-vous pour gérer les dossiers, les paiements et les véhicules.</p>
+    <label for="loginPwd">Mot de passe</label>
+    <input id="loginPwd" type="password" autocomplete="current-password" required>
+    <p class="err" id="loginErr" role="alert"></p>
+    <button class="btn btn-n" id="loginBtn" type="submit">Se connecter</button>
+    <p class="foot">Accès réservé à Elite Auto Deal. La session expire après 12 heures.</p>
+  </form>
+</div>
+
+<nav class="nav" id="nav" aria-label="Navigation principale">
+  <div class="brand">
+    <svg viewBox="0 0 680 118" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M9.5,55.0 12.0,57.2 26.8,65.5 37.2,70.5 41.8,71.8 96.0,71.5 125.5,73.0 148.8,75.0 174.5,78.2 179.5,78.5 182.8,79.2 192.2,80.0 193.8,80.5 224.0,83.0 228.2,83.8 289.8,87.8 337.2,89.5 392.2,90.0 456.5,88.0 508.0,84.0 530.2,82.8 563.0,82.8 577.0,83.8 588.0,85.0 601.8,87.2 626.2,92.8 648.8,100.0 661.5,105.0 667.8,108.0 669.8,108.2 669.5,107.2 662.8,101.5 656.5,97.0 647.0,91.2 632.2,84.2 616.2,78.8 608.2,76.5 593.5,73.2 572.2,70.0 550.2,68.0 528.5,67.5 521.5,66.8 513.0,63.0 490.0,51.2 470.8,42.2 448.5,33.0 426.8,25.0 412.0,20.2 394.2,15.8 381.5,13.5 364.5,11.5 340.2,10.0 307.5,9.8 273.2,11.2 248.2,13.8 225.2,17.0 194.0,23.5 156.5,33.5 144.0,37.5 137.5,39.0 131.2,41.2 105.8,48.0 104.2,48.8 83.2,53.0 68.2,55.0 51.8,56.2 28.8,56.2 12.0,54.8ZM158.2,52.2 181.5,44.0 199.8,38.8 222.2,33.2 246.0,29.0 273.8,25.5 290.0,24.2 309.0,23.5 346.2,24.0 367.0,25.8 387.2,28.8 402.5,32.2 416.8,36.2 437.8,43.2 462.0,53.2 482.0,63.0 490.0,67.5 490.8,68.8 490.0,69.5 485.5,69.5 458.5,71.8 401.5,73.8 350.8,73.8 292.0,71.8 245.8,68.5 209.8,64.5 208.5,64.0 193.5,62.0 177.5,58.8 158.8,53.2Z"/></svg>
+    <b>ELITE AUTO DEAL</b>
+    <small>Espace administrateur</small>
+  </div>
+  <div id="navItems"></div>
+  <div class="foot"><strong>Données de démonstration</strong>Aucune transaction réelle. Le paiement et WhatsApp seront branchés à l'intégration.</div>
+</nav>
+
+<div class="main">
+  <header class="top">
+    <button class="icon-btn menu-btn" id="menuBtn" aria-label="Ouvrir le menu" aria-controls="nav" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    <div class="search" role="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <label class="sr" for="q">Rechercher</label>
+      <input id="q" type="search" placeholder="Rechercher un client, une référence, un véhicule">
+    </div>
+    <span class="spacer"></span>
+    <span class="demo-tag">Mode démonstration</span>
+    <button class="icon-btn" id="bell" aria-label="Notifications" aria-expanded="false" aria-controls="notif"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span class="dot" id="bellCount">0</span></button>
+    <div class="avatar" aria-label="Administrateur">EA</div>
+  </header>
+  <main id="view" class="view" tabindex="-1"></main>
+</div>
+
+<nav class="tabbar" aria-label="Navigation mobile" id="tabbar"></nav>
+
+<div class="notif" id="notif" role="dialog" aria-label="Notifications"></div>
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle"></aside>
+<div class="modal" id="modal" role="alertdialog" aria-modal="true" aria-labelledby="modalTitle"><div class="box" id="modalBox"></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ================= Icônes ================= */
+const I={
+ home:'<path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/>',
+ car:'<path d="M3 15h18M5 15l2-5c.4-1 1.2-1.6 2.3-1.6h5.4c1.1 0 1.9.6 2.3 1.6l2 5"/><path d="M4 15v3h3v-2M20 15v3h-3v-2"/><circle cx="7.5" cy="15.5" r=".6"/><circle cx="16.5" cy="15.5" r=".6"/>',
+ card:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h4"/>',
+ folder:'<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+ bank:'<path d="M3 10 12 4l9 6"/><path d="M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20h18"/>',
+ ship:'<path d="M3 17c2 1.5 4 1.5 6 0 2 1.5 4 1.5 6 0 2 1.5 4 1.5 6 0"/><path d="M5 14 4 10h16l-1 4"/><path d="M8 10V6h8v4M12 6V3"/>',
+ chart:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+ gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
+ more:'<circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>',
+ check:'<path d="m5 12 5 5L20 7"/>',
+ x:'<path d="M6 6l12 12M18 6 6 18"/>',
+ alert:'<path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/>',
+ clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+ file:'<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/>',
+ img:'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/>',
+ plus:'<path d="M12 5v14M5 12h14"/>',
+ copy:'<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/>',
+ send:'<path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/>',
+ hand:'<path d="M12 22c4.4 0 8-3.6 8-8V9a1.5 1.5 0 0 0-3 0V6a1.5 1.5 0 0 0-3 0V4.5a1.5 1.5 0 0 0-3 0V6a1.5 1.5 0 0 0-3 0v8l-1.6-1.6a1.6 1.6 0 0 0-2.3 2.3L8 19c1.2 1.8 2.6 3 4 3z"/>',
+ wa:'<path d="M20 11.5A8.5 8.5 0 0 1 7.6 19L3 20.5l1.6-4.4A8.5 8.5 0 1 1 20 11.5z"/><path d="M8.5 9c.3 2.5 2.7 5 5.5 5.6l1.2-1.4 2 1"/>',
+ user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/>',
+ key:'<circle cx="8" cy="15" r="4"/><path d="m10.8 12.2 9.2-9.2M17 6l3 3M14.5 8.5l2 2"/>',
+ upload:'<path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/>',
+ eye:'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>'
+};
+const ic=(n,extra='')=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ${extra}>${I[n]}</svg>`;
+
+/* Vignette véhicule : photo principale, sinon emplacement neutre avec le symbole du logo */
+function thumbHtml(v){
+  const src=v&&(v.img||(v.photos&&v.photos[0]&&v.photos[0].url));
+  if(src)return `<img src="${esc(src)}" alt="" loading="lazy">`;
+  return `<span class="ph" title="Aucune photo"><svg viewBox="0 0 680 118" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="${MARK}"/></svg></span>`;
+}
+const COLORS={noir:'#1c1c1f',rouge:'#b3171c',blanc:'#e9e9e6',gris:'#8a8a90',argent:'#b9bcc0'};
+
+/* ================= Données de démonstration ================= */
+const S={
+ rate:132,
+ tarifs:{financement:25,consultation:150,vente:200,recherche:150,essai:150,precommande:90},
+ clients:[
+  {id:'C-104',nom:'Nadège Pierre',tel:'+509 4811 2030',wa:'+509 4811 2030',email:'nadege.pierre@exemple.ht',d:'12 nov.',nb:1,paye:150,reinit:false},
+  {id:'C-103',nom:'Jean-Robert Célestin',tel:'+509 3456 7788',wa:'+509 3456 7788',email:'',d:'11 nov.',nb:1,paye:0,reinit:true},
+  {id:'C-102',nom:'Stéphanie Augustin',tel:'+509 3700 1122',wa:'+509 3700 1122',email:'s.augustin@exemple.ht',d:'08 nov.',nb:2,paye:25,reinit:false},
+  {id:'C-101',nom:'Wilner Jean-Baptiste',tel:'+509 3188 4455',wa:'+509 4788 4455',email:'wjb@exemple.ht',d:'02 nov.',nb:1,paye:20250,reinit:false}
+ ],
+ vehicles:[
+  {id:'V01',mk:'Toyota',md:'RAV4',y:2016,c:'noir',mi:'33k',p:22500,st:'Précommandable',t:'suv'},
+  {id:'V02',mk:'Kia',md:'Sportage',y:2012,c:'noir',mi:'71k',p:13500,st:'Disponible',t:'suv'},
+  {id:'V03',mk:'Subaru',md:'Forester',y:2014,c:'rouge',mi:'82k',p:15000,st:'Précommandable',t:'suv'},
+  {id:'V04',mk:'Suzuki',md:'Vitara',y:2019,c:'blanc',mi:'77k',p:18000,st:'Disponible',t:'suv'},
+  {id:'V05',mk:'Nissan',md:'Frontier LE',y:2021,c:'rouge',mi:'90k',p:43500,st:'Disponible',t:'pick',note:'Prix ferme'},
+  {id:'V06',mk:'Jeep',md:'Grand Cherokee Laredo',y:2021,c:'gris',mi:'78k',p:24000,st:'En transit',t:'suv'},
+  {id:'V07',mk:'Porsche',md:'Cayenne',y:2016,c:'gris',mi:'73k',p:28000,st:'Disponible',t:'suv'},
+  {id:'V08',mk:'Hyundai',md:'Santa Fe Sport',y:2015,c:'blanc',mi:'60k',p:12000,st:'Vendu',t:'suv'},
+  {id:'V09',mk:'Mercedes-Benz',md:'GLE',y:2017,c:'rouge',mi:'75k',p:26500,st:'Disponible',t:'suv'},
+  {id:'V10',mk:'Jeep',md:'Grand Cherokee',y:2015,c:'rouge',mi:'75k',p:21500,st:'Disponible',t:'suv'},
+  {id:'V11',mk:'Kia',md:'Sportage',y:2024,c:'noir',mi:'—',p:30000,st:'En transit',t:'suv'},
+  {id:'V12',mk:'Subaru',md:'Forester',y:2018,c:'rouge',mi:'—',p:20500,st:'Disponible',t:'suv'},
+  {id:'V13',mk:'Kia',md:'Sorento',y:2015,c:'noir',mi:'—',p:14000,st:'Précommandable',t:'suv',note:'Tout compris : transport + dédouanement'},
+  {id:'V14',mk:'Toyota',md:'4Runner',y:2019,c:'blanc',mi:'66k',p:38500,st:'Disponible',t:'suv'},
+  {id:'V15',mk:'Jeep',md:'Wrangler Unlimited',y:2014,c:'noir',mi:'195k',p:16000,st:'Indisponible',t:'suv'}
+ ],
+ payments:[
+  {ref:'EAD-P-26111201',svc:'Précommande (90 %)',cl:'Marc-Henry Joseph',amt:20250,cur:'USD',prov:'Virement bancaire',st:'confirme',d:'12 nov. 08:42',dos:'EAD-D-1042',dup:true},
+  {ref:'EAD-P-26111202',svc:'Consultation',cl:'Nadège Pierre',amt:19800,cur:'HTG',prov:'MonCash',st:'confirme',d:'12 nov. 09:15',dos:'EAD-D-1051'},
+  {ref:'EAD-P-26111203',svc:'Essai / visite',cl:'Jean-Robert Célestin',amt:150,cur:'USD',prov:'Carte bancaire',st:'attente',d:'12 nov. 09:31',dos:'EAD-D-1052'},
+  {ref:'EAD-P-26111204',svc:'Dossier de financement',cl:'Stéphanie Augustin',amt:25,cur:'USD',prov:'Carte bancaire',st:'echoue',d:'12 nov. 09:48',dos:'EAD-D-1053'},
+  {ref:'EAD-P-26111101',svc:'Vente confiée',cl:'Patrick Desrosiers',amt:200,cur:'USD',prov:'Carte bancaire',st:'confirme',d:'11 nov. 17:05',dos:'EAD-D-1047'},
+  {ref:'EAD-P-26111102',svc:'Recherche personnalisée',cl:'Vanessa Louis',amt:150,cur:'USD',prov:'Carte bancaire',st:'confirme',d:'11 nov. 14:20',dos:'EAD-D-1046'},
+  {ref:'EAD-P-26111103',svc:'Dossier de financement',cl:'Emmanuel Noël',amt:3300,cur:'HTG',prov:'MonCash',st:'confirme',d:'11 nov. 11:02',dos:'EAD-D-1045'},
+  {ref:'EAD-P-26111001',svc:'Solde précommande (10 %)',cl:'Rose-Marie Étienne',amt:1500,cur:'USD',prov:'Virement bancaire',st:'confirme',d:'10 nov. 16:40',dos:'EAD-D-1021'},
+  {ref:'EAD-P-26111002',svc:'Essai / visite',cl:'Ricardo Baptiste',amt:150,cur:'USD',prov:'Carte bancaire',st:'rembourse',d:'10 nov. 10:12',dos:'EAD-D-1040'},
+  {ref:'EAD-P-26110901',svc:'Précommande (90 %)',cl:'Guerline François',amt:13500,cur:'USD',prov:'Virement bancaire',st:'confirme',d:'09 nov. 15:55',dos:'EAD-D-1038'},
+  {ref:'EAD-P-26110902',svc:'Consultation',cl:'Wilson Pierre-Louis',amt:150,cur:'USD',prov:'Carte bancaire',st:'confirme',d:'09 nov. 09:30',dos:'EAD-D-1037'},
+  {ref:'EAD-P-26110801',svc:'Recherche personnalisée',cl:'Daphnée Jean-Baptiste',amt:150,cur:'USD',prov:'Carte bancaire',st:'confirme',d:'08 nov. 12:18',dos:'EAD-D-1035'}
+ ],
+ dossiers:[
+  {id:'EAD-D-1053',acct:'Stéphanie Augustin',svc:'financement',cl:'Stéphanie Augustin',tel:'+509 3700 1122',need:'Hyundai Santa Fe ou équivalent, budget 15 000 $',st:'nouveau',pay:'echoue',d:'12 nov.',files:['Carte d\'identité.jpg']},
+  {id:'EAD-D-1052',svc:'essai',cl:'Jean-Robert Célestin',tel:'+509 3456 7788',need:'Essai Porsche Cayenne 2016, samedi matin',st:'nouveau',pay:'attente',d:'12 nov.',files:[]},
+  {id:'EAD-D-1051',acct:'Nadège Pierre',svc:'consultation',cl:'Nadège Pierre',tel:'+509 4811 2030',need:'Premier véhicule familial, 5 places, budget 18 000 $',st:'paye',pay:'confirme',d:'12 nov.',files:[]},
+  {id:'EAD-D-1047',svc:'vente',cl:'Patrick Desrosiers',tel:'+509 3122 4545',need:'Toyota Highlander 2017, 88k mi, prix demandé 21 000 $',st:'validation',pay:'confirme',d:'11 nov.',files:['Extérieur avant.jpg','Extérieur arrière.jpg','Intérieur.jpg','Vidéo moteur.mp4','Carte grise.pdf']},
+  {id:'EAD-D-1046',svc:'recherche',cl:'Vanessa Louis',tel:'+509 3890 6611',need:'Honda CR-V 2019+, budget 23 000 $, comptant',st:'encours',pay:'confirme',d:'11 nov.',files:[]},
+  {id:'EAD-D-1045',svc:'financement',cl:'Emmanuel Noël',tel:'+509 4402 1919',need:'Kia Sportage 2024, apport 8 000 $',st:'validation',pay:'confirme',d:'11 nov.',files:['Carte d\'identité.jpg','Preuve d\'adresse.pdf','Fiches de paie.pdf','Relevés 6 mois.pdf']},
+  {id:'EAD-D-1044',svc:'essai',cl:'Ketly Thermidor',tel:'+509 3711 0099',need:'Visite Mercedes GLE 2017, mardi 14 h',st:'validation',pay:'confirme',d:'10 nov.',files:[]},
+  {id:'EAD-D-1043',svc:'recherche',cl:'Fritz Alexandre',tel:'+509 3601 7272',need:'Inspecter un Toyota Prado vu à Pétion-Ville (véhicule tiers)',st:'paye',pay:'confirme',d:'10 nov.',files:['Annonce vendeur.jpg']},
+  {id:'EAD-D-1041',svc:'vente',cl:'Myrlande Saint-Fort',tel:'+509 4900 3434',need:'Nissan Rogue 2016, 102k mi, prix demandé 11 500 $',st:'nouveau',pay:'attente',d:'10 nov.',files:['Extérieur.jpg']},
+  {id:'EAD-D-1037',svc:'consultation',cl:'Wilson Pierre-Louis',tel:'+509 3333 5050',need:'Choix entre RAV4 2016 et Forester 2018',st:'clos',pay:'confirme',d:'09 nov.',files:[]},
+  {id:'EAD-D-1035',svc:'recherche',cl:'Daphnée Jean-Baptiste',tel:'+509 4122 8080',need:'Toyota Tacoma 2018, budget 30 000 $',st:'encours',pay:'confirme',d:'08 nov.',files:[]},
+  {id:'EAD-D-1033',svc:'financement',cl:'Junior Mompremier',tel:'+509 3888 1010',need:'Suzuki Vitara 2019',st:'encours',pay:'confirme',d:'07 nov.',files:['Carte d\'identité.jpg','Preuve d\'adresse.pdf']},
+  {id:'EAD-D-1030',svc:'essai',cl:'Lunise Valcourt',tel:'+509 4700 2525',need:'Essai Toyota 4Runner 2019',st:'clos',pay:'confirme',d:'06 nov.',files:[]}
+ ],
+ fin:[
+  {id:'EAD-D-1045',cl:'Emmanuel Noël',veh:'Kia Sportage 2024',bud:30000,apport:8000,stage:2,docs:[1,1,1,1],aval:false},
+  {id:'EAD-D-1033',cl:'Junior Mompremier',veh:'Suzuki Vitara 2019',bud:18000,apport:5000,stage:1,docs:[1,1,1,1],aval:false},
+  {id:'EAD-D-1053',cl:'Stéphanie Augustin',veh:'Hyundai Santa Fe ou équivalent',bud:15000,apport:3000,stage:0,docs:[1,0,0,0],aval:false},
+  {id:'EAD-D-1028',cl:'Roodly Charles',veh:'Jeep Grand Cherokee 2015',bud:21500,apport:7000,stage:3,docs:[1,1,1,1],aval:true},
+  {id:'EAD-D-1019',cl:'Sabine Désir',veh:'Porsche Cayenne 2016',bud:28000,apport:4000,stage:4,docs:[1,1,0,1],aval:false}
+ ],
+ pre:[
+  {id:'EAD-D-1042',cl:'Marc-Henry Joseph',vid:'V01',price:22500,eta:'28 nov. 2026',arr:'transit',bal:'attente',late:false},
+  {id:'EAD-D-1038',cl:'Guerline François',vid:'V03',price:15000,eta:'05 nov. 2026',arr:'transit',bal:'attente',late:true,lateNote:'Retard de 7 jours au port de Miami'},
+  {id:'EAD-D-1029',cl:'Josué Antoine',vid:'V13',price:14000,eta:'08 nov. 2026',arr:'arrive',bal:'attente',late:false},
+  {id:'EAD-D-1021',cl:'Rose-Marie Étienne',vid:'V11',price:15000,eta:'02 nov. 2026',arr:'arrive',bal:'paye',late:false,priceOverride:true}
+ ],
+ activity:[
+  {k:'ok',t:'Paiement confirmé par le prestataire',s:'Précommande Toyota RAV4 2016 — Marc-Henry Joseph — 20 250 $',d:'08:42'},
+  {k:'bad',t:'Paiement échoué',s:'Dossier de financement — Stéphanie Augustin — carte refusée',d:'09:48'},
+  {k:'ok',t:'Paiement confirmé par le prestataire',s:'Consultation — Nadège Pierre — 19 800 HTG',d:'09:15'},
+  {k:'n',t:'Nouvelle demande d\'essai',s:'Porsche Cayenne 2016 — Jean-Robert Célestin',d:'09:31'},
+  {k:'warn',t:'Médias reçus pour une vente confiée',s:'Toyota Highlander 2017 — 4 photos, 1 vidéo',d:'Hier 17:06'},
+  {k:'n',t:'Message WhatsApp envoyé',s:'Confirmation de paiement et référence EAD-D-1046',d:'Hier 14:21'}
+ ],
+ months:[
+  {m:'juin',sales:3,veh:61500,svc:2350},{m:'juil.',sales:4,veh:84000,svc:2900},{m:'août',sales:2,veh:37500,svc:2100},
+  {m:'sept.',sales:5,veh:118000,svc:3650},{m:'oct.',sales:4,veh:96500,svc:3400},{m:'nov.',sales:2,veh:48500,svc:2075}
+ ],
+ templates:{
+  accueil:`🚘 ELITE AUTO DEAL vous souhaite la bienvenue !
+
+Merci de votre intérêt et de votre confiance.
+
+Afin de mieux répondre à votre demande, veuillez nous communiquer les informations suivantes :
+
+Marque :
+Année :
+Modèle :
+Budget :
+Mode de paiement : Comptant ou financement ?
+Type de demande : Achat, précommande, recherche personnalisée ou réservation d'un essai ?
+
+Notre plateforme vous permet de consulter nos véhicules, de soumettre votre demande et d'effectuer les paiements de nos services en ligne de manière sécurisée.
+
+Une fois votre demande enregistrée et le paiement confirmé, vous recevrez les informations nécessaires pour la suite.
+
+ELITE AUTO DEAL — Votre satisfaction, notre priorité ! 🤝`,
+  paiement:`Bonjour {client},
+
+Nous confirmons la réception de votre paiement de {montant} pour le service « {service} ».
+Référence du dossier : {dossier}
+
+Prochaine étape : un conseiller Elite Auto Deal vous contacte sous 24 h ouvrables.
+Suivi de votre dossier : {lien_suivi}
+
+ELITE AUTO DEAL — Votre satisfaction, notre priorité ! 🤝`,
+  solde:`Bonjour {client},
+
+Bonne nouvelle : votre {vehicule} est arrivé en Haïti.
+Solde restant (10 %) : {solde}
+Lien de paiement sécurisé : {lien_paiement}
+
+Après confirmation du paiement, nous fixons ensemble la date de remise ou de livraison.
+
+ELITE AUTO DEAL`,
+  rappel:`Bonjour {client},
+
+Votre dossier {dossier} est en attente de paiement des frais de service ({montant}).
+Vous pouvez le régler ici : {lien_paiement}
+
+Sans paiement, la demande ne peut pas être prise en charge.
+
+ELITE AUTO DEAL`
+ }
+};
+const SVC={consultation:'Consultation',recherche:'Recherche / achat accompagné',essai:'Essai / visite',vente:'Vente confiée',financement:'Financement'};
+const SVC_SHORT={consultation:'Consultation',recherche:'Recherche',essai:'Essai',vente:'Vente',financement:'Financement'};
+const DST={nouveau:'Paiement en attente',paye:'Payé, à traiter',encours:'En cours',validation:'Validation requise',clos:'Clôturé'};
+const PST={confirme:['Confirmé par le prestataire','b-ok'],attente:['En attente','b-warn'],echoue:['Échoué','b-bad'],rembourse:['Remboursé','b-g']};
+const VST=['Disponible','En transit','Précommandable','Vendu','Indisponible'];
+const VST_C={'Disponible':'b-ok','En transit':'b-warn','Précommandable':'b-n','Vendu':'b-g','Indisponible':'b-bad'};
+const FST=['Reçue','Dossier complet','En examen','Approuvé','Refusé'];
+const DOCS=['Carte d\'identité','Preuve d\'adresse','Preuve de revenus ou avaliseur','Relevés de compte (6 mois)'];
+
+/* ================= Utilitaires ================= */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=(n,cur='USD')=>cur==='HTG'?new Intl.NumberFormat('fr-FR').format(Math.round(n))+' HTG':new Intl.NumberFormat('fr-FR').format(Math.round(n))+' $';
+const toUSD=p=>p.usd!=null?+p.usd:p.cur==='HTG'?p.amt/S.rate:p.amt;
+const veh=id=>S.vehicles.find(v=>v.id===id);
+const vname=v=>`${v.mk} ${v.md} ${v.y}`;
+let query='';
+function toast(msg){const t=$('#toast');t.classList.remove('err');t.innerHTML=ic('check')+`<span>${esc(msg)}</span>`;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2600)}
+function match(...f){if(!query)return true;const q=query.toLowerCase();return f.join(' ').toLowerCase().includes(q)}
+function waLink(tel,msg){const n=tel.replace(/\D/g,'');return `https://wa.me/${n}${msg?'?text='+encodeURIComponent(msg):''}`}
+
+/* ================= Navigation ================= */
+const ROUTES=[
+ {id:'apercu',l:'Aperçu',i:'home'},
+ {id:'dossiers',l:'Dossiers',i:'folder',c:()=>S.dossiers.filter(d=>['paye','validation'].includes(d.st)).length},
+ {id:'paiements',l:'Paiements',i:'card',c:()=>S.payments.filter(p=>p.st==='echoue').length},
+ {id:'vehicules',l:'Véhicules',i:'car'},
+ {id:'financement',l:'Financement',i:'bank'},
+ {id:'precommandes',l:'Précommandes',i:'ship',c:()=>S.pre.filter(p=>p.arr==='arrive'&&p.bal==='attente').length},
+ {id:'clients',l:'Clients',i:'user',c:()=>(S.clients||[]).filter(c=>c.reinit).length},
+ {id:'rapports',l:'Rapports',i:'chart'},
+ {id:'parametres-site',l:'Paramètres du site',i:'gear'}
+];
+function current(){const h=location.hash.slice(1);return ROUTES.some(r=>r.id===h)?h:'apercu'}
+function renderNav(){
+  const cur=current();
+  $('#navItems').innerHTML=ROUTES.map(r=>{const c=r.c?r.c():0;return `<a class="item" href="#${r.id}" ${r.id===cur?'aria-current="page"':''}>${ic(r.i)}<span>${r.l}</span>${c?`<span class="count">${c}</span>`:''}</a>`}).join('');
+  const tabs=['apercu','dossiers','paiements','vehicules'];
+  $('#tabbar').innerHTML=tabs.map(id=>{const r=ROUTES.find(x=>x.id===id);const c=r.c?r.c():0;return `<a href="#${id}" ${id===cur?'aria-current="page"':''}>${ic(r.i)}<span>${r.l}</span>${c?`<span class="c">${c}</span>`:''}</a>`}).join('')+
+   `<button type="button" id="moreBtn" ${tabs.includes(cur)?'':'aria-current="page"'} aria-label="Plus de sections">${ic('more')}<span>Plus</span></button>`;
+  $('#moreBtn').onclick=openNav;
+  const alerts=getAlerts();$('#bellCount').textContent=alerts.length;$('#bellCount').style.display=alerts.length?'grid':'none';
+}
+function openNav(){$('#nav').classList.add('open');$('#scrim').classList.add('open');$('#menuBtn').setAttribute('aria-expanded','true')}
+function closeNav(){$('#nav').classList.remove('open');$('#menuBtn').setAttribute('aria-expanded','false');if(!$('#drawer').classList.contains('open'))$('#scrim').classList.remove('open')}
+$('#menuBtn').onclick=openNav;
+$('#scrim').onclick=()=>{closeNav();closeDrawer()};
+
+/* ================= Alertes ================= */
+function getAlerts(){
+  if(LIVE){const go={paiement_echoue:'paiements',dossier_incomplet:'dossiers',solde_a_percevoir:'precommandes',retard:'precommandes',reinitialisation_demandee:'clients',nouveaux_documents:'dossiers'};const tt={paiement_echoue:'Paiement échoué',dossier_incomplet:'Dossier incomplet',solde_a_percevoir:'Solde à percevoir',retard:'Retard de livraison',reinitialisation_demandee:'Réinitialisation demandée',nouveaux_documents:'Nouveaux documents'};const ii={reinitialisation_demandee:'key',nouveaux_documents:'upload'};
+    return ((LV.resume||{}).alertes||[]).map(x=>({k:x.type==='paiement_echoue'||x.type==='retard'?'bad':'warn',i:ii[x.type],t:tt[x.type]||'Alerte',s:(x.ref?x.ref+' : ':'')+(x.texte||''),go:go[x.type]||'dossiers'}))}
+  const a=[];
+  S.payments.filter(p=>p.st==='echoue').forEach(p=>a.push({k:'bad',t:'Paiement échoué',s:`${p.svc} — ${p.cl}`,go:'paiements'}));
+  S.fin.filter(f=>f.stage===0&&f.docs.includes(0)).forEach(f=>a.push({k:'warn',t:'Dossier incomplet',s:`Financement — ${f.cl} : ${f.docs.filter(x=>!x).length} pièce(s) manquante(s)`,go:'financement'}));
+  S.pre.filter(p=>p.arr==='arrive'&&p.bal==='attente').forEach(p=>a.push({k:'warn',t:'Solde à percevoir',s:`${vname(veh(p.vid))} — ${p.cl} : ${fmt(p.price*.1)}`,go:'precommandes'}));
+  (S.clients||[]).filter(c=>c.reinit).forEach(c=>a.push({k:'warn',i:'key',t:'Réinitialisation demandée',s:`${c.nom} a oublié son mot de passe`,go:'clients'}));
+  S.pre.filter(p=>p.late&&p.arr!=='arrive').forEach(p=>a.push({k:'bad',t:'Retard de livraison',s:`${vname(veh(p.vid))} — ${p.lateNote}`,go:'precommandes'}));
+  return a;
+}
+function alertHTML(list){return list.map(x=>`<div class="alert ${x.k}">${ic(x.i||(x.k==='bad'?'alert':'clock'),'style="width:20px;height:20px;flex:none;color:'+(x.k==='bad'?'var(--rouge)':'var(--alerte)')+'"')}<div class="grow"><b>${esc(x.t)}</b>${esc(x.s)}</div><a class="btn btn-t btn-sm" href="#${x.go}">Voir</a></div>`).join('')}
+$('#bell').onclick=e=>{e.stopPropagation();const n=$('#notif');const open=!n.classList.contains('open');const al=getAlerts();
+  n.innerHTML=`<h2>Notifications</h2>${al.length?alertHTML(al):'<div class="empty"><b>Rien à signaler</b>Les alertes apparaissent ici dès qu\'un paiement échoue ou qu\'un solde est dû.</div>'}<p class="small muted" style="margin:12px 0 0">Copie envoyée par email et WhatsApp à l'administrateur une fois l'intégration active.</p>`;
+  n.classList.toggle('open',open);$('#bell').setAttribute('aria-expanded',open)};
+document.addEventListener('click',e=>{if(!e.target.closest('#notif')&&!e.target.closest('#bell'))$('#notif').classList.remove('open')});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDrawer();closeModal();closeNav();$('#notif').classList.remove('open')}});
+
+/* ================= Drawer / Modal ================= */
+let lastFocus=null;
+function openDrawer(html){lastFocus=document.activeElement;const d=$('#drawer');d.innerHTML=html;d.classList.add('open');$('#scrim').classList.add('open');setTimeout(()=>{const f=d.querySelector('[data-close]');f&&f.focus()},50);d.querySelectorAll('[data-close]').forEach(b=>b.onclick=closeDrawer)}
+function closeDrawer(){const d=$('#drawer');if(!d.classList.contains('open'))return;d.classList.remove('open');if(!$('#nav').classList.contains('open'))$('#scrim').classList.remove('open');lastFocus&&lastFocus.focus&&lastFocus.focus()}
+function drawerHead(title,sub){return `<div class="drawer-h"><div><h2 id="drawerTitle">${title}</h2>${sub?`<p class="muted small" style="margin:4px 0 0">${sub}</p>`:''}</div><button class="icon-btn" data-close aria-label="Fermer">${ic('x')}</button></div>`}
+function confirmBox(title,text,okLabel,onOk,danger){
+  const m=$('#modal');$('#modalBox').innerHTML=`<h2 id="modalTitle">${title}</h2><p>${text}</p><div class="row"><button class="btn btn-t" id="mCancel">Annuler</button><button class="btn ${danger?'btn-p':'btn-n'}" id="mOk">${okLabel}</button></div>`;
+  m.classList.add('open');$('#mOk').focus();$('#mCancel').onclick=closeModal;$('#mOk').onclick=()=>{closeModal();onOk()};
+}
+function closeModal(){$('#modal').classList.remove('open')}
+$('#modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
+
+/* ================= Vues ================= */
+const V={};
+
+V.apercu=()=>{
+  const today=S.payments.filter(p=>p.st==='confirme'&&p.d.startsWith('12 nov'));
+  const month=S.payments.filter(p=>p.st==='confirme');
+  const sumT=today.reduce((a,p)=>a+toUSD(p),0), sumM=month.reduce((a,p)=>a+toUSD(p),0);
+  const todo=S.dossiers.filter(d=>['paye','validation'].includes(d.st)).length;
+  const human=S.dossiers.filter(d=>d.st==='validation').length;
+  const stock=S.vehicles.filter(v=>['Disponible','En transit','Précommandable'].includes(v.st)).length;
+  const preOn=S.pre.filter(p=>p.bal!=='paye').length;
+  const due=S.pre.filter(p=>p.bal!=='paye').reduce((a,p)=>a+p.price*.1,0);
+  const bySvc={};month.forEach(p=>{const k=p.svc.replace(/ \(.+\)/,'');bySvc[k]=(bySvc[k]||0)+toUSD(p)});
+  const rows=Object.entries(bySvc).sort((a,b)=>b[1]-a[1]);const max=rows[0][1];
+  const al=getAlerts();
+  return `
+  <div class="head"><div><h1>Bonjour, voici votre journée</h1><p>Jeudi 12 novembre 2026. Les paiements ci-dessous sont confirmés par le prestataire, jamais par capture d'écran.</p></div>
+  <div class="actions"><button class="btn btn-t" data-go="vehicules-add">${ic('plus')}Ajouter un véhicule</button><a class="btn btn-n" href="#dossiers">${ic('folder')}Traiter les dossiers</a></div></div>
+  <section class="kpis" aria-label="Indicateurs clés">
+    <div class="kpi hero"><svg class="bgmark" viewBox="0 0 680 118" aria-hidden="true"><path fill="currentColor" d="${MARK}"/></svg>
+      <span class="l">Paiements confirmés aujourd'hui</span><span class="v num">${fmt(sumT)}</span><span class="s num">≈ ${fmt(sumT*S.rate,'HTG')} · ${today.length} transactions <span class="up">+18 % vs hier</span></span></div>
+    <div class="kpi"><span class="l">Encaissé ce mois</span><span class="v num">${fmt(sumM)}</span><span class="s num">≈ ${fmt(sumM*S.rate,'HTG')}</span></div>
+    <div class="kpi"><span class="l">Dossiers à traiter</span><span class="v num">${todo}</span><span class="s">${human} attendent votre validation</span></div>
+    <div class="kpi"><span class="l">Véhicules en stock</span><span class="v num">${stock}</span><span class="s">${S.vehicles.filter(v=>v.st==='En transit').length} en transit</span></div>
+    <div class="kpi"><span class="l">Précommandes en cours</span><span class="v num">${preOn}</span><span class="s">${S.pre.filter(p=>p.late).length} en retard</span></div>
+    <div class="kpi"><span class="l">Soldes à percevoir</span><span class="v num">${fmt(due)}</span><span class="s">10 % à l'arrivée en Haïti</span></div>
+  </section>
+  <div class="grid2">
+    <div class="stack">
+      <section class="card"><div class="card-h"><h2>Recettes par service, novembre</h2><span class="small muted">en USD, HTG converti au taux ${S.rate}</span></div>
+        <div class="card-b"><div class="bars">${rows.map(([k,v])=>`<div class="bar-row"><span>${esc(k)}</span><div class="track" role="img" aria-label="${esc(k)} ${fmt(v)}"><div class="fill" style="width:${Math.max(3,v/max*100)}%"></div></div><span class="amt num">${fmt(v)}</span></div>`).join('')}</div></div></section>
+      <section class="card"><div class="card-h"><h2>Activité récente</h2><a class="small" href="#paiements">Tous les paiements</a></div>
+        <div class="card-b"><ul class="feed">${S.activity.map(a=>`<li><span class="ic ${a.k==='ok'?'ok':a.k==='bad'?'bad':a.k==='warn'?'warn':''}">${ic(a.k==='ok'?'check':a.k==='bad'?'x':a.k==='warn'?'img':'clock')}</span><p>${esc(a.t)}<span>${esc(a.s)}</span></p><time>${a.d}</time></li>`).join('')}</ul></div></section>
+    </div>
+    <div class="stack">
+      <section class="card"><div class="card-h"><h2>À surveiller</h2><span class="badge b-bad">${al.length}</span></div><div class="card-b">${alertHTML(al)}</div></section>
+      <section class="card"><div class="card-h"><h2>Votre validation est requise</h2></div><div class="card-b">
+        <p class="small muted" style="margin:0 0 10px">Le site ne confirme jamais seul une vente, un financement ou un rendez-vous.</p>
+        ${S.dossiers.filter(d=>d.st==='validation').map(d=>`<button class="dcard" data-dos="${d.id}"><span class="t"><span class="svc">${SVC_SHORT[d.svc]}</span><span>${d.id}</span></span><b>${esc(d.cl)}</b><p>${esc(d.need)}</p></button>`).join('')}
+      </div></section>
+    </div>
+  </div>`;
+};
+
+V.vehicules=()=>{
+  const list=S.vehicles.filter(v=>match(v.mk,v.md,v.y,v.st,v.c));
+  const counts=VST.map(s=>[s,S.vehicles.filter(v=>v.st===s).length]);
+  return `<div class="head"><div><h1>Véhicules</h1><p>Modifiez le prix et le statut ici : le site public se met à jour aussitôt.</p></div>
+  <div class="actions"><button class="btn btn-p" data-go="vehicules-add">${ic('plus')}Ajouter un véhicule</button></div></div>
+  <div class="chips" role="group" aria-label="Répartition par statut">${counts.map(([s,n])=>`<span class="badge ${VST_C[s]}">${s} <span class="num">${n}</span></span>`).join('')}</div>
+  <section class="card card-tbl"><div class="tbl-wrap">
+  ${list.length?`<table class="tbl cards"><thead><tr><th>Véhicule</th><th>Kilométrage</th><th class="r">Prix (USD)</th><th>Statut</th><th class="r">Actions</th></tr></thead><tbody>
+  ${list.map(v=>`<tr><td class="full"><div class="veh-cell"><span class="thumb">${thumbHtml(v)}</span><span><b>${esc(vname(v))}</b><span>${esc(v.c)}${v.note?' · '+esc(v.note):''}</span></span></div></td>
+  <td data-l="Kilométrage" class="num">${v.mi==='—'?'—':v.mi+' mi'}</td>
+  <td data-l="Prix (USD)" class="r"><label class="sr" for="p${v.id}">Prix ${esc(vname(v))}</label><input class="inline price num" id="p${v.id}" data-price="${v.id}" inputmode="numeric" value="${v.p}"></td>
+  <td data-l="Statut"><label class="sr" for="s${v.id}">Statut ${esc(vname(v))}</label><select class="inline" id="s${v.id}" data-status="${v.id}">${VST.map(s=>`<option ${s===v.st?'selected':''}>${s}</option>`).join('')}</select></td>
+  <td class="r acts"><button class="btn btn-t btn-sm" data-photos="${v.id}">${ic('img')}Photos${(v.photos&&v.photos.length)?` (${v.photos.length})`:''}</button><button class="btn btn-t btn-sm" data-retire="${v.id}">Retirer du site</button></td></tr>`).join('')}
+  </tbody></table>`:emptyQ()}
+  </div></section>`;
+};
+function vehByLabel(l){l=String(l||'').toLowerCase();return S.vehicles.find(v=>vname(v).toLowerCase()===l||(`${v.mk} ${v.md}`).toLowerCase()===l||(v._api&&`${v._api.marque} ${v._api.modele}`.toLowerCase()===l))||null}
+function uploadPhotos(id,files,onp){
+  return new Promise((res,rej)=>{const fd=new FormData();files.forEach(f=>fd.append('photos',f));
+    const x=new XMLHttpRequest();x.open('POST','/api/admin/vehicules/'+encodeURIComponent(id)+'/photos');
+    if(TOKEN)x.setRequestHeader('Authorization','Bearer '+TOKEN);
+    x.upload.onprogress=e=>{if(e.lengthComputable&&onp)onp(Math.round(e.loaded/e.total*100))};
+    x.onload=()=>{let d=null;try{d=JSON.parse(x.responseText)}catch(_){}
+      if(x.status===401){logout(true);return rej(new Error('Session expirée. Reconnectez-vous.'))}
+      if(x.status>=200&&x.status<300)return res(d);rej(new Error((d&&d.error&&d.error.message)||`Envoi des photos impossible (${x.status}).`))};
+    x.onerror=()=>rej(new Error('Connexion au serveur impossible. Vérifiez votre réseau.'));x.send(fd)});
+}
+function applyVeh(v,data){if(LIVE&&data&&data.id){const n=mapVehicule(data);Object.assign(v,n)}}
+function photosDrawer(id){
+  const v=veh(id);if(!v)return;v.photos=v.photos||[];
+  const body=()=>v.photos.length?`<div class="photos-grid">${v.photos.map((p,i)=>`<div class="photo-it"><div class="im"><img src="${esc(p.url)}" alt="Photo ${i+1} de ${esc(vname(v))}">${i===0?'<span class="pmain">Principale</span>':''}</div>
+      <div class="pa">${i?`<button class="btn btn-t btn-sm" data-pmain="${esc(String(p.id))}">Mettre en principale</button>`:''}<button class="btn btn-t btn-sm" data-pdel="${esc(String(p.id))}">${ic('x')}Supprimer</button></div></div>`).join('')}</div>`
+    :`<div class="photos-empty"><b style="display:block;color:var(--g700);margin-bottom:4px">Aucune photo pour ce véhicule</b>Le site affiche un emplacement neutre tant qu'aucune photo n'est ajoutée.</div>`;
+  const paint=()=>{$('#phBody').innerHTML=body();bindItems()};
+  openDrawer(drawerHead('Photos du véhicule',vname(v))+`<div class="drawer-b">
+    <label class="drop" for="ph-in" style="display:block;position:relative;margin-bottom:14px;cursor:pointer">${ic('img','style="width:26px;height:26px;color:var(--g500)"')}<br><b>Ajouter des photos</b><br><span class="small muted">JPG, PNG ou WebP, 12 par envoi, 10 Mo maximum chacune</span><input id="ph-in" type="file" accept="image/jpeg,image/png,image/webp" multiple style="position:absolute;width:1px;height:1px;opacity:0"></label>
+    <div class="upbar" id="phBar" hidden><span></span></div><p class="small muted" id="phMsg" style="margin:6px 0 12px"></p>
+    <div id="phBody">${body()}</div></div>
+    <div class="drawer-f"><button class="btn btn-p" data-close>Terminé</button></div>`);
+  const done=()=>{if(location.hash.replace('#','')==='vehicules')render()};
+  function bindItems(){
+    $('#phBody').querySelectorAll('[data-pmain]').forEach(b=>b.onclick=()=>{const pid=b.dataset.pmain;
+      const local=()=>{const i=v.photos.findIndex(p=>String(p.id)===pid);v.photos.unshift(...v.photos.splice(i,1));v.img=v.photos[0].url;paint();done();toast('Photo principale mise à jour')};
+      if(!LIVE)return local();b.disabled=true;
+      api('/api/admin/vehicules/'+encodeURIComponent(v.id)+'/photos/'+encodeURIComponent(pid)+'/principale',{method:'POST'}).then(d=>{applyVeh(v,d);paint();done();toast('Photo principale mise à jour')}).catch(e=>{b.disabled=false;fail(e)})});
+    $('#phBody').querySelectorAll('[data-pdel]').forEach(b=>b.onclick=()=>{const pid=b.dataset.pdel;
+      confirmBox('Supprimer cette photo ?','La photo sera retirée du site public. Cette action est définitive.','Supprimer',()=>{
+        const local=()=>{v.photos=v.photos.filter(p=>String(p.id)!==pid);v.img=v.photos[0]?v.photos[0].url:null;photosDrawer(v.id);done();toast('Photo supprimée')};
+        if(!LIVE)return local();
+        return api('/api/admin/vehicules/'+encodeURIComponent(v.id)+'/photos/'+encodeURIComponent(pid),{method:'DELETE'}).then(d=>{applyVeh(v,d);photosDrawer(v.id);done();toast('Photo supprimée')}).catch(fail)},true)});
+  }
+  bindItems();
+  $('#ph-in').onchange=e=>{
+    let fs=[...e.target.files].filter(f=>/^image\/(jpeg|png|webp)$/.test(f.type));
+    if(fs.length<e.target.files.length)toastErr('Seules les photos JPG, PNG ou WebP sont acceptées.');
+    const trop=fs.filter(f=>f.size>10*1024*1024);if(trop.length){toastErr(`${trop.length} photo(s) dépassent 10 Mo et ont été ignorées.`);fs=fs.filter(f=>f.size<=10*1024*1024)}
+    if(fs.length>12){toastErr('12 photos maximum par envoi : les 12 premières sont envoyées.');fs=fs.slice(0,12)}
+    e.target.value='';if(!fs.length)return;
+    if(!LIVE){fs.forEach((f,i)=>v.photos.push({id:'local'+Date.now()+i,url:URL.createObjectURL(f)}));v.img=v.photos[0].url;paint();done();return toast(`${fs.length} photo(s) ajoutée(s) (démo, non enregistrées)`)}
+    const bar=$('#phBar'),msg=$('#phMsg'),inp=$('#ph-in');bar.hidden=false;inp.disabled=true;msg.textContent=`Envoi de ${fs.length} photo(s)...`;
+    uploadPhotos(v.id,fs,p=>{bar.firstElementChild.style.width=p+'%';msg.textContent=`Envoi en cours : ${p} %`})
+      .then(d=>{applyVeh(v,d);paint();done();msg.textContent='';toast(`${fs.length} photo(s) ajoutée(s)`)})
+      .catch(err=>{msg.textContent='';fail(err)}).finally(()=>{bar.hidden=true;bar.firstElementChild.style.width='0';inp.disabled=false});
+  };
+}
+function emptyQ(){return `<div class="empty"><b>Aucun résultat pour « ${esc(query)} »</b>Vérifiez l'orthographe ou effacez la recherche.</div>`}
+
+function addVehicleDrawer(){
+  openDrawer(drawerHead('Ajouter un véhicule','Il apparaîtra sur le site dès l\'enregistrement.')+`
+  <form class="drawer-b form" id="addForm">
+    <div class="two"><div class="field"><label for="f-mk">Marque</label><input id="f-mk" required placeholder="Toyota"></div><div class="field"><label for="f-md">Modèle</label><input id="f-md" required placeholder="RAV4"></div></div>
+    <div class="two"><div class="field"><label for="f-y">Année</label><input id="f-y" required inputmode="numeric" placeholder="2018"></div><div class="field"><label for="f-mi">Kilométrage (miles)</label><input id="f-mi" placeholder="75k"></div></div>
+    <div class="two"><div class="field"><label for="f-p">Prix (USD)</label><input id="f-p" required inputmode="numeric" placeholder="20500"></div>
+    <div class="field"><label for="f-st">Statut</label><select id="f-st">${VST.slice(0,3).map(s=>`<option>${s}</option>`).join('')}</select></div></div>
+    <div class="two"><div class="field"><label for="f-c">Couleur</label><select id="f-c">${Object.keys(COLORS).map(c=>`<option>${c}</option>`).join('')}</select></div>
+    <div class="field"><label for="f-t">Carrosserie</label><select id="f-t"><option value="suv">SUV</option><option value="sedan">Berline</option><option value="pick">Pick-up</option></select></div></div>
+    <div class="field"><label for="f-n">Conditions affichées</label><input id="f-n" placeholder="Ex. tout compris : transport + dédouanement"><span class="hint">Pour une précommande : délai estimé, solde de 10 % à l'arrivée, conditions d'annulation.</span></div>
+    <div class="field"><span style="font-size:13.5px;font-weight:600">Photos du véhicule</span>
+      <label class="drop" for="f-media">${ic('img','style="width:26px;height:26px;color:var(--g500)"')}<br><b>Choisir des photos</b><br><span class="small muted">JPG, PNG ou WebP, 12 photos maximum. La première devient la photo principale.</span><input id="f-media" type="file" accept="image/jpeg,image/png,image/webp" multiple></label>
+      <div class="previews" id="previews"></div><div class="upbar" id="addBar" hidden><span></span></div></div>
+  </form>
+  <div class="drawer-f"><button class="btn btn-t" data-close>Annuler</button><button class="btn btn-p" form="addForm" type="submit">Publier le véhicule</button></div>`);
+  let first=null,files=[];
+  $('#f-media').onchange=e=>{const pv=$('#previews');pv.innerHTML='';first=null;files=[...e.target.files].filter(f=>/^image\/(jpeg|png|webp)$/.test(f.type)).slice(0,12);
+    if(e.target.files.length>files.length)toastErr('Seules 12 photos JPG, PNG ou WebP sont acceptées.');
+    files.forEach(f=>{const u=URL.createObjectURL(f);const d=document.createElement('div');d.innerHTML=`<img src="${u}" alt="${esc(f.name)}">`;first=first||u;pv.appendChild(d)})};
+  $('#addForm').onsubmit=e=>{e.preventDefault();
+    const v={id:'V'+(Date.now()%100000),mk:$('#f-mk').value.trim(),md:$('#f-md').value.trim(),y:+$('#f-y').value||'',mi:$('#f-mi').value||'—',p:+String($('#f-p').value).replace(/\D/g,'')||0,st:$('#f-st').value,c:$('#f-c').value,t:$('#f-t').value,note:$('#f-n').value.trim(),img:first,photos:files.map((f,i)=>({id:'local'+i,url:URL.createObjectURL(f)}))};
+    if(LIVE){const fm={pick:'pickup',sedan:'berline',suv:'suv'}[v.t];const km=parseFloat(String(v.mi).replace(',','.'));
+      const body={marque:v.mk,modele:v.md,annee:v.y||null,couleur:v.c.charAt(0).toUpperCase()+v.c.slice(1),hex:COLORS[v.c]||null,km:isNaN(km)?null:(/k/i.test(v.mi)?Math.round(km*1000):Math.round(km)),prix:v.p||null,statut:VST_OUT[v.st]||'disponible',type:v.t==='pick'?'Pick-up':v.t==='sedan'?'Berline':'SUV',forme:fm,note:v.note||null};
+      const btn=document.querySelector('[form="addForm"]');btn.disabled=true;
+      api('/api/admin/vehicules',{method:'POST',body}).then(async cree=>{if(files.length&&cree&&cree.id){const bar=$('#addBar');bar.hidden=false;try{await uploadPhotos(cree.id,files,p=>{bar.firstElementChild.style.width=p+'%'})}catch(e){fail(e);toastErr('Véhicule publié, mais les photos n\'ont pas pu être envoyées. Ajoutez-les avec le bouton Photos.')}}closeDrawer();toast(`${vname(v)} publié`);LV.loaded.vehicules=0;if(location.hash!=='#vehicules')location.hash='#vehicules';else liveRender(true)}).catch(err=>{btn.disabled=false;fail(err)});return}
+    S.vehicles.unshift(v);closeDrawer();toast(`${vname(v)} publié`);location.hash='#vehicules';render()};
+}
+
+V.paiements=()=>{
+  const list=S.payments.filter(p=>match(p.ref,p.svc,p.cl,p.prov,PST[p.st][0],p.dos));
+  return `<div class="head"><div><h1>Paiements</h1><p>Chaque statut provient du prestataire de paiement. Un même dossier ne peut pas être encaissé deux fois.</p></div></div>
+  <div class="chips">${Object.entries(PST).map(([k,[l,c]])=>`<span class="badge ${c}">${l} <span class="num">${S.payments.filter(p=>p.st===k).length}</span></span>`).join('')}</div>
+  <section class="card card-tbl"><div class="tbl-wrap">${list.length?`<table class="tbl cards"><thead><tr><th>Référence</th><th>Service</th><th>Client</th><th class="r">Montant</th><th>Prestataire</th><th>Statut</th><th>Date</th><th class="r">Reçu</th></tr></thead><tbody>
+  ${list.map(p=>`<tr><td class="full"><b class="num">${p.ref}</b> ${p.dup?`<span class="tag shield" title="Une seconde tentative sur ce dossier a été bloquée">Doublon bloqué</span>`:''}<div class="small muted">Dossier ${p.dos}</div></td>
+  <td data-l="Service">${esc(p.svc)}</td><td data-l="Client">${esc(p.cl)}</td>
+  <td data-l="Montant" class="r num"><b>${fmt(p.amt,p.cur)}</b>${p.cur==='HTG'?`<div class="small muted">≈ ${fmt(p.amt/S.rate)}</div>`:''}</td>
+  <td data-l="Prestataire">${esc(p.prov)}</td><td data-l="Statut"><span class="badge ${PST[p.st][1]}">${PST[p.st][0]}</span></td>
+  <td data-l="Date" class="num">${p.d}</td>
+  <td class="r acts">${p.st==='echoue'?`<button class="btn btn-t btn-sm" data-remind="${p.ref}">${ic('send')}Relancer</button>`:''}<button class="btn btn-t btn-sm" data-receipt="${p.ref}" ${p.st==='confirme'||p.st==='rembourse'?'':'disabled'}>${ic('eye')}Reçu</button></td></tr>`).join('')}
+  </tbody></table>`:emptyQ()}</div></section>`;
+};
+function receiptDrawer(ref){
+  const p=S.payments.find(x=>x.ref===ref);
+  openDrawer(drawerHead('Reçu de paiement',p.ref)+`<div class="drawer-b"><div class="receipt">
+  <div class="logo"><svg viewBox="0 0 680 207" aria-label="Elite Auto Deal">${LOGO}</svg></div>
+  <div class="amt num">${fmt(p.amt,p.cur)}</div><span class="badge ${PST[p.st][1]}">${PST[p.st][0]}</span><hr>
+  <dl class="kv"><dt>Service</dt><dd>${esc(p.svc)}</dd><dt>Client</dt><dd>${esc(p.cl)}</dd><dt>Dossier</dt><dd>${p.dos}</dd><dt>Prestataire</dt><dd>${esc(p.prov)}</dd><dt>Date</dt><dd>${p.d} 2026</dd><dt>Référence</dt><dd class="num">${p.ref}</dd></dl><hr>
+  <p class="small muted" style="margin:0">Frais de service non remboursables selon les conditions acceptées avant paiement. Ces frais ne constituent ni un acompte sur un véhicule ni une garantie d'approbation.<br>Elite Auto Deal — 33, Rue Faustin 1er, Delmas 33 — +509 4240 5729</p>
+  </div></div><div class="drawer-f"><button class="btn btn-t" data-close>Fermer</button><button class="btn btn-wa" id="sendRec">${ic('wa')}Renvoyer par WhatsApp</button></div>`);
+  $('#sendRec').onclick=()=>{closeDrawer();if(LIVE)return dossierDrawerLive(p.dos);toast('Reçu mis en file d\'envoi WhatsApp (démo)')};
+}
+
+function acctHtml(nom){return nom?`<span class="acct">${ic('user')}${esc(nom)}</span>`:'<span class="muted">Sans compte</span>'}
+function clientsView(){
+  const all=S.clients||[];
+  const list=all.filter(c=>match(c.nom,c.tel,c.wa,c.email));
+  const nReinit=all.filter(c=>c.reinit).length;
+  return `<div class="head"><div><h1>Clients</h1><p>Comptes créés par vos clients sur le site. Le mot de passe n'est jamais visible : en cas d'oubli, envoyez un lien de réinitialisation par WhatsApp.</p></div></div>
+  <div class="chips"><span class="badge b-n">Comptes <span class="num">${all.length}</span></span>${nReinit?`<span class="badge b-warn">Réinitialisation demandée <span class="num">${nReinit}</span></span>`:''}</div>
+  <section class="card card-tbl"><div class="tbl-wrap">${list.length?`<table class="tbl cards"><thead><tr><th>Client</th><th>Téléphone</th><th class="r">Dossiers</th><th class="r">Total payé</th><th>Inscrit le</th><th class="r">Accès</th></tr></thead><tbody>
+  ${list.map(c=>`<tr><td class="full"><b>${esc(c.nom)}</b> ${c.reinit?`<span class="badge b-warn">Réinitialisation demandée</span>`:''}<div class="small muted">${c.email?esc(c.email):'Pas d\'email'}</div></td>
+  <td data-l="Téléphone" class="num"><span class="telv">${esc(c.tel)}${c.wa&&c.wa!==c.tel?`<span class="small muted">WhatsApp ${esc(c.wa)}</span>`:''}</span></td>
+  <td data-l="Dossiers" class="r num">${c.nb}</td><td data-l="Total payé" class="r num"><b>${fmt(c.paye)}</b></td>
+  <td data-l="Inscrit le" class="num">${esc(c.d)}</td>
+  <td class="r acts"><button class="btn ${c.reinit?'btn-n':'btn-t'} btn-sm" data-reinit="${esc(c.id)}">${ic('key')}Envoyer un lien de réinitialisation</button></td></tr>`).join('')}
+  </tbody></table>`:(query?emptyQ():'<div class="empty"><b>Aucun compte client pour l\'instant</b>Les clients créent leur espace depuis le site, rubrique « Mon espace ».</div>')}</div></section>`;
+}
+V.clients=clientsView;
+function mapClient(x){return {id:x.id,nom:x.nom||'Client',tel:x.tel||'',wa:x.whatsapp||x.tel||'',email:x.email||'',d:fdate(x.cree_le),nb:+x.nb_dossiers||0,paye:+x.total_paye_usd||0,reinit:!!x.reinit_demandee,_api:x}}
+function resetLinkDrawer(c,lien,msg,wa){
+  const tel=wa||c.wa||c.tel;
+  const text=msg||`Bonjour ${c.nom}, voici votre lien pour choisir un nouveau mot de passe sur votre espace Elite Auto Deal (valable 24 h) : ${lien}`;
+  openDrawer(drawerHead('Lien de réinitialisation prêt',esc(c.nom))+`<div class="drawer-b">
+    <p style="margin:0">Ce lien permet au client de choisir un nouveau mot de passe. Il est valable 24 h et ne fonctionne qu'une seule fois. Envoyez-le uniquement au numéro du client.</p>
+    <div class="link-box"><code id="rstUrl">${esc(lien)}</code><button class="btn btn-t btn-sm" id="copyRst">${ic('copy')}Copier</button></div>
+    <div class="field form"><label for="rstMsg">Message WhatsApp</label><textarea id="rstMsg" style="min-height:140px">${esc(text)}</textarea></div>
+  </div><div class="drawer-f"><button class="btn btn-t" data-close>Fermer</button>${tel?`<a class="btn btn-wa" id="sendRst" href="${waLink(tel,text)}" target="_blank" rel="noopener">${ic('wa')}Ouvrir WhatsApp du client</a>`:`<button class="btn btn-n" id="copyRstMsg">${ic('copy')}Copier le message</button>`}</div>`);
+  $('#copyRst').onclick=()=>copyText(lien,'Lien copié',$('#rstUrl'));
+  const m=$('#rstMsg');m.oninput=()=>{const s=$('#sendRst');if(s)s.href=waLink(tel,m.value)};
+  const cm=$('#copyRstMsg');if(cm)cm.onclick=()=>copyText(m.value,'Message copié',m);
+}
+function askReset(id){
+  const c=(S.clients||[]).find(x=>x.id==id);if(!c)return;
+  confirmBox('Envoyer un lien de réinitialisation ?',`Un lien valable 24 h sera créé pour ${esc(c.nom)}. Vous l'enverrez vous-même par WhatsApp au ${esc(c.wa||c.tel)}.`,'Créer le lien',async()=>{
+    if(!LIVE){c.reinit=false;render();return resetLinkDrawer(c,location.origin.replace(/^null$/,'https://eliteautodeal.ht')+'/?reinit=demo-'+Math.random().toString(36).slice(2,10)+'#compte')}
+    try{const r=await api('/api/admin/clients/'+encodeURIComponent(c.id)+'/reinitialisation',{method:'POST'});
+      c.reinit=false;LV.loaded.clients=0;LV.loaded.resume=0;render();
+      const abs=/^https?:/.test(r.lien||'')?r.lien:location.origin+(r.lien||'');
+      resetLinkDrawer(c,abs,r.message_whatsapp,r.whatsapp)}catch(e){fail(e)}
+  });
+}
+let dosFilter='tous';
+V.dossiers=()=>{
+  const list=S.dossiers.filter(d=>(dosFilter==='tous'||d.svc===dosFilter)&&match(d.id,d.cl,d.need,SVC[d.svc],DST[d.st]));
+  const chips=[['tous','Tous',S.dossiers.length],...Object.keys(SVC).map(k=>[k,SVC_SHORT[k],S.dossiers.filter(d=>d.svc===k).length])];
+  const card=d=>`<button class="dcard" data-dos="${d.id}"><span class="t"><span class="svc">${SVC_SHORT[d.svc]}</span><span class="num">${d.id}</span></span><b>${esc(d.cl)}</b><p>${esc(d.need)}</p><span class="f"><span class="badge ${PST[d.pay][1]}">${d.pay==='confirme'?'Payé':PST[d.pay][0]}</span><span class="small muted">${d.d}</span></span></button>`;
+  return `<div class="head"><div><h1>Dossiers clients</h1><p>Toutes les demandes du site et de WhatsApp, au même endroit. La colonne rouge attend votre décision.</p></div></div>
+  <div class="chips" role="group" aria-label="Filtrer par service">${chips.map(([k,l,n])=>`<button class="chip" data-dfilter="${k}" aria-pressed="${dosFilter===k}">${l}<span class="n">${n}</span></button>`).join('')}</div>
+  ${list.length?`<div class="kanban">${Object.entries(DST).map(([k,l])=>{const c=list.filter(d=>d.st===k);return `<section class="col ${k==='validation'?'human':''}" aria-label="${l}"><h3>${l}<span>${c.length}</span></h3>${c.map(card).join('')||'<p class="small muted" style="padding:0 6px">Aucun dossier</p>'}</section>`}).join('')}</div>
+  <div class="mlist">${Object.entries(DST).map(([k,l])=>{const c=list.filter(d=>d.st===k);return c.length?`<h3 style="font-family:var(--fb);font-size:14px;font-weight:600;margin:16px 0 8px;display:flex;justify-content:space-between;${k==='validation'?'color:var(--rouge)':''}">${l}<span class="muted">${c.length}</span></h3>${c.map(card).join('')}`:''}).join('')}</div>`:`<div class="card">${emptyQ()}</div>`}`;
+};
+function dossierDrawer(id){
+  const d=S.dossiers.find(x=>x.id===id);
+  const p=S.payments.find(x=>x.dos===id);
+  const actions={
+    financement:[['Approuver le financement','approve'],['Refuser','refuse']],
+    vente:[['Accepter le véhicule à vendre','accept'],['Demander plus de photos','more']],
+    essai:[['Confirmer l\'essai','confirm'],['Proposer un autre créneau','resched']],
+    recherche:[['Marquer en recherche','progress'],['Clôturer le dossier','close']],
+    consultation:[['Planifier l\'échange','progress'],['Clôturer le dossier','close']]
+  }[d.svc];
+  const needsHuman=['financement','vente','essai'].includes(d.svc);
+  const canAct=d.pay==='confirme'&&d.st!=='clos';
+  const msg=`Bonjour ${d.cl}, ici Elite Auto Deal au sujet de votre dossier ${d.id}.`;
+  openDrawer(drawerHead(esc(d.cl),`${SVC[d.svc]} · ${d.id}`)+`<div class="drawer-b">
+   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px"><span class="badge ${d.st==='validation'?'b-bad':d.st==='clos'?'b-g':'b-n'}">${DST[d.st]}</span><span class="badge ${PST[d.pay][1]}">Paiement : ${PST[d.pay][0].toLowerCase()}</span></div>
+   <dl class="kv"><dt>Compte client</dt><dd>${acctHtml(d.acct)}</dd><dt>Téléphone / WhatsApp</dt><dd class="num">${d.tel}</dd><dt>Demande</dt><dd>${esc(d.need)}</dd><dt>Reçue le</dt><dd>${d.d} 2026</dd>${p?`<dt>Paiement</dt><dd class="num">${fmt(p.amt,p.cur)} · ${p.ref}</dd>`:''}</dl>
+   <div class="sec"><h3>Fichiers envoyés</h3>${d.files.length?`<div class="files">${d.files.map(f=>`<div class="file">${ic(/\.(jpg|png)$/i.test(f)?'img':'file')}<span>${esc(f)}</span><button class="btn btn-t btn-sm" data-dl>Ouvrir</button></div>`).join('')}</div>`:'<p class="small muted" style="margin:0">Aucun fichier pour ce dossier.</p>'}</div>
+   <div class="sec"><h3>Historique</h3><ul class="timeline"><li>Demande soumise sur le site<time>${d.d} 2026</time></li>${p?`<li>Paiement ${PST[p.st][0].toLowerCase()}<time>${p.d}</time></li>`:''}${d.pay==='confirme'?'<li>Confirmation WhatsApp envoyée au client<time>Automatique</time></li>':''}</ul></div>
+   ${needsHuman?`<div class="human-note">${ic('hand')}<span><b>Validation humaine obligatoire.</b> Le client ne reçoit la confirmation qu'après votre décision${d.svc==='essai'?', selon la disponibilité réelle du véhicule':''}.</span></div>`:''}
+   ${!canAct&&d.st!=='clos'?`<div class="alert warn" style="margin-top:12px">${ic('clock','style="width:20px;height:20px;flex:none;color:var(--alerte)"')}<div class="grow">Les actions se débloquent quand le prestataire confirme le paiement.</div></div>`:''}
+  </div>
+  <div class="drawer-f"><a class="btn btn-wa" href="${waLink(d.tel,msg)}" target="_blank" rel="noopener">${ic('wa')}WhatsApp</a>${actions.map(([l,a],i)=>`<button class="btn ${i===0?'btn-n':'btn-t'}" data-act="${a}" ${canAct?'':'disabled'}>${l}</button>`).join('')}</div>`);
+  $('#drawer').querySelectorAll('[data-dl]').forEach(b=>b.onclick=()=>toast('Aperçu du fichier disponible après intégration du stockage'));
+  $('#drawer').querySelectorAll('[data-act]').forEach(b=>b.onclick=()=>{
+    const a=b.dataset.act;const label=b.textContent;
+    const next={approve:'clos',refuse:'clos',accept:'encours',more:'encours',confirm:'clos',resched:'encours',progress:'encours',close:'clos'}[a];
+    const run=()=>{d.st=next;if(d.svc==='financement'){const f=S.fin.find(x=>x.id===d.id);if(f)f.stage=a==='approve'?3:a==='refuse'?4:f.stage}
+      closeDrawer();toast(`${label} : enregistré, client notifié`);render()};
+    if(['approve','refuse','accept','confirm'].includes(a))confirmBox(label+' ?',`Cette décision sera communiquée à ${esc(d.cl)} par WhatsApp et enregistrée dans l'historique du dossier ${d.id}.`,label,run,a==='refuse');else run();
+  });
+}
+
+V.financement=()=>{
+  const list=S.fin.filter(f=>match(f.id,f.cl,f.veh,FST[f.stage]));
+  return `<div class="head"><div><h1>Financement</h1><p>Aucune approbation automatique : le site collecte, vous décidez.</p></div></div>
+  <div class="stage-legend">${FST.slice(0,4).map(s=>`<span>${s}</span>`).join(ic('more','style="width:14px;height:14px;opacity:.4"'))}<span style="border-color:#efb0b2">ou Refusé</span></div>
+  ${list.length?`<div class="fin-grid">${list.map(f=>{const done=f.docs.filter(Boolean).length;
+    const bars=[0,1,2,3].map(i=>{if(f.stage===4)return i<3?'on':'ko';if(f.stage===3)return 'ok';return i<=f.stage?'on':''}).map(c=>`<i class="${c}"></i>`).join('');
+    const bc=f.stage===3?'b-ok':f.stage===4?'b-bad':f.stage===2?'b-n':'b-warn';
+    return `<article class="card fin"><div class="row"><div><h3>${esc(f.cl)}</h3><p class="small muted" style="margin:4px 0 0">${f.id}</p></div><span class="badge ${bc}">${FST[f.stage]}</span></div>
+    <div class="steps" role="img" aria-label="Étape ${FST[f.stage]}">${bars}</div>
+    <dl class="kv small" style="margin-top:12px;grid-template-columns:120px 1fr"><dt>Véhicule</dt><dd>${esc(f.veh)}</dd><dt>Budget</dt><dd class="num">${fmt(f.bud)}</dd><dt>Apport</dt><dd class="num">${fmt(f.apport)}</dd><dt>Frais de dossier</dt><dd>25 $ payés</dd></dl>
+    <ul class="check" aria-label="Pièces justificatives, ${done} sur 4">${DOCS.map((d,i)=>`<li><span class="bx ${f.docs[i]?'y':''}">${f.docs[i]?ic('check'):''}</span>${d}${i===2&&f.aval?' <span class="tag">avaliseur</span>':''}</li>`).join('')}</ul>
+    <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+     ${f.stage<2?`<button class="btn btn-t btn-sm" data-fadv="${f.id}" ${done<4&&f.stage===1?'disabled':''}>${f.stage===0?(done<4?'Relancer les pièces manquantes':'Marquer complet'):'Passer en examen'}</button>`:''}
+     ${f.stage===2?`<button class="btn btn-n btn-sm" data-dos="${f.id}">Décider</button>`:''}
+     <button class="btn btn-t btn-sm" data-dos="${f.id}" ${S.dossiers.find(d=>d.id===f.id)?'':'disabled'}>Ouvrir le dossier</button></div>
+    </article>`}).join('')}</div>`:`<div class="card">${emptyQ()}</div>`}`;
+};
+
+V.precommandes=()=>{
+  const list=S.pre.filter(p=>{const v=veh(p.vid);return match(p.id,p.cl,vname(v))});
+  return `<div class="head"><div><h1>Précommandes</h1><p>90 % versés à la commande, 10 % à l'arrivée en Haïti. Le lien de solde part seulement quand vous l'envoyez.</p></div></div>
+  ${list.length?`<div class="pre-list">${list.map(p=>{const v=veh(p.vid);const paid=p.price*.9,bal=p.price*.1;
+   const arr=p.arr==='arrive'?'<span class="badge b-ok">Arrivé en Haïti</span>':p.late?'<span class="badge b-bad">En retard</span>':'<span class="badge b-warn">En transit</span>';
+   const balB=p.bal==='paye'?'<span class="badge b-ok">Solde payé</span>':p.bal==='envoye'?'<span class="badge b-n">Lien envoyé</span>':'<span class="badge b-g">Solde dû</span>';
+   return `<article class="card pre"><div class="veh-cell"><span class="thumb">${thumbHtml(v)}</span><span><b>${esc(vname(v))}</b><span>${esc(p.cl)} · ${p.id}</span></span></div>
+   <div><div class="split" role="img" aria-label="90 % payé, solde ${p.bal==='paye'?'payé':'restant'}"><span class="p" style="width:90%"></span><span class="b ${p.bal==='paye'?'paid':p.arr==='arrive'?'due':''}" style="width:10%"></span></div>
+   <div class="split-legend num"><span>Versé (90 %) <b>${fmt(paid)}</b></span><span>Solde (10 %) <b>${fmt(bal)}</b></span><span class="muted">Prix ${fmt(p.price)}</span></div>
+   <div class="meta">${arr}${balB}<span>Arrivée estimée ${p.eta}</span></div>${p.late&&p.arr!=='arrive'?`<p class="small" style="margin:8px 0 0;color:var(--rouge)">${esc(p.lateNote)}. Prévenez le client.</p>`:''}</div>
+   <div class="act">${p.arr!=='arrive'?`<button class="btn btn-t" data-arrive="${p.id}">Marquer arrivé en Haïti</button>`:''}
+    <button class="btn btn-p" data-balance="${p.id}" ${p.arr==='arrive'&&p.bal==='attente'?'':'disabled'}>${ic('send')}Envoyer le lien de solde</button>
+    ${p.late&&p.arr!=='arrive'?`<a class="btn btn-wa" href="${waLink('+50942405729','Retard précommande '+p.id)}" target="_blank" rel="noopener">${ic('wa')}Prévenir le client</a>`:''}</div></article>`}).join('')}</div>`:`<div class="card">${emptyQ()}</div>`}`;
+};
+
+V.rapports=()=>{
+  const W=640,H=240,pad=34,bw=(W-pad*2)/S.months.length;const max=Math.max(...S.months.map(m=>m.veh));
+  const svg=`<svg viewBox="0 0 ${W} ${H+30}" role="img" aria-label="Ventes de véhicules par mois">
+  ${[0,.5,1].map(f=>`<line x1="${pad}" x2="${W-6}" y1="${H-f*(H-20)}" y2="${H-f*(H-20)}" stroke="#EDEDEB"/><text x="${pad-6}" y="${H-f*(H-20)+4}" font-size="11" text-anchor="end" fill="#6E6E75">${Math.round(max*f/1000)}k</text>`).join('')}
+  ${S.months.map((m,i)=>{const h=m.veh/max*(H-20);const x=pad+i*bw+bw*.2;return `<rect x="${x}" y="${H-h}" width="${bw*.6}" height="${h}" rx="6" fill="${i===S.months.length-1?'#D7191F':'#0B0B0C'}"/><text x="${x+bw*.3}" y="${H+18}" font-size="12" text-anchor="middle" fill="#4A4A50">${m.m}</text><text x="${x+bw*.3}" y="${H-h-6}" font-size="11" text-anchor="middle" fill="#4A4A50">${m.sales} v.</text>`}).join('')}</svg>`;
+  return `<div class="head"><div><h1>Rapports</h1><p>Ventes de véhicules et frais de service, juin à novembre 2026 (démonstration).</p></div>
+  <div class="actions"><button class="btn btn-n" id="copyCsv">${ic('copy')}Copier en CSV</button></div></div>
+  <div class="kpis" style="grid-template-columns:repeat(3,1fr)">
+   <div class="kpi"><span class="l">Véhicules vendus</span><span class="v num">${S.months.reduce((a,m)=>a+m.sales,0)}</span><span class="s">sur 6 mois</span></div>
+   <div class="kpi"><span class="l">Chiffre d'affaires véhicules</span><span class="v num">${fmt(S.months.reduce((a,m)=>a+m.veh,0))}</span><span class="s">prix de vente encaissés</span></div>
+   <div class="kpi"><span class="l">Frais de service</span><span class="v num">${fmt(S.months.reduce((a,m)=>a+m.svc,0))}</span><span class="s">consultation, essai, vente, financement</span></div></div>
+  <div class="grid2"><section class="card"><div class="card-h"><h2>Ventes de véhicules par mois</h2><div class="legend"><span><i style="background:#0B0B0C"></i>Mois clôturés</span><span><i style="background:#D7191F"></i>Mois en cours</span></div></div><div class="card-b rep-chart">${svg}</div></section>
+  <section class="card"><div class="card-h"><h2>Détail mensuel</h2></div><div class="card-b" style="padding-top:8px"><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Mois</th><th class="r">Ventes</th><th class="r">Véhicules</th><th class="r">Services</th></tr></thead><tbody>${S.months.map(m=>`<tr><td>${m.m}</td><td class="r num">${m.sales}</td><td class="r num">${fmt(m.veh)}</td><td class="r num">${fmt(m.svc)}</td></tr>`).join('')}</tbody></table></div>
+  <label class="sr" for="csv">Export CSV</label><textarea class="csv" id="csv" readonly style="margin-top:14px">${csv()}</textarea><p class="small muted" style="margin:6px 0 0">Collez le CSV dans Excel ou Google Sheets.</p></div></section></div>`;
+};
+function csv(){return 'mois;ventes;chiffre_vehicules_usd;frais_service_usd\n'+S.months.map(m=>`${m.m};${m.sales};${m.veh};${m.svc}`).join('\n')}
+
+let tpl='accueil';
+V['parametres-site']=()=>{
+  const names={accueil:'Message d\'accueil',paiement:'Paiement confirmé',solde:'Solde de précommande',rappel:'Rappel de paiement'};
+  const labels={financement:'Dossier de financement',consultation:'Consultation',vente:'Service de vente',recherche:'Recherche / achat accompagné',essai:'Visite ou essai',precommande:'Précommande (% du prix)'};
+  return `<div class="head"><div><h1>Paramètres du site</h1><p>Taux de change, tarifs et messages WhatsApp utilisés par les automatisations.</p></div></div>
+  <div class="set-grid"><div class="stack">
+   <section class="card"><div class="card-h"><h2>Taux de conversion</h2></div><div class="card-b form">
+    <div class="field"><label for="rate">1 USD en gourdes (HTG)</label><input id="rate" inputmode="decimal" value="${S.rate}"><span class="hint">Affiché aux clients avant chaque paiement en gourdes. Exemple : 150 $ = ${fmt(150*S.rate,'HTG')}.</span></div></div></section>
+   <section class="card tarifs"><div class="card-h"><h2>Tarifs des services</h2><span class="small muted">USD</span></div><div class="card-b">
+    ${Object.entries(S.tarifs).map(([k,v])=>`<div class="trow"><label for="t-${k}">${labels[k]}</label><input id="t-${k}" data-tarif="${k}" inputmode="numeric" value="${v}"></div>`).join('')}
+    <p class="small muted" style="margin:10px 0 0">Le solde de précommande est calculé automatiquement : 100 % moins le pourcentage ci-dessus.</p>
+    <button class="btn btn-n" id="saveT" style="margin-top:12px;width:100%">Enregistrer les tarifs</button></div></section>
+  </div>
+  <section class="card"><div class="card-h"><h2>Messages WhatsApp</h2></div><div class="card-b">
+   <div class="tpl-tabs" role="tablist">${Object.entries(names).map(([k,l])=>`<button class="chip" role="tab" data-tpl="${k}" aria-pressed="${tpl===k}" aria-selected="${tpl===k}">${l}</button>`).join('')}</div>
+   <div class="field"><label for="tplText">${names[tpl]}</label><textarea id="tplText" style="min-height:340px">${esc(S.templates[tpl])}</textarea>
+   <span class="hint">Variables : {client} {dossier} {service} {montant} {vehicule} {solde} {lien_paiement} {lien_suivi}. Envoi automatique via l'API WhatsApp Business une fois connectée.</span></div>
+   <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap"><button class="btn btn-n" id="saveTpl">Enregistrer le message</button><button class="btn btn-t" id="copyTpl">${ic('copy')}Copier</button></div>
+  </div></section></div>`;
+};
+
+/* ================= Mode réel (API Elite Auto Deal) ================= */
+let LIVE=false,CFG=null,TOKEN=null;
+const LV={loaded:{},resume:null,rapports:null,params:null,details:{},pre:[]};
+try{TOKEN=sessionStorage.getItem('ead-admin-token')}catch(_){}
+const SVC_API={vendre:'vente'};const SVC_BACK={vente:'vendre'};
+const ETAT_IN={paiement_en_attente:'nouveau',a_traiter:'paye',en_cours:'encours',validation_requise:'validation',cloture:'clos'};
+const ETAT_OUT={nouveau:'paiement_en_attente',paye:'a_traiter',encours:'en_cours',validation:'validation_requise',clos:'cloture'};
+const PAY_IN={pending:'attente',succeeded:'confirme',failed:'echoue',refunded:'rembourse',rembourse:'rembourse'};
+const VST_IN={disponible:'Disponible',transit:'En transit',precommande:'Précommandable',vendu:'Vendu',indisponible:'Indisponible'};
+const VST_OUT=Object.fromEntries(Object.entries(VST_IN).map(([k,v])=>[v,k]));
+const SVC_LABEL={precommande:'Précommande',achat:'Achat comptant',consultation:'Consultation',recherche:'Recherche personnalisée',essai:'Essai / visite',vente:'Vente confiée',financement:'Dossier de financement'};
+const MOIS=['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
+function fdate(iso,withTime){if(!iso)return '';const d=new Date(iso);if(isNaN(d))return String(iso);const s=`${String(d.getDate()).padStart(2,'0')} ${MOIS[d.getMonth()]}`;return withTime?`${s} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`:s}
+function toastErr(msg){const t=$('#toast');t.classList.add('err');t.innerHTML=ic('alert')+`<span>${esc(msg)}</span>`;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>{t.classList.remove('show');t.classList.remove('err')},4200)}
+
+async function api(path,opt={}){
+  const o={method:opt.method||'GET',headers:{}};
+  if(TOKEN)o.headers.Authorization='Bearer '+TOKEN;
+  if(opt.body!==undefined){o.headers['Content-Type']='application/json';o.body=JSON.stringify(opt.body)}
+  let r;
+  try{r=await fetch(path,o)}catch(_){const e=new Error('Connexion au serveur impossible. Vérifiez votre réseau.');e.toasted=false;throw e}
+  if(r.status===401&&!opt.noAuthRedirect){logout(true);const e=new Error('Session expirée. Reconnectez-vous.');throw e}
+  let data=null;const ct=r.headers.get('content-type')||'';
+  if(ct.includes('json')){try{data=await r.json()}catch(_){}}
+  if(!r.ok){const e=new Error((data&&data.error&&data.error.message)||`Erreur du serveur (${r.status}).`);e.status=r.status;throw e}
+  return data;
+}
+function fail(e){toastErr(e.message||'Une erreur est survenue.')}
+
+/* ---- Correspondance API -> structures de l'écran ---- */
+function mapDossier(x){
+  const svc=SVC_API[x.service]||x.service;
+  return {id:x.ref,svc,cl:x.client_nom||'Client',tel:x.client_whatsapp||x.client_tel||'',need:x.detail||x.titre||'',st:ETAT_IN[x.etat]||'nouveau',pay:PAY_IN[x.paiement_statut]||'attente',d:fdate(x.cree_le),files:[],etape:x.etape||0,statuts:x.statuts||[],montant_usd:x.montant_usd,_api:x};
+}
+function mapPaiement(x){
+  const svc=SVC_API[x.service]||x.service;
+  const lab=(SVC_LABEL[svc]||x.service)+(x.type==='solde'?' (solde 10 %)':svc==='precommande'?' (90 %)':'');
+  const meth=x.methode==='carte'?'Carte bancaire':x.methode==='mobile'?'MonCash / Natcash':(x.methode||'');
+  return {ref:x.id,svc:lab,cl:x.client_nom||'',amt:+x.montant||0,cur:x.devise||'USD',usd:x.montant_usd,prov:(x.prestataire||'Freda Pay Issuing')+(meth?' · '+meth:''),st:PAY_IN[x.statut]||'attente',d:fdate(x.cree_le,true),dos:x.ref,freda:x.freda_id,conf:x.confirme_le,_api:x};
+}
+function splitModel(m,y){m=String(m||'');const t=String(y||'');return t&&m.endsWith(' '+t)?m.slice(0,-t.length-1):m}
+function mapVehicule(x){
+  const c=String(x.couleur||'').toLowerCase();
+  return {id:x.id,mk:x.marque||'',md:splitModel(x.modele,x.annee),y:x.annee||'',c:c||'gris',hex:x.hex,mi:x.km?Math.round(x.km/1000)+'k':'—',p:x.prix||0,st:VST_IN[x.statut]||'Disponible',t:x.forme==='pickup'?'pick':x.forme==='berline'?'sedan':'suv',note:x.note||'',photos:Array.isArray(x.photos)?x.photos.map(p=>typeof p==='string'?{id:p,url:p}:p):[],_api:x};
+}
+function mapPre(x){
+  const bal={non_du:'attente',a_envoyer:'attente',envoye:'envoye',paye:'paye'}[x.statut_solde]||'attente';
+  return {id:x.ref,cl:x.client_nom||'',vlabel:x.vehicule||'',price:+x.prix_usd||0,paidAmt:+x.paye_usd||0,balAmt:+x.solde_usd||0,eta:x.delai||'à confirmer',arr:x.arrive?'arrive':'transit',bal,late:false,url:x.checkout_url_solde||'',_api:x};
+}
+const vcolor=v=>v.hex||COLORS[v.c]||'#8a8a90';
+
+/* ---- Chargement ---- */
+const LOADERS={
+  resume:async()=>{LV.resume=await api('/api/admin/resume')},
+  dossiers:async()=>{S.dossiers=(await api('/api/admin/dossiers')||[]).map(mapDossier)},
+  paiements:async()=>{S.payments=(await api('/api/admin/paiements')||[]).map(mapPaiement)},
+  vehicules:async()=>{S.vehicles=(await api('/api/admin/vehicules')||[]).map(mapVehicule)},
+  precommandes:async()=>{S.pre=(await api('/api/admin/precommandes')||[]).map(mapPre)},
+  rapports:async()=>{LV.rapports=await api('/api/admin/rapports?annee='+new Date().getFullYear())},
+  clients:async()=>{try{S.clients=(await api('/api/admin/clients')||[]).map(mapClient)}catch(e){if(e.status===404){S.clients=[];return}throw e}},
+  parametres:async()=>{LV.params=await api('/api/admin/parametres');applyParams()}
+};
+const NEEDS={apercu:['resume','dossiers','paiements','precommandes','clients'],dossiers:['dossiers','paiements','precommandes'],paiements:['paiements','dossiers','precommandes'],vehicules:['vehicules','dossiers','paiements','precommandes'],financement:['dossiers','paiements','precommandes'],precommandes:['precommandes','dossiers','paiements'],rapports:['rapports','dossiers','paiements','precommandes'],clients:['clients','dossiers','paiements','precommandes'],'parametres-site':['parametres','dossiers','paiements','precommandes']};
+async function load(keys,force){
+  const now=Date.now();const todo=keys.filter(k=>force||!LV.loaded[k]||now-LV.loaded[k]>15000);
+  if(!todo.length)return false;
+  await Promise.all(todo.map(k=>LOADERS[k]().then(()=>{LV.loaded[k]=Date.now()})));
+  return true;
+}
+function applyParams(){
+  const p=LV.params||{};if(p.taux_htg)S.rate=+p.taux_htg;
+  const t=p.tarifs||{};S.tarifs={};Object.entries(t).forEach(([k,v])=>S.tarifs[SVC_API[k]||k]=v);
+  const m=p.messages||{};S.templates={accueil:m.accueil||'',paiement:m.confirmation||'',solde:m.solde||'',rappel:m.rappel||''};
+}
+function skeleton(){return `<div class="sk sk-head"></div><div class="sk sk-sub"></div><div class="sk-grid">${'<div class="sk sk-card"></div>'.repeat(4)}</div>${'<div class="sk sk-row"></div>'.repeat(4)}`}
+let loadSeq=0;
+function busyEditing(){const a=document.activeElement;return !!(a&&$('#view').contains(a)&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))}
+async function liveRender(force){
+  const id=current(),seq=++loadSeq;
+  const keys=NEEDS[id]||[];const ready=keys.every(k=>LV.loaded[k]);
+  if(!ready){renderNav();$('#view').innerHTML=skeleton();$('#view').setAttribute('aria-busy','true')}else baseRender();
+  try{const changed=await load(keys,force);if(seq!==loadSeq)return;$('#view').removeAttribute('aria-busy');if((changed||!ready)&&!busyEditing())baseRender()}
+  catch(e){if(seq!==loadSeq)return;$('#view').removeAttribute('aria-busy');if(!TOKEN)return;
+    if(!ready)$('#view').innerHTML=`<div class="card"><div class="empty"><b>Impossible de charger cette page</b>${esc(e.message)}<br><button class="btn btn-n" style="margin-top:14px" id="retryLoad">Réessayer</button></div></div>`;
+    fail(e)}
+}
+
+/* ---- Vues en mode réel ---- */
+const VL={};
+VL.apercu=()=>{
+  const r=LV.resume||{};const al=getAlerts();
+  const rows=(r.recettes_par_service||[]).map(x=>[SVC_LABEL[SVC_API[x.service]||x.service]||x.service,+x.total_usd||0]).sort((a,b)=>b[1]-a[1]);const max=rows.length?Math.max(1,rows[0][1]):1;
+  const today=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const act=r.activite||[];
+  const val=S.dossiers.filter(d=>d.st==='validation');
+  return `
+  <div class="head"><div><h1>Bonjour, voici votre journée</h1><p>${esc(today.charAt(0).toUpperCase()+today.slice(1))}. Les paiements ci-dessous sont confirmés par Freda Pay Issuing, jamais par capture d'écran.</p></div>
+  <div class="actions"><button class="btn btn-t" data-go="vehicules-add">${ic('plus')}Ajouter un véhicule</button><a class="btn btn-n" href="#dossiers">${ic('folder')}Traiter les dossiers</a></div></div>
+  <section class="kpis" aria-label="Indicateurs clés">
+    <div class="kpi hero"><svg class="bgmark" viewBox="0 0 680 118" aria-hidden="true"><path fill="currentColor" d="${MARK}"/></svg>
+      <span class="l">Paiements confirmés aujourd'hui</span><span class="v num">${fmt(r.paiements_jour_usd||0)}</span><span class="s num">≈ ${fmt((r.paiements_jour_usd||0)*S.rate,'HTG')}</span></div>
+    <div class="kpi"><span class="l">Encaissé ce mois</span><span class="v num">${fmt(r.paiements_mois_usd||0)}</span><span class="s num">≈ ${fmt((r.paiements_mois_usd||0)*S.rate,'HTG')}</span></div>
+    <div class="kpi"><span class="l">Dossiers à traiter</span><span class="v num">${r.dossiers_a_traiter||0}</span><span class="s">${r.validations_requises||0} attendent votre validation</span></div>
+    <div class="kpi"><span class="l">Véhicules en stock</span><span class="v num">${r.vehicules_stock||0}</span><span class="s">${r.vehicules_transit||0} en transit</span></div>
+    <div class="kpi"><span class="l">Précommandes en cours</span><span class="v num">${r.precommandes_en_cours||0}</span><span class="s">Suivi des arrivées</span></div>
+    <div class="kpi"><span class="l">Soldes à percevoir</span><span class="v num">${fmt(r.soldes_a_percevoir_usd||0)}</span><span class="s">10 % à l'arrivée en Haïti</span></div>
+  </section>
+  <div class="grid2">
+    <div class="stack">
+      <section class="card"><div class="card-h"><h2>Recettes par service, ce mois</h2><span class="small muted">en USD, HTG converti au taux ${S.rate}</span></div>
+        <div class="card-b">${rows.length?`<div class="bars">${rows.map(([k,v])=>`<div class="bar-row"><span>${esc(k)}</span><div class="track" role="img" aria-label="${esc(k)} ${fmt(v)}"><div class="fill" style="width:${Math.max(3,v/max*100)}%"></div></div><span class="amt num">${fmt(v)}</span></div>`).join('')}</div>`:'<div class="empty"><b>Aucune recette ce mois</b>Les paiements confirmés apparaîtront ici.</div>'}</div></section>
+      <section class="card"><div class="card-h"><h2>Activité récente</h2><a class="small" href="#paiements">Tous les paiements</a></div>
+        <div class="card-b">${act.length?`<ul class="feed">${act.map(a=>{const k=['ok','bad','warn'].includes(a.type)?a.type:/succe|confirm|paye/.test(a.type||'')?'ok':/fail|echou/.test(a.type||'')?'bad':'n';return `<li><span class="ic ${k==='n'?'':k}">${ic(k==='ok'?'check':k==='bad'?'x':k==='warn'?'img':'clock')}</span><p>${esc(a.texte||'')}</p><time>${esc(fdate(a.quand,true))}</time></li>`}).join('')}</ul>`:'<div class="empty"><b>Pas encore d\'activité</b>Les demandes et paiements du site s\'afficheront ici.</div>'}</div></section>
+    </div>
+    <div class="stack">
+      <section class="card"><div class="card-h"><h2>À surveiller</h2><span class="badge ${al.length?'b-bad':'b-ok'}">${al.length}</span></div><div class="card-b">${al.length?alertHTML(al):'<div class="empty"><b>Rien à signaler</b>Aucun paiement échoué, solde dû ou retard.</div>'}</div></section>
+      <section class="card"><div class="card-h"><h2>Votre validation est requise</h2></div><div class="card-b">
+        <p class="small muted" style="margin:0 0 10px">Le site ne confirme jamais seul une vente, un financement ou un rendez-vous.</p>
+        ${val.length?val.map(d=>`<button class="dcard" data-dos="${esc(d.id)}"><span class="t"><span class="svc">${esc(SVC_SHORT[d.svc]||d.svc)}</span><span>${esc(d.id)}</span></span><b>${esc(d.cl)}</b><p>${esc(d.need)}</p></button>`).join(''):'<p class="small muted" style="margin:0">Aucune décision en attente.</p>'}
+      </div></section>
+    </div>
+  </div>`;
+};
+VL.financement=()=>{
+  const list=S.dossiers.filter(d=>d.svc==='financement'&&match(d.id,d.cl,d.need));
+  const lbl=['Reçue','Dossier complet','En examen','Décision rendue'];
+  return `<div class="head"><div><h1>Financement</h1><p>Aucune approbation automatique : le site collecte, vous décidez.</p></div></div>
+  <div class="stage-legend">${lbl.map(s=>`<span>${s}</span>`).join(ic('more','style="width:14px;height:14px;opacity:.4"'))}</div>
+  ${list.length?`<div class="fin-grid">${list.map(d=>{const st=Math.min(d.etape,3);const paid=d.pay==='confirme';
+    const bars=[0,1,2,3].map(i=>`<i class="${st===3?'ok':i<=st?'on':''}"></i>`).join('');
+    const bc=st===3?'b-ok':st===2?'b-n':'b-warn';
+    return `<article class="card fin"><div class="row"><div><h3>${esc(d.cl)}</h3><p class="small muted" style="margin:4px 0 0">${esc(d.id)} · reçue le ${esc(d.d)}</p></div><span class="badge ${bc}">${lbl[st]}</span></div>
+    <div class="steps" role="img" aria-label="Étape ${lbl[st]}">${bars}</div>
+    <dl class="kv small" style="margin-top:12px;grid-template-columns:120px 1fr"><dt>Demande</dt><dd>${esc(d.need||'Non précisée')}</dd><dt>Frais de dossier</dt><dd><span class="badge ${PST[d.pay][1]}">${d.pay==='confirme'?'Payés':PST[d.pay][0]}</span></dd></dl>
+    <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+     ${st<2?`<button class="btn btn-t btn-sm" data-fadv="${esc(d.id)}" ${paid?'':'disabled'}>${st===0?'Marquer complet':'Passer en examen'}</button>`:''}
+     ${st===2?`<button class="btn btn-n btn-sm" data-dos="${esc(d.id)}">Décider</button>`:''}
+     <button class="btn btn-t btn-sm" data-dos="${esc(d.id)}">Ouvrir le dossier et les pièces</button></div>
+    </article>`}).join('')}</div>`:`<div class="card">${query?emptyQ():'<div class="empty"><b>Aucune demande de financement</b>Les demandes déposées sur le site apparaîtront ici.</div>'}</div>`}`;
+};
+VL.precommandes=()=>{
+  const list=S.pre.filter(p=>match(p.id,p.cl,p.vlabel));
+  return `<div class="head"><div><h1>Précommandes</h1><p>90 % versés à la commande, 10 % à l'arrivée en Haïti. Le lien de solde n'est créé que lorsque vous le demandez.</p></div></div>
+  ${list.length?`<div class="pre-list">${list.map(p=>{const pct=p.price?Math.round(p.paidAmt/p.price*100):90;
+   const arr=p.arr==='arrive'?'<span class="badge b-ok">Arrivé en Haïti</span>':'<span class="badge b-warn">En transit</span>';
+   const balB=p.bal==='paye'?'<span class="badge b-ok">Solde payé</span>':p.bal==='envoye'?'<span class="badge b-n">Lien envoyé</span>':p.arr==='arrive'?'<span class="badge b-bad">Solde dû</span>':'<span class="badge b-g">Solde à l\'arrivée</span>';
+   return `<article class="card pre"><div class="veh-cell"><span class="thumb">${thumbHtml(vehByLabel(p.vlabel))}</span><span><b>${esc(p.vlabel)}</b><span>${esc(p.cl)} · ${esc(p.id)}</span></span></div>
+   <div><div class="split" role="img" aria-label="${pct} % payé, solde ${p.bal==='paye'?'payé':'restant'}"><span class="p" style="width:${pct}%"></span><span class="b ${p.bal==='paye'?'paid':p.arr==='arrive'?'due':''}" style="width:${100-pct}%"></span></div>
+   <div class="split-legend num"><span>Versé <b>${fmt(p.paidAmt)}</b></span><span>Solde <b>${fmt(p.balAmt)}</b></span><span class="muted">Prix ${fmt(p.price)}</span></div>
+   <div class="meta">${arr}${balB}<span>Délai : ${esc(p.eta)}</span></div></div>
+   <div class="act">${p.arr!=='arrive'?`<button class="btn btn-t" data-arrive="${esc(p.id)}">Marquer arrivé en Haïti</button>`:''}
+    ${p.bal==='envoye'&&p.url?`<button class="btn btn-t" data-showlink="${esc(p.id)}">${ic('eye')}Voir le lien envoyé</button>`:''}
+    <button class="btn btn-p" data-balance="${esc(p.id)}" ${p.arr==='arrive'&&p.bal!=='paye'?'':'disabled'}>${ic('send')}${p.bal==='envoye'?'Recréer le lien de solde':'Créer le lien de solde'}</button></div></article>`}).join('')}</div>`:`<div class="card">${query?emptyQ():'<div class="empty"><b>Aucune précommande en cours</b>Les précommandes payées sur le site apparaîtront ici.</div>'}</div>`}`;
+};
+function rapMonths(){return ((LV.rapports||{}).mois||[]).map(m=>{const [y,mo]=String(m.mois).split('-');return {m:MOIS[(+mo||1)-1]+(y?' '+y.slice(2):''),key:m.mois,sales:+m.ventes||0,rec:+m.recettes_usd||0}})}
+function csvLive(){return 'mois;ventes;recettes_usd\n'+rapMonths().map(m=>`${m.key};${m.sales};${Math.round(m.rec)}`).join('\n')}
+VL.rapports=()=>{
+  const ms=rapMonths();const ps=((LV.rapports||{}).par_service||[]);
+  if(!ms.length)return `<div class="head"><div><h1>Rapports</h1><p>Ventes et recettes encaissées via Freda Pay Issuing.</p></div></div><div class="card"><div class="empty"><b>Pas encore de données</b>Les rapports se remplissent avec les premiers paiements confirmés.</div></div>`;
+  const W=640,H=240,pad=40,bw=(W-pad*2)/ms.length;const max=Math.max(1,...ms.map(m=>m.rec));
+  const svg=`<svg viewBox="0 0 ${W} ${H+30}" role="img" aria-label="Recettes par mois">
+  ${[0,.5,1].map(f=>`<line x1="${pad}" x2="${W-6}" y1="${H-f*(H-20)}" y2="${H-f*(H-20)}" stroke="#EDEDEB"/><text x="${pad-6}" y="${H-f*(H-20)+4}" font-size="11" text-anchor="end" fill="#6E6E75">${max*f>=1000?Math.round(max*f/1000)+'k':Math.round(max*f)}</text>`).join('')}
+  ${ms.map((m,i)=>{const h=m.rec/max*(H-20);const x=pad+i*bw+bw*.2;return `<rect x="${x}" y="${H-h}" width="${bw*.6}" height="${Math.max(h,0)}" rx="6" fill="${i===ms.length-1?'#D7191F':'#0B0B0C'}"/><text x="${x+bw*.3}" y="${H+18}" font-size="12" text-anchor="middle" fill="#4A4A50">${m.m}</text>${m.sales?`<text x="${x+bw*.3}" y="${H-h-6}" font-size="11" text-anchor="middle" fill="#4A4A50">${m.sales} v.</text>`:''}`}).join('')}</svg>`;
+  return `<div class="head"><div><h1>Rapports</h1><p>Ventes et recettes encaissées via Freda Pay Issuing, ${new Date().getFullYear()}.</p></div>
+  <div class="actions"><button class="btn btn-n" id="copyCsv">${ic('copy')}Copier en CSV</button></div></div>
+  <div class="kpis" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr))">
+   <div class="kpi"><span class="l">Véhicules vendus</span><span class="v num">${ms.reduce((a,m)=>a+m.sales,0)}</span><span class="s">sur la période</span></div>
+   <div class="kpi"><span class="l">Recettes encaissées</span><span class="v num">${fmt(ms.reduce((a,m)=>a+m.rec,0))}</span><span class="s">paiements confirmés</span></div>
+   <div class="kpi"><span class="l">Ce mois</span><span class="v num">${fmt(ms[ms.length-1].rec)}</span><span class="s">${ms[ms.length-1].sales} vente(s)</span></div></div>
+  <div class="grid2"><section class="card"><div class="card-h"><h2>Recettes par mois</h2><div class="legend"><span><i style="background:#0B0B0C"></i>Mois clôturés</span><span><i style="background:#D7191F"></i>Mois en cours</span></div></div><div class="card-b rep-chart">${svg}</div></section>
+  <section class="card"><div class="card-h"><h2>Détail</h2></div><div class="card-b" style="padding-top:8px"><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Mois</th><th class="r">Ventes</th><th class="r">Recettes</th></tr></thead><tbody>${ms.map(m=>`<tr><td>${m.m}</td><td class="r num">${m.sales}</td><td class="r num">${fmt(m.rec)}</td></tr>`).join('')}</tbody></table></div>
+  ${ps.length?`<h3 style="font-size:15px;margin:18px 0 8px">Par service</h3><div class="tbl-wrap"><table class="tbl"><tbody>${ps.map(x=>`<tr><td>${esc(SVC_LABEL[SVC_API[x.service]||x.service]||x.service)}</td><td class="r num">${fmt(+x.total_usd||+x.recettes_usd||0)}</td></tr>`).join('')}</tbody></table></div>`:''}
+  <label class="sr" for="csv">Export CSV</label><textarea class="csv" id="csv" readonly style="margin-top:14px">${csvLive()}</textarea><p class="small muted" style="margin:6px 0 0">Collez le CSV dans Excel ou Google Sheets.</p></div></section></div>`;
+};
+
+/* ---- Tiroir dossier en mode réel ---- */
+const ACTIONS_LIVE={
+  financement:[['Approuver le financement','approve',{etat:'cloture',etape:'last',note:'Décision : financement approuvé'}],['Refuser','refuse',{etat:'cloture',etape:'last',note:'Décision : financement refusé'}]],
+  vente:[['Accepter le véhicule à vendre','accept',{etat:'en_cours',etape:2,note:'Véhicule accepté pour la vente'}],['Demander plus de photos','more',{etat:'en_cours',note:'Photos supplémentaires demandées au client'}]],
+  essai:[['Confirmer l\'essai','confirm',{etat:'en_cours',etape:2,note:'Rendez-vous confirmé selon la disponibilité réelle'}],['Proposer un autre créneau','resched',{etat:'en_cours',note:'Autre créneau proposé au client'}]],
+  recherche:[['Marquer en recherche','progress',{etat:'en_cours',etape:2,note:'Recherche en cours'}],['Clôturer le dossier','close',{etat:'cloture',etape:'last',note:'Dossier clôturé'}]],
+  consultation:[['Planifier l\'échange','progress',{etat:'en_cours',etape:2,note:'Consultation planifiée'}],['Clôturer le dossier','close',{etat:'cloture',etape:'last',note:'Dossier clôturé'}]],
+  precommande:[['Étape suivante','next',{etat:'en_cours',etape:'next'}],['Clôturer le dossier','close',{etat:'cloture',etape:'last',note:'Précommande livrée et clôturée'}]],
+  achat:[['Étape suivante','next',{etat:'en_cours',etape:'next'}],['Clôturer le dossier','close',{etat:'cloture',etape:'last',note:'Véhicule livré, dossier clôturé'}]]
+};
+const HUMAN=['approve','refuse','accept','confirm','close'];
+function fileIcon(t,n){return /^image\//.test(t||'')||/\.(jpe?g|png|webp|heic)$/i.test(n||'')?'img':'file'}
+function kb(n){n=+n||0;return n>1048576?(n/1048576).toFixed(1).replace('.',',')+' Mo':Math.max(1,Math.round(n/1024))+' Ko'}
+async function dossierDrawerLive(id){
+  openDrawer(drawerHead('Chargement…',esc(id))+`<div class="drawer-b"><div class="sk sk-row"></div><div class="sk sk-row"></div><div class="sk sk-row"></div></div>`);
+  let x;try{x=await api('/api/admin/dossiers/'+encodeURIComponent(id))}catch(e){closeDrawer();return fail(e)}
+  LV.details[id]=x;const d=mapDossier(x);
+  const pays=(x.paiements||[]).map(mapPaiement);const p=pays[0];
+  const statuts=x.statuts||[];const et=x.etape||0;
+  const acts=ACTIONS_LIVE[d.svc]||[['Étape suivante','next',{etat:'en_cours',etape:'next'}],['Clôturer le dossier','close',{etat:'cloture',etape:'last',note:'Dossier clôturé'}]];
+  const canAct=d.pay==='confirme'&&d.st!=='clos';
+  const tel=x.client_whatsapp||x.client_tel||'';
+  const msg=`Bonjour ${d.cl}, ici Elite Auto Deal au sujet de votre dossier ${d.id}.`;
+  const lignes=(x.donnees&&x.donnees.lignes)||[];
+  const files=x.fichiers||[];
+  const journal=x.journal||[];
+  openDrawer(drawerHead(esc(d.cl),`${esc(SVC[d.svc]||d.svc)} · ${esc(d.id)}`)+`<div class="drawer-b">
+   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px"><span class="badge ${d.st==='validation'?'b-bad':d.st==='clos'?'b-g':'b-n'}">${DST[d.st]}</span><span class="badge ${PST[d.pay][1]}">Paiement : ${PST[d.pay][0].toLowerCase()}</span></div>
+   <dl class="kv"><dt>Compte client</dt><dd>${acctHtml(x.client_compte&&x.client_compte.nom)}</dd><dt>Téléphone</dt><dd class="num">${esc(x.client_tel||'')}</dd>${x.client_whatsapp&&x.client_whatsapp!==x.client_tel?`<dt>WhatsApp</dt><dd class="num">${esc(x.client_whatsapp)}</dd>`:''}${x.client_email?`<dt>Email</dt><dd>${esc(x.client_email)}</dd>`:''}<dt>Demande</dt><dd>${esc(d.need)}</dd><dt>Reçue le</dt><dd>${esc(fdate(x.cree_le,true))}</dd>${x.vehicule?`<dt>Véhicule</dt><dd>${esc(typeof x.vehicule==='string'?x.vehicule:[x.vehicule.marque,x.vehicule.modele].filter(Boolean).join(' '))}</dd>`:''}</dl>
+   ${lignes.length?`<div class="sec"><h3>Formulaire du client</h3><dl class="kv small">${lignes.map(([a,b])=>`<dt>${esc(a)}</dt><dd>${esc(b)}</dd>`).join('')}</dl></div>`:''}
+   <div class="sec"><h3>Paiements Freda Pay Issuing</h3>${pays.length?`<div class="files">${pays.map(q=>`<div class="file">${ic('card')}<span><b>${fmt(q.amt,q.cur)}</b> · ${esc(q.svc)}<br><span class="small muted">${esc(q.d)}${q.freda?' · '+esc(q.freda):''}</span><br><span class="badge ${PST[q.st][1]}" style="margin-top:6px">${PST[q.st][0]}</span></span></div>`).join('')}</div>`:'<p class="small muted" style="margin:0">Aucun paiement enregistré.</p>'}</div>
+   <div class="sec"><h3>Fichiers envoyés</h3>${files.length?`<div class="files">${files.map(f=>`<div class="file">${ic(fileIcon(f.type,f.nom))}<span>${esc(f.nom)}<br><span class="small muted">${kb(f.taille)}</span></span><button class="btn btn-t btn-sm" data-file="${esc(f.id)}">Ouvrir</button></div>`).join('')}</div>`:'<p class="small muted" style="margin:0">Aucun fichier pour ce dossier.</p>'}</div>
+   ${statuts.length?`<div class="sec"><h3>Étapes du dossier</h3><ol class="steps-list">${statuts.map((s,i)=>`<li class="${i<et?'done':i===et?'cur':''}"><i></i>${esc(s)}</li>`).join('')}</ol></div>`:''}
+   <div class="sec"><h3>Historique</h3>${journal.length?`<ul class="timeline">${journal.map(j=>`<li>${esc(j.texte||'')}${j.par?` <span class="muted">(${esc(j.par)})</span>`:''}<time>${esc(fdate(j.quand,true))}</time></li>`).join('')}</ul>`:'<p class="small muted" style="margin:0">Aucun événement.</p>'}</div>
+   ${['financement','vente','essai'].includes(d.svc)?`<div class="human-note">${ic('hand')}<span><b>Validation humaine obligatoire.</b> Le client n'est informé qu'après votre décision${d.svc==='essai'?', selon la disponibilité réelle du véhicule':''}.</span></div>`:''}
+   ${!canAct&&d.st!=='clos'?`<div class="alert warn" style="margin-top:12px">${ic('clock','style="width:20px;height:20px;flex:none;color:var(--alerte)"')}<div class="grow">Les actions se débloquent quand Freda Pay Issuing confirme le paiement.</div></div>`:''}
+  </div>
+  <div class="drawer-f">${tel?`<a class="btn btn-wa" href="${waLink(tel,msg)}" target="_blank" rel="noopener">${ic('wa')}WhatsApp</a>`:''}${acts.map(([l,a],i)=>`<button class="btn ${i===0?'btn-n':'btn-t'}" data-lact="${a}" ${canAct?'':'disabled'}>${esc(l)}</button>`).join('')}</div>`);
+  const dr=$('#drawer');
+  dr.querySelectorAll('[data-file]').forEach(b=>b.onclick=()=>openFile(b.dataset.file,b));
+  dr.querySelectorAll('[data-lact]').forEach(b=>b.onclick=()=>{
+    const a=b.dataset.lact;const def=acts.find(z=>z[1]===a);const label=def[0];const body={...def[2]};
+    if(body.etape==='last')body.etape=Math.max(0,statuts.length-1);else if(body.etape==='next')body.etape=Math.min(et+1,Math.max(0,statuts.length-1));
+    if(!body.note)body.note=label+(body.etape!=null&&statuts[body.etape]?' : '+statuts[body.etape]:'');
+    const run=async()=>{b.disabled=true;try{await api('/api/admin/dossiers/'+encodeURIComponent(id),{method:'PATCH',body});closeDrawer();toast(`${label} : enregistré`);LV.loaded.dossiers=0;LV.loaded.resume=0;liveRender(true)}catch(e){b.disabled=false;fail(e)}};
+    confirmBox(esc(label)+' ?',`Cette décision sera enregistrée dans l'historique du dossier ${esc(id)}${HUMAN.includes(a)?' et communiquée au client':''}.`,esc(label),run,a==='refuse');
+  });
+}
+async function openFile(fid,btn){
+  const w=window.open('','_blank');
+  btn.disabled=true;
+  try{
+    const r=await fetch('/api/admin/fichiers/'+encodeURIComponent(fid),{headers:{Authorization:'Bearer '+TOKEN}});
+    if(r.status===401){w&&w.close();logout(true);return}
+    if(!r.ok)throw new Error('Fichier introuvable ou indisponible.');
+    const url=URL.createObjectURL(await r.blob());
+    if(w)w.location.href=url;else{const a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener';a.click()}
+  }catch(e){w&&w.close();fail(e)}finally{btn.disabled=false}
+}
+async function balanceLive(ref){
+  let res;try{res=await api('/api/admin/precommandes/'+encodeURIComponent(ref)+'/solde',{method:'POST'})}catch(e){return fail(e)}
+  const p=S.pre.find(x=>x.id===ref);if(p){p.bal='envoye';p.url=res.checkout_url}
+  showBalanceLink(ref,res.checkout_url,res.message_whatsapp);LV.loaded.precommandes=0;LV.loaded.resume=0;
+}
+async function showBalanceLink(ref,url,msg){
+  let tel='';const det=LV.details[ref];
+  if(det)tel=det.client_whatsapp||det.client_tel||'';
+  else{try{const x=await api('/api/admin/dossiers/'+encodeURIComponent(ref));LV.details[ref]=x;tel=x.client_whatsapp||x.client_tel||''}catch(_){}}
+  const p=S.pre.find(x=>x.id===ref)||{};
+  const text=msg||`Bonjour ${p.cl||''}, votre véhicule est arrivé en Haïti. Solde à régler : ${fmt(p.balAmt||0)}. Lien de paiement sécurisé : ${url}`;
+  openDrawer(drawerHead('Lien de solde prêt',esc(ref))+`<div class="drawer-b">
+    <p style="margin:0">Le lien de paiement Freda Pay Issuing est créé. Envoyez-le vous-même au client : rien n'est envoyé automatiquement.</p>
+    <div class="link-box"><code id="balUrl">${esc(url||'')}</code><button class="btn btn-t btn-sm" id="copyBal">${ic('copy')}Copier</button></div>
+    <div class="field form"><label for="balMsg">Message WhatsApp</label><textarea id="balMsg" style="min-height:180px">${esc(text)}</textarea></div>
+    ${tel?'':'<p class="small muted">Numéro WhatsApp du client introuvable : copiez le message et envoyez-le manuellement.</p>'}
+  </div><div class="drawer-f"><button class="btn btn-t" data-close>Fermer</button>${tel?`<a class="btn btn-wa" id="sendBal" href="${waLink(tel,text)}" target="_blank" rel="noopener">${ic('wa')}Ouvrir WhatsApp du client</a>`:`<button class="btn btn-n" id="copyMsg">${ic('copy')}Copier le message</button>`}</div>`);
+  $('#copyBal').onclick=()=>copyText(url,'Lien copié',$('#balUrl'));
+  const m=$('#balMsg');m.oninput=()=>{const s=$('#sendBal');if(s)s.href=waLink(tel,m.value)};
+  const cm=$('#copyMsg');if(cm)cm.onclick=()=>copyText(m.value,'Message copié',m);
+  render();
+}
+function copyText(v,ok,el){(navigator.clipboard?navigator.clipboard.writeText(v):Promise.reject()).then(()=>toast(ok)).catch(()=>{if(el&&el.select)el.select();else if(el){const r=document.createRange();r.selectNodeContents(el);const s=getSelection();s.removeAllRanges();s.addRange(r)}toast('Sélectionnez le texte et copiez-le')})}
+async function saveParams(patch,okMsg){
+  const p={...(LV.params||{}),...patch};
+  try{const r=await api('/api/admin/parametres',{method:'PUT',body:p});LV.params=r&&typeof r==='object'&&r.tarifs?r:p;applyParams();toast(okMsg);return true}catch(e){fail(e);return false}
+}
+
+/* ---- Connexion ---- */
+function showLogin(msg){document.body.classList.add('need-login');document.body.classList.remove('booting');$('#loginErr').textContent=msg||'';setTimeout(()=>$('#loginPwd').focus(),30)}
+function logout(expired){TOKEN=null;try{sessionStorage.removeItem('ead-admin-token')}catch(_){}LV.loaded={};closeDrawer();closeModal();showLogin(expired?'Session expirée. Reconnectez-vous.':'')}
+async function doLogin(e){
+  e.preventDefault();const pw=$('#loginPwd').value;const b=$('#loginBtn');if(!pw){$('#loginErr').textContent='Saisissez le mot de passe.';return}
+  b.disabled=true;$('#loginErr').textContent='';
+  try{const r=await api('/api/admin/login',{method:'POST',body:{password:pw},noAuthRedirect:true});TOKEN=r.token;try{sessionStorage.setItem('ead-admin-token',TOKEN)}catch(_){}
+    $('#loginPwd').value='';document.body.classList.remove('need-login');liveRender(true)}
+  catch(err){$('#loginErr').textContent=err.status===401?'Mot de passe incorrect.':err.message}
+  finally{b.disabled=false}
+}
+function enterLive(){
+  LIVE=true;
+  Object.assign(SVC,{precommande:'Précommande',achat:'Achat comptant'});Object.assign(SVC_SHORT,{precommande:'Précommande',achat:'Achat'});
+  S.dossiers=[];S.payments=[];S.vehicles=[];S.pre=[];S.fin=[];S.activity=[];S.months=[];S.clients=[];
+  const tag=document.querySelector('.demo-tag');const mode=CFG.mode==='live'?'live':'sandbox';
+  tag.className='live-tag'+(mode==='sandbox'?' sandbox':'');tag.textContent=mode==='live'?'Paiements réels':'Freda Pay Issuing : sandbox';
+  $('#nav .foot').innerHTML=`<strong>Freda Pay Issuing ${mode==='live'?'(live)':'(sandbox)'}</strong>Statuts de paiement confirmés côté serveur.<button class="logout" id="logoutBtn" type="button">Se déconnecter</button>`;
+  $('#logoutBtn').onclick=()=>{logout(false)};
+  $('#loginForm').onsubmit=doLogin;
+  setInterval(()=>{if(TOKEN&&current()==='apercu'&&!$('#drawer').classList.contains('open')&&!$('#modal').classList.contains('open')&&!document.hidden){LV.loaded.resume=0;LV.loaded.dossiers=0;liveRender(true)}},60000);
+  if(TOKEN){document.body.classList.remove('booting');liveRender(true)}else showLogin();
+}
+async function boot(){
+  let ok=false;
+  if(/^https?:$/.test(location.protocol)){
+    try{const ctl=new AbortController();const tm=setTimeout(()=>ctl.abort(),4000);
+      const r=await fetch('/api/config',{signal:ctl.signal,headers:{Accept:'application/json'}});clearTimeout(tm);
+      if(r.ok&&(r.headers.get('content-type')||'').includes('json')){CFG=await r.json();ok=!!CFG&&typeof CFG==='object'}}catch(_){}
+  }
+  if(ok)enterLive();else{document.body.classList.remove('booting');render()}
+}
+
+/* ================= Rendu & événements ================= */
+let LOGO='',MARK='';
+function render(){baseRender()}
+function baseRender(){
+  const id=current();renderNav();
+  $('#view').innerHTML=(LIVE&&VL[id]?VL[id]:V[id])();
+  document.title=`${ROUTES.find(r=>r.id===id).l} — Tableau de bord Elite Auto Deal`;
+}
+function onRoute(){closeNav();$('#notif').classList.remove('open');if(LIVE){if(!TOKEN)return;liveRender()}else render();window.scrollTo(0,0);$('#view').focus({preventScroll:true})}
+window.addEventListener('hashchange',onRoute);
+$('#q').addEventListener('input',e=>{query=e.target.value.trim();if(current()==='apercu'&&query){location.hash='#dossiers';return}render();$('#q').focus()});
+
+$('#view').addEventListener('click',e=>{
+  const t=e.target.closest('button,[data-go]');if(!t)return;
+  if(t.dataset.go==='vehicules-add')return addVehicleDrawer();
+  if(t.dataset.reinit)return askReset(t.dataset.reinit);
+  if(t.id==='retryLoad')return liveRender(true);
+  if(t.dataset.dos)return LIVE?dossierDrawerLive(t.dataset.dos):dossierDrawer(t.dataset.dos);
+  if(t.dataset.showlink){const p=S.pre.find(x=>x.id===t.dataset.showlink);return showBalanceLink(p.id,p.url)}
+  if(t.dataset.receipt)return receiptDrawer(t.dataset.receipt);
+  if(t.dataset.dfilter){dosFilter=t.dataset.dfilter;return render()}
+  if(t.dataset.remind&&LIVE){const p=S.payments.find(x=>x.ref===t.dataset.remind);return dossierDrawerLive(p.dos)}
+  if(t.dataset.remind){const p=S.payments.find(x=>x.ref===t.dataset.remind);return toast(`Rappel de paiement envoyé à ${p.cl}`)}
+  if(t.dataset.photos)return photosDrawer(t.dataset.photos);
+  if(t.dataset.retire){const v=veh(t.dataset.retire);return confirmBox('Retirer ce véhicule ?',`${esc(vname(v))} ne sera plus visible sur le site. Vous pourrez le republier plus tard.`,'Retirer du site',()=>{if(LIVE)return api('/api/admin/vehicules/'+encodeURIComponent(v.id),{method:'DELETE'}).then(()=>{S.vehicles=S.vehicles.filter(x=>x!==v);render();toast(`${vname(v)} retiré du site`)}).catch(fail);S.vehicles=S.vehicles.filter(x=>x!==v);render();toast(`${vname(v)} retiré du site`)},true)}
+  if(t.dataset.fadv&&LIVE){const d=S.dossiers.find(x=>x.id===t.dataset.fadv);const lbl=['Dossier complet','Dossier en cours d\'examen'];const nx=Math.min(d.etape+1,2);t.disabled=true;
+    return api('/api/admin/dossiers/'+encodeURIComponent(d.id),{method:'PATCH',body:{etape:nx,etat:'en_cours',note:lbl[nx-1]||'Étape suivante'}}).then(()=>{d.etape=nx;d.st='encours';render();toast(`Dossier ${d.id} : ${lbl[nx-1]}`);LV.loaded.dossiers=0}).catch(e=>{t.disabled=false;fail(e)})}
+  if(t.dataset.fadv){const f=S.fin.find(x=>x.id===t.dataset.fadv);if(f.stage===0&&f.docs.includes(0))return toast(`Relance WhatsApp envoyée à ${f.cl}`);f.stage++;render();return toast(`Dossier ${f.id} : ${FST[f.stage]}`)}
+  if(t.dataset.arrive&&LIVE){const p=S.pre.find(x=>x.id===t.dataset.arrive);return confirmBox('Confirmer l\'arrivée en Haïti ?',`Le solde de ${fmt(p.balAmt)} devient exigible. Vous pourrez ensuite créer le lien de paiement du solde.`,'Confirmer l\'arrivée',()=>api('/api/admin/precommandes/'+encodeURIComponent(p.id)+'/arrivee',{method:'POST'}).then(()=>{p.arr='arrive';render();toast('Arrivée enregistrée');LV.loaded.precommandes=0;LV.loaded.resume=0}).catch(fail))}
+  if(t.dataset.arrive){const p=S.pre.find(x=>x.id===t.dataset.arrive);return confirmBox('Confirmer l\'arrivée en Haïti ?',`Le solde de ${fmt(p.price*.1)} devient exigible. Le client sera prévenu.`,'Confirmer l\'arrivée',()=>{p.arr='arrive';p.late=false;const v=veh(p.vid);if(v.st==='En transit'||v.st==='Précommandable')v.st='Disponible';render();toast('Arrivée enregistrée')})}
+  if(t.dataset.balance&&LIVE){const p=S.pre.find(x=>x.id===t.dataset.balance);return confirmBox('Créer le lien de solde ?',`Un lien de paiement Freda Pay Issuing de ${fmt(p.balAmt)} sera créé pour ${esc(p.cl)} (dossier ${esc(p.id)}). Vous l'enverrez vous-même par WhatsApp.`,'Créer le lien',()=>balanceLive(p.id))}
+  if(t.dataset.balance){const p=S.pre.find(x=>x.id===t.dataset.balance);return confirmBox('Envoyer le lien de solde ?',`${esc(p.cl)} recevra par WhatsApp un lien de paiement sécurisé de ${fmt(p.price*.1)} (référence ${p.id}).`,'Envoyer le lien',()=>{p.bal='envoye';render();toast('Lien de solde envoyé')})}
+  if(t.id==='copyCsv'){const v=LIVE?csvLive():csv();navigator.clipboard&&navigator.clipboard.writeText(v).then(()=>toast('CSV copié dans le presse-papiers')).catch(()=>{$('#csv').select();toast('Sélectionnez le texte et copiez-le')});if(!navigator.clipboard){$('#csv').select();toast('Sélectionnez le texte et copiez-le')}return}
+  if(t.dataset.tpl){S.templates[tpl]=$('#tplText').value;tpl=t.dataset.tpl;return render()}
+  if(t.id==='saveTpl'){S.templates[tpl]=$('#tplText').value;if(LIVE){const k={accueil:'accueil',paiement:'confirmation',solde:'solde',rappel:'rappel'}[tpl];return saveParams({messages:{...((LV.params||{}).messages||{}),[k]:S.templates[tpl]}},'Message enregistré')}return toast('Message enregistré')}
+  if(t.id==='copyTpl'){const v=$('#tplText').value;(navigator.clipboard?navigator.clipboard.writeText(v):Promise.reject()).then(()=>toast('Message copié')).catch(()=>{$('#tplText').select();toast('Sélectionnez le texte et copiez-le')});return}
+  if(t.id==='saveT'){document.querySelectorAll('[data-tarif]').forEach(i=>S.tarifs[i.dataset.tarif]=+i.value||S.tarifs[i.dataset.tarif]);if(LIVE){const tf={};Object.entries(S.tarifs).forEach(([k,v])=>tf[SVC_BACK[k]||k]=v);return saveParams({tarifs:tf},'Tarifs enregistrés')}return toast('Tarifs enregistrés')}
+});
+$('#view').addEventListener('change',e=>{
+  const t=e.target;
+  if(t.dataset.status&&LIVE){const v=veh(t.dataset.status);const old=v.st,nv=t.value;t.disabled=true;return api('/api/admin/vehicules/'+encodeURIComponent(v.id),{method:'PATCH',body:{statut:VST_OUT[nv]}}).then(()=>{v.st=nv;toast(`${vname(v)} : ${nv}`);renderNav()}).catch(e=>{t.value=old;fail(e)}).finally(()=>{t.disabled=false})}
+  if(t.dataset.status){const v=veh(t.dataset.status);v.st=t.value;toast(`${vname(v)} : ${v.st}`);renderNav()}
+  if(t.dataset.price&&LIVE){const v=veh(t.dataset.price);const n=+String(t.value).replace(/\D/g,'');if(!n){t.value=v.p;return}t.disabled=true;return api('/api/admin/vehicules/'+encodeURIComponent(v.id),{method:'PATCH',body:{prix:n}}).then(()=>{v.p=n;t.value=n;toast(`Prix mis à jour : ${fmt(n)}`)}).catch(e=>{t.value=v.p;fail(e)}).finally(()=>{t.disabled=false})}
+  if(t.dataset.price){const v=veh(t.dataset.price);const n=+String(t.value).replace(/\D/g,'');if(n){v.p=n;t.value=n;toast(`Prix mis à jour : ${fmt(n)}`)}else t.value=v.p}
+  if(t.id==='rate'&&LIVE){const n=parseFloat(t.value.replace(',','.'));if(!(n>0)){t.value=S.rate;return}return saveParams({taux_htg:n,taux_date:new Date().toISOString().slice(0,10)},`Taux enregistré : 1 USD = ${n} HTG`).then(ok=>{if(ok)render();else t.value=S.rate})}
+  if(t.id==='rate'){const n=parseFloat(t.value.replace(',','.'));if(n>0){S.rate=n;toast(`Taux enregistré : 1 USD = ${n} HTG`);render()}}
+});
+
+LOGO=`<path fill="currentColor" fill-rule="evenodd" d="M9.5,55.0 12.0,57.2 26.8,65.5 37.2,70.5 41.8,71.8 96.0,71.5 125.5,73.0 148.8,75.0 174.5,78.2 179.5,78.5 182.8,79.2 192.2,80.0 193.8,80.5 224.0,83.0 228.2,83.8 289.8,87.8 337.2,89.5 392.2,90.0 456.5,88.0 508.0,84.0 530.2,82.8 563.0,82.8 577.0,83.8 588.0,85.0 601.8,87.2 626.2,92.8 648.8,100.0 661.5,105.0 667.8,108.0 669.8,108.2 669.5,107.2 662.8,101.5 656.5,97.0 647.0,91.2 632.2,84.2 616.2,78.8 608.2,76.5 593.5,73.2 572.2,70.0 550.2,68.0 528.5,67.5 521.5,66.8 513.0,63.0 490.0,51.2 470.8,42.2 448.5,33.0 426.8,25.0 412.0,20.2 394.2,15.8 381.5,13.5 364.5,11.5 340.2,10.0 307.5,9.8 273.2,11.2 248.2,13.8 225.2,17.0 194.0,23.5 156.5,33.5 144.0,37.5 137.5,39.0 131.2,41.2 105.8,48.0 104.2,48.8 83.2,53.0 68.2,55.0 51.8,56.2 28.8,56.2 12.0,54.8ZM158.2,52.2 181.5,44.0 199.8,38.8 222.2,33.2 246.0,29.0 273.8,25.5 290.0,24.2 309.0,23.5 346.2,24.0 367.0,25.8 387.2,28.8 402.5,32.2 416.8,36.2 437.8,43.2 462.0,53.2 482.0,63.0 490.0,67.5 490.8,68.8 490.0,69.5 485.5,69.5 458.5,71.8 401.5,73.8 350.8,73.8 292.0,71.8 245.8,68.5 209.8,64.5 208.5,64.0 193.5,62.0 177.5,58.8 158.8,53.2Z"/><path fill="currentColor" fill-rule="evenodd" d="M638.0,152.0 637.5,152.5 637.5,195.8 638.2,196.2 668.2,196.2 668.8,195.8 668.5,188.0 647.8,187.8 647.0,187.0 646.8,152.5 646.0,151.8ZM547.0,152.0 546.5,152.8 546.8,196.0 547.5,196.5 580.0,196.2 580.5,195.8 580.5,188.8 579.8,188.0 556.8,188.0 555.8,187.0 555.8,179.2 556.8,178.0 576.2,178.0 577.5,177.0 577.5,171.5 576.8,170.0 556.8,169.8 555.8,168.8 555.8,160.8 556.5,160.0 579.0,160.0 579.8,159.5 579.8,152.5 579.0,151.8ZM497.5,151.8 497.0,152.5 497.2,196.0 505.8,196.5 517.8,196.2 525.5,194.0 529.5,191.8 532.5,189.2 535.2,185.8 536.8,183.0 537.8,180.0 538.5,174.8 537.8,168.2 535.2,162.5 531.8,158.2 528.8,155.8 524.2,153.5 520.2,152.2 516.2,151.8ZM507.0,160.2 516.2,160.2 520.2,161.2 523.5,163.2 526.0,165.8 527.2,168.0 528.5,173.0 528.2,176.5 527.5,179.2 525.5,182.8 523.0,185.2 521.0,186.5 516.5,187.8 507.2,187.8 506.5,187.2 506.2,161.0ZM340.0,152.0 339.5,152.5 339.5,181.2 340.5,186.0 343.8,191.5 349.0,195.2 351.5,196.2 357.8,197.2 360.5,197.2 366.0,196.2 372.0,193.0 375.0,189.8 376.5,187.0 377.8,183.2 378.2,177.0 378.0,152.5 377.0,151.8 369.2,152.0 369.0,177.5 367.8,183.5 363.5,187.5 360.8,188.2 357.0,188.2 353.0,186.8 350.0,183.5 349.0,180.5 348.8,152.2 348.0,151.8ZM419.2,151.8 384.5,151.8 383.5,152.5 383.2,159.0 383.8,159.8 393.2,160.2 395.8,160.0 397.2,161.2 397.2,195.5 398.0,196.2 405.5,196.2 406.5,195.2 406.5,162.0 407.5,160.2 419.5,160.0 420.0,159.5 420.0,153.0ZM603.8,151.5 602.2,153.8 596.0,169.0 584.2,194.8 584.2,195.8 584.8,196.2 593.2,196.2 595.0,193.5 597.2,187.2 598.2,186.2 616.2,186.2 618.0,187.8 620.8,195.2 621.8,196.2 631.0,196.2 631.5,195.8 631.2,194.2 626.0,183.5 612.8,152.2 612.0,151.5 610.2,151.2ZM607.5,164.5 608.8,165.0 613.5,176.5 613.5,177.2 612.5,178.0 602.8,178.0 602.0,177.2 605.2,168.5ZM306.8,151.5 305.0,154.5 298.8,170.0 289.5,190.5 287.8,195.8 288.2,196.2 296.8,196.2 298.0,194.2 300.5,187.5 302.0,186.2 319.2,186.2 321.0,187.2 324.5,196.0 334.0,196.2 334.2,194.5 328.0,181.0 315.8,152.2 314.5,151.2ZM310.5,164.5 311.8,165.0 316.5,176.2 316.5,177.2 315.5,178.0 306.2,178.0 305.2,177.2 305.8,174.8 307.8,170.8 309.2,166.2ZM444.2,150.8 439.8,151.5 435.2,153.2 430.2,156.5 426.8,160.2 424.2,164.8 423.0,168.8 422.8,178.0 425.2,185.2 430.5,191.8 433.0,193.5 439.2,196.2 445.5,197.2 448.8,197.2 453.5,196.2 458.2,194.2 464.8,189.0 467.0,185.8 469.2,181.0 470.2,176.5 470.2,172.0 469.8,168.5 468.0,163.8 466.0,160.2 462.5,156.5 457.8,153.2 453.2,151.5 448.5,150.8ZM444.8,159.5 450.0,159.8 455.0,162.2 458.2,166.0 459.5,168.5 460.2,171.8 459.8,178.0 457.0,183.5 453.2,186.8 451.2,187.8 447.8,188.5 445.2,188.5 442.0,187.8 439.0,186.2 435.8,183.2 434.0,180.5 432.8,177.0 433.0,170.2 433.8,167.8 435.5,164.8 439.5,161.2 441.5,160.2ZM73.5,131.0 73.0,131.5 73.2,196.5 118.5,196.5 119.0,195.8 119.0,185.0 118.2,184.0 88.2,184.0 87.5,183.5 87.0,131.5 86.5,131.0ZM214.8,131.0 214.2,131.8 214.5,196.5 264.5,196.8 265.0,196.0 265.0,185.2 264.2,184.5 230.5,184.8 228.5,183.8 228.5,170.8 229.8,169.8 259.5,169.8 260.2,169.0 260.0,158.2 259.5,157.8 229.0,157.5 228.2,156.0 228.5,144.0 230.2,143.0 263.5,143.2 264.0,142.5 263.8,131.0ZM151.0,131.0 150.2,132.2 150.2,142.0 151.0,143.2 168.8,143.2 170.5,144.2 170.8,196.0 172.2,196.8 184.8,196.2 185.0,144.5 185.8,143.5 205.2,143.2 205.8,142.0 205.2,131.2 204.2,130.8ZM129.2,130.8 128.2,131.0 127.5,132.0 127.5,195.5 128.8,196.8 141.0,196.5 141.8,195.8 141.8,131.8 140.0,130.8ZM12.0,131.0 11.5,131.5 11.2,144.2 11.5,196.2 12.5,196.8 61.2,196.8 62.0,196.0 62.0,185.2 61.2,184.2 27.5,184.8 26.0,184.2 25.5,183.5 25.5,170.8 26.2,170.0 56.2,169.8 57.0,169.0 56.8,158.0 55.2,157.5 26.8,157.8 26.0,157.5 25.2,156.2 25.8,143.5 27.2,143.0 60.5,143.2 61.0,142.5 61.0,131.5 60.2,130.8Z"/>`;MARK=`M9.5,55.0 12.0,57.2 26.8,65.5 37.2,70.5 41.8,71.8 96.0,71.5 125.5,73.0 148.8,75.0 174.5,78.2 179.5,78.5 182.8,79.2 192.2,80.0 193.8,80.5 224.0,83.0 228.2,83.8 289.8,87.8 337.2,89.5 392.2,90.0 456.5,88.0 508.0,84.0 530.2,82.8 563.0,82.8 577.0,83.8 588.0,85.0 601.8,87.2 626.2,92.8 648.8,100.0 661.5,105.0 667.8,108.0 669.8,108.2 669.5,107.2 662.8,101.5 656.5,97.0 647.0,91.2 632.2,84.2 616.2,78.8 608.2,76.5 593.5,73.2 572.2,70.0 550.2,68.0 528.5,67.5 521.5,66.8 513.0,63.0 490.0,51.2 470.8,42.2 448.5,33.0 426.8,25.0 412.0,20.2 394.2,15.8 381.5,13.5 364.5,11.5 340.2,10.0 307.5,9.8 273.2,11.2 248.2,13.8 225.2,17.0 194.0,23.5 156.5,33.5 144.0,37.5 137.5,39.0 131.2,41.2 105.8,48.0 104.2,48.8 83.2,53.0 68.2,55.0 51.8,56.2 28.8,56.2 12.0,54.8ZM158.2,52.2 181.5,44.0 199.8,38.8 222.2,33.2 246.0,29.0 273.8,25.5 290.0,24.2 309.0,23.5 346.2,24.0 367.0,25.8 387.2,28.8 402.5,32.2 416.8,36.2 437.8,43.2 462.0,53.2 482.0,63.0 490.0,67.5 490.8,68.8 490.0,69.5 485.5,69.5 458.5,71.8 401.5,73.8 350.8,73.8 292.0,71.8 245.8,68.5 209.8,64.5 208.5,64.0 193.5,62.0 177.5,58.8 158.8,53.2Z`;
+const mq=matchMedia('(max-width:900px)');const ph=()=>$('#q').placeholder=mq.matches?'Rechercher':'Rechercher un client, une référence, un véhicule';ph();mq.addEventListener('change',ph);
+boot();
+</script>
+</body>
+</html>

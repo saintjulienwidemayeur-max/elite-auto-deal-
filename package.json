@@ -1,0 +1,21 @@
+{
+  "name": "elite-auto-deal",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node test/e2e.js && node test/compte.js"
+  },
+  "dependencies": {
+    "compression": "^1.8.2",
+    "express": "^4.22.3",
+    "helmet": "^8.3.0",
+    "multer": "^1.4.4",
+    "pg": "^8.23.1"
+  },
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  }
+}
