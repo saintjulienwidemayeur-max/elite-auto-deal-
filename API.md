@@ -7,7 +7,7 @@ Montants : toujours calculés par le serveur. Le client n'envoie JAMAIS de monta
 
 ## Public
 
-GET /api/config → `{ "mode": "sandbox"|"live", "taux_htg": 132, "taux_date": "2026-11-12", "tarifs": { "consultation":150, "recherche":150, "essai":150, "vendre":200, "financement":25 }, "whatsapp": "50942405729", "methodes": ["moncash","natcash","carte"] }`
+GET /api/config → `{ "mode": "sandbox"|"live", "taux_htg": 132, "taux_date": "2026-11-12", "tarifs": { "consultation":50, "recherche":50, "essai":50, "vendre":200, "financement":25 }, "whatsapp": "50942405729", "methodes": ["moncash","natcash","carte"] }`
 `methodes` peut ne contenir que "moncash" et "natcash" si le paiement carte n'est pas activé.
 
 GET /api/vehicules → tableau d'objets avec EXACTEMENT les mêmes clés que le tableau `V` du site (`id, marque, modele, annee, couleur, hex, km, prix, statut, type, forme, moteur, trans, traction, places, delai, note`) + `vedette: bool`. Statuts : disponible | transit | precommande | vendu | indisponible.
@@ -20,7 +20,7 @@ POST /api/dossiers — `multipart/form-data` :
 - `conditions_acceptees` : "1" (obligatoire)
 - `donnees` : chaîne JSON `{ "lignes": [[libellé, valeur], ...], "champs": { nom_du_champ: valeur, ... } }` (le récapitulatif du formulaire)
 - `fichiers` : 0..30 fichiers (photos, vidéos, PDF ; 60 Mo max chacun) — le nom de champ d'origine peut être passé dans `fichiers_champs` (JSON tableau de même longueur).
-Réponse 201 : `{ "ref": "EAD-2026-48213", "montant_usd": 150, "montant": 19800, "devise": "HTG", "methode": "moncash", "checkout_url": "https://...", "paiement_id": "pay_..." }`
+Réponse 201 : `{ "ref": "EAD-2026-48213", "montant_usd": 50, "montant": 6600, "devise": "HTG", "methode": "moncash", "checkout_url": "https://...", "paiement_id": "pay_..." }`
 Le front enregistre `ref` dans localStorage (`ead-derniere-ref`) puis fait `location.href = checkout_url`.
 
 GET /api/dossiers/:ref → vue publique (aucune donnée personnelle sauf prénom) :
@@ -79,3 +79,12 @@ Admin :
 - GET /api/admin/clients → `[{ id, nom, tel, whatsapp, email, cree_le, nb_dossiers, total_paye_usd, reinit_demandee: bool }]`
 - POST /api/admin/clients/:id/reinitialisation → `{ lien, message_whatsapp, whatsapp }` (lien valable 24 h, usage unique).
 - Le détail admin d'un dossier ajoute `client_compte: { id, nom } | null`.
+
+## Devis (administrateur, en-tête `Authorization: Bearer <jeton admin>`)
+- GET /api/admin/devis → liste (200 derniers). POST /api/admin/devis `{ client_nom, client_email?, client_tel?, lignes: [{ description, quantite, prix_unitaire }], frais_supplementaires? }` → 201 devis `{ id, numero: "DV-2026-0001", jeton, total_usd, statut, ... }`. Le total est toujours recalculé par le serveur.
+- PATCH /api/admin/devis/:id (mêmes champs) · DELETE /api/admin/devis/:id
+- GET /api/admin/devis/:id/pdf → PDF (A4)
+- POST /api/admin/devis/:id/email → envoie le PDF en pièce jointe via Brevo (`client_email` requis) ; statut `envoye`
+- POST /api/admin/devis/:id/whatsapp → `{ lien_whatsapp, lien_pdf, message }` ; statut `partage`
+- GET /devis/:jeton.pdf (public, jeton non devinable, `noindex`) : lien partagé par WhatsApp
+

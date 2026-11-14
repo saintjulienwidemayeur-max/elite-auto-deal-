@@ -6,13 +6,13 @@ export const emailConfigure = () => !!process.env.BREVO_API_KEY && !!process.env
 
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
-export async function envoyerEmail({ a, nom, sujet, html, texte }) {
+export async function envoyerEmail({ a, nom, sujet, html, texte, pieces }) {
   if (!emailConfigure()) { console.warn(`[email] Brevo non configuré : "${sujet}" non envoyé à ${a}`); return false; }
   try {
     const r = await fetch(API, {
       method: "POST",
       headers: { "api-key": process.env.BREVO_API_KEY, "Content-Type": "application/json", accept: "application/json" },
-      body: JSON.stringify({ sender: expediteur(), to: [{ email: a, name: nom || undefined }], subject: sujet, htmlContent: html, textContent: texte }),
+      body: JSON.stringify({ sender: expediteur(), to: [{ email: a, name: nom || undefined }], subject: sujet, htmlContent: html, textContent: texte, attachment: pieces?.length ? pieces.map(p => ({ name: p.nom, content: p.contenu.toString("base64") })) : undefined }),
       signal: AbortSignal.timeout(10000),
     });
     if (!r.ok) { console.error(`[email] Brevo a refusé (${r.status}) : ${(await r.text()).slice(0, 300)}`); return false; }
@@ -76,5 +76,21 @@ export function emailCode({ code, finalite }) {
       <p style="margin:0 0 6px;font-size:14px;color:${GRIS}"><b style="color:${NOIR}">Ne partagez ce code avec personne</b>, pas même avec un conseiller Elite Auto Deal.${reinit ? " Si vous n'avez rien demandé, ignorez cet email : votre mot de passe reste inchangé." : ""}</p>`,
       `Votre code : ${code} (valable 10 minutes)`),
     texte: `${titre} : votre code est ${code} (valable 10 minutes). Ne le partagez avec personne.`,
+  };
+}
+
+export function emailDevis({ nom, numero, total, publicUrl: url, whatsapp }) {
+  const prenom = esc(String(nom).trim().split(/\s+/)[0]);
+  return {
+    sujet: `Votre devis ${numero} — Elite Auto Deal`,
+    html: cadre(`Votre devis ${esc(numero)}`, `<p style="margin:0 0 14px">Bonjour ${prenom},</p>
+      <p style="margin:0 0 14px">Merci de votre confiance. Vous trouverez votre devis en pièce jointe (PDF).</p>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:18px 0"><tr><td align="center" style="background:${FOND};border:1px solid #e4e4e0;border-radius:10px;padding:18px 12px">
+      <div style="font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:${GRIS};margin-bottom:6px">Total du devis</div>
+      <div style="font-size:30px;font-weight:bold;color:${NOIR}">${esc(total)}</div></td></tr></table>
+      <p style="margin:0 0 6px;color:${GRIS};font-size:14px">Pour toute question ou pour confirmer ce devis, écrivez-nous sur WhatsApp${whatsapp ? ` au <b style="color:${NOIR}">+${esc(whatsapp)}</b>` : ""}.</p>
+      ${url ? bouton(url, "Visiter Elite Auto Deal") : ""}`,
+      `Votre devis ${numero} d'un montant de ${total}, en pièce jointe.`),
+    texte: `Bonjour ${String(nom).trim().split(/\s+/)[0]}, voici votre devis ${numero} d'un montant de ${total} (PDF en pièce jointe). Elite Auto Deal.`,
   };
 }

@@ -124,7 +124,7 @@
      {
       "@type": "Offer",
       "priceCurrency": "USD",
-      "price": "150",
+      "price": "50",
       "itemOffered": {
        "@type": "Service",
        "name": "Consultation automobile",
@@ -137,7 +137,7 @@
      {
       "@type": "Offer",
       "priceCurrency": "USD",
-      "price": "150",
+      "price": "50",
       "itemOffered": {
        "@type": "Service",
        "name": "Recherche ou achat accompagné",
@@ -150,7 +150,7 @@
      {
       "@type": "Offer",
       "priceCurrency": "USD",
-      "price": "150",
+      "price": "50",
       "itemOffered": {
        "@type": "Service",
        "name": "Visite ou essai",
@@ -236,7 +236,7 @@
      "name": "Combien coûtent vos services ?",
      "acceptedAnswer": {
       "@type": "Answer",
-      "text": "La consultation automobile, la recherche ou l'achat accompagné et la visite ou l'essai coûtent 150 $ chacun. La vente d'un véhicule confié coûte 200 $ (non remboursable) et le dossier de financement 25 $ (ou l'équivalent en gourdes). Ces frais de service ne sont pas le prix du véhicule."
+      "text": "La consultation automobile, la recherche ou l'achat accompagné et la visite ou l'essai coûtent 50 $ chacun et couvrent l'accompagnement, l'analyse, la préparation des documents, les démarches administratives et le suivi du client. La vente d'un véhicule confié coûte 200 $ (non remboursable) et le dossier de financement 25 $ (ou l'équivalent en gourdes). Ces frais de service ne sont pas le prix du véhicule."
      }
     },
     {
@@ -836,9 +836,9 @@ input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:
     <a href="#compte">Mon espace <small id="compte-menu-etat">Connexion</small></a>
     <a href="#vehicules">Véhicules <small>Inventaire</small></a>
     <a href="#precommande">Précommander <small>90 % puis 10 %</small></a>
-    <a href="#recherche">Trouver un véhicule <small>150 $</small></a>
-    <a href="#essai">Réserver un essai <small>150 $</small></a>
-    <a href="#consultation">Consultation <small>150 $</small></a>
+    <a href="#recherche">Trouver un véhicule <small>50 $</small></a>
+    <a href="#essai">Réserver un essai <small>50 $</small></a>
+    <a href="#consultation">Consultation <small>50 $</small></a>
     <a href="#vendre">Vendre mon véhicule <small>200 $</small></a>
     <a href="#financement">Demander un financement <small>25 $</small></a>
     <a href="#suivi">Suivre mon dossier</a>
@@ -881,8 +881,8 @@ input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:
       <h2 class="sr">Que voulez-vous faire ?</h2>
       <div class="actions-grille">
         <a class="action principale" href="#vehicules"><svg viewBox="0 0 32 32" fill="none" stroke-width="1.6"><path d="M4 20v-4.5L7.5 9h17L28 15.5V20"/><path d="M3 20h26v4H3z"/><circle cx="9" cy="24" r="2.5"/><circle cx="23" cy="24" r="2.5"/></svg><div><b>Acheter un véhicule</b><span>Comptant, financement ou précommande</span></div></a>
-        <a class="action" href="#recherche"><svg viewBox="0 0 32 32" fill="none" stroke-width="1.6"><circle cx="14" cy="14" r="8"/><path d="m20 20 7 7"/></svg><div><b>Trouver un véhicule</b><span>Recherche personnalisée, 150 $</span></div></a>
-        <a class="action" href="#essai"><svg viewBox="0 0 32 32" fill="none" stroke-width="1.6"><rect x="5" y="7" width="22" height="20" rx="2"/><path d="M5 13h22M11 4v6M21 4v6"/><path d="m12 20 3 3 6-6"/></svg><div><b>Réserver un essai</b><span>Visite ou essai, 150 $</span></div></a>
+        <a class="action" href="#recherche"><svg viewBox="0 0 32 32" fill="none" stroke-width="1.6"><circle cx="14" cy="14" r="8"/><path d="m20 20 7 7"/></svg><div><b>Trouver un véhicule</b><span>Recherche personnalisée, 50 $</span></div></a>
+        <a class="action" href="#essai"><svg viewBox="0 0 32 32" fill="none" stroke-width="1.6"><rect x="5" y="7" width="22" height="20" rx="2"/><path d="M5 13h22M11 4v6M21 4v6"/><path d="m12 20 3 3 6-6"/></svg><div><b>Réserver un essai</b><span>Visite ou essai, 50 $</span></div></a>
         <a class="action" href="#vendre"><svg viewBox="0 0 32 32" fill="none" stroke-width="1.6"><path d="M16 4 4 10v2h24v-2L16 4Z"/><path d="M7 12v11M13 12v11M19 12v11M25 12v11M4 27h24"/></svg><div><b>Vendre mon véhicule</b><span>Vente accompagnée, 200 $</span></div></a>
         <a class="action" href="#financement"><svg viewBox="0 0 32 32" fill="none" stroke-width="1.6"><rect x="4" y="8" width="24" height="16" rx="2"/><path d="M4 13h24M9 19h6"/></svg><div><b>Demander un financement</b><span>Frais de dossier, 25 $</span></div></a>
       </div>
@@ -917,19 +917,19 @@ input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:
       <div class="services-grille">
         <article class="service">
           <h3>Consultation automobile</h3>
-          <div class="tarif"><b>150 $</b><span>frais de service</span></div>
+          <div class="tarif"><b>50 $</b><span>frais de service</span></div>
           <p>Un échange personnalisé pour choisir le bon véhicule, définir votre budget et vos critères.</p>
           <a class="btn btn-noir" href="#consultation">Réserver une consultation</a>
         </article>
         <article class="service">
           <h3>Recherche ou achat accompagné</h3>
-          <div class="tarif"><b>150 $</b><span>frais de service</span></div>
+          <div class="tarif"><b>50 $</b><span>frais de service</span></div>
           <p>Nous trouvons un véhicule absent du site, ou nous vous accompagnons pour l'achat d'un véhicule déjà en Haïti.</p>
           <a class="btn btn-noir" href="#recherche">Confier ma recherche</a>
         </article>
         <article class="service">
           <h3>Visite ou essai</h3>
-          <div class="tarif"><b>150 $</b><span>frais de service</span></div>
+          <div class="tarif"><b>50 $</b><span>frais de service</span></div>
           <p>Visite, essai routier ou inspection d'un véhicule disponible en Haïti, confirmés selon sa disponibilité réelle.</p>
           <a class="btn btn-noir" href="#essai">Réserver mon essai</a>
         </article>
@@ -942,7 +942,7 @@ input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:
       </div>
       <div class="encadre">
         <svg aria-hidden="true"><use href="#i-info"/></svg>
-        <p><b>Les frais de service ne sont pas le prix du véhicule.</b> Ils ne constituent ni un acompte de réservation ni des frais de financement. Le dossier de financement coûte 25 $ (ou l'équivalent en gourdes) et ne garantit pas l'approbation. <a href="#conditions">Lire les conditions</a></p>
+        <p><b>Les frais de service de 50 $ couvrent l'accompagnement, l'analyse, la préparation des documents, les démarches administratives et le suivi du client.</b> Ils ne sont pas le prix du véhicule : ils ne constituent ni un acompte de réservation ni des frais de financement. Le dossier de financement coûte 25 $ (ou l'équivalent en gourdes) et ne garantit pas l'approbation. <a href="#conditions">Lire les conditions</a></p>
       </div>
     </div>
   </section>
@@ -973,7 +973,7 @@ input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:
           <ol>
             <li>Vous sélectionnez ou décrivez le véhicule.</li>
             <li>Vous indiquez vos disponibilités.</li>
-            <li>Vous payez 150 $ de frais de service, pas un acompte.</li>
+            <li>Vous payez 50 $ de frais de service, pas un acompte.</li>
             <li>Nous confirmons le rendez-vous selon la disponibilité réelle.</li>
           </ol>
           <a class="btn btn-noir" href="#essai">Réserver mon essai</a>
@@ -1010,7 +1010,7 @@ input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:
       <div class="sec-tete"><h2>Questions fréquentes</h2><p>Les réponses aux questions que l'on nous pose le plus souvent.</p></div>
       <div class="faq">
         <details><summary>Où se trouve Elite Auto Deal ?</summary><p>Elite Auto Deal est situé au 33, Rue Faustin 1er, Delmas 33, Port-au-Prince, Haïti. Les services s'adressent aux clients de Delmas et de toute la région de Port-au-Prince.</p></details>
-        <details><summary>Combien coûtent vos services ?</summary><p>La consultation automobile, la recherche ou l'achat accompagné et la visite ou l'essai coûtent 150 $ chacun. La vente d'un véhicule confié coûte 200 $ (non remboursable) et le dossier de financement 25 $ (ou l'équivalent en gourdes). Ces frais de service ne sont pas le prix du véhicule.</p></details>
+        <details><summary>Combien coûtent vos services ?</summary><p>La consultation automobile, la recherche ou l'achat accompagné et la visite ou l'essai coûtent 50 $ chacun et couvrent l'accompagnement, l'analyse, la préparation des documents, les démarches administratives et le suivi du client. La vente d'un véhicule confié coûte 200 $ (non remboursable) et le dossier de financement 25 $ (ou l'équivalent en gourdes). Ces frais de service ne sont pas le prix du véhicule.</p></details>
         <details><summary>Comment fonctionne une précommande ?</summary><p>Pour un véhicule publié qui n'est pas encore arrivé en Haïti, vous versez 90 % du prix en ligne, vous suivez l'expédition avec votre référence, puis vous réglez les 10 % restants à l'arrivée du véhicule en Haïti.</p></details>
         <details><summary>Quels moyens de paiement acceptez-vous ?</summary><p>Vous pouvez payer en ligne par MonCash, Natcash ou carte bancaire, via Freda Pay Issuing. Un paiement est confirmé uniquement par le prestataire de paiement. Les montants en gourdes sont calculés au taux affiché au moment du paiement.</p></details>
         <details><summary>Les frais de service sont-ils remboursables ?</summary><p>Les frais de dossier de financement, de consultation et de vente sont non remboursables. Les frais de recherche et de visite sont acquis dès la prise en charge du dossier.</p></details>
@@ -1139,7 +1139,7 @@ input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:
   <div class="wrap">
     <div class="page-tete"><div class="fil"><a href="#accueil">Accueil</a> / Consultation</div>
       <div class="rang"><div><h1>Consultation automobile</h1><p class="lead">Un accompagnement personnalisé : choix du véhicule, conseils, recherche ou orientation selon vos besoins.</p></div>
-      <div class="etiquette-prix"><b>150 $</b><span>frais de service, non remboursables</span></div></div>
+      <div class="etiquette-prix"><b>50 $</b><span>frais de service, non remboursables</span></div></div>
     </div>
     <div class="parcours" data-service="consultation">
       <div class="parcours-principal">
@@ -1182,7 +1182,7 @@ input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:
   <div class="wrap">
     <div class="page-tete"><div class="fil"><a href="#accueil">Accueil</a> / Trouver un véhicule</div>
       <div class="rang"><div><h1>Votre recherche automobile</h1><p class="lead">Un véhicule absent du site, ou un véhicule déjà en Haïti que vous voulez acheter ou faire inspecter avec nous.</p></div>
-      <div class="etiquette-prix"><b>150 $</b><span>frais de service, pas un acompte</span></div></div>
+      <div class="etiquette-prix"><b>50 $</b><span>frais de service, pas un acompte</span></div></div>
     </div>
     <div class="parcours" data-service="recherche">
       <div class="parcours-principal">
@@ -1231,7 +1231,7 @@ input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:
   <div class="wrap">
     <div class="page-tete"><div class="fil"><a href="#accueil">Accueil</a> / Réserver un essai</div>
       <div class="rang"><div><h1>Réserver mon essai</h1><p class="lead">Visite, essai routier ou inspection d'un véhicule déjà en Haïti. Le rendez-vous est confirmé selon la disponibilité réelle du véhicule.</p></div>
-      <div class="etiquette-prix"><b>150 $</b><span>frais de service, pas un acompte</span></div></div>
+      <div class="etiquette-prix"><b>50 $</b><span>frais de service, pas un acompte</span></div></div>
     </div>
     <div class="parcours" data-service="essai">
       <div class="parcours-principal">
@@ -1436,7 +1436,7 @@ input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:
   <div class="wrap legal" style="padding-bottom:clamp(40px,6vw,80px)">
     <div class="page-tete"><div class="fil"><a href="#accueil">Accueil</a> / Conditions</div><h1>Conditions des services</h1><p class="lead">Ces conditions sont présentées avant chaque paiement. Texte type à valider par Elite Auto Deal.</p></div>
     <h2>Frais de service</h2>
-    <p>Consultation (150 $), recherche ou achat accompagné (150 $), visite ou essai (150 $), vente d'un véhicule confié (200 $) et dossier de financement (25 $ ou l'équivalent en gourdes) sont des frais de service. Ils ne constituent ni le prix d'un véhicule, ni un acompte de réservation, ni des frais de financement.</p>
+    <p>Consultation (50 $), recherche ou achat accompagné (50 $), visite ou essai (50 $), vente d'un véhicule confié (200 $) et dossier de financement (25 $ ou l'équivalent en gourdes) sont des frais de service. Les 50 $ couvrent l'accompagnement, l'analyse, la préparation des documents, les démarches administratives et le suivi du client. Ils ne constituent ni le prix d'un véhicule, ni un acompte de réservation, ni des frais de financement.</p>
     <h2>Remboursement</h2>
     <p>Les frais de dossier de financement, de consultation et de vente sont non remboursables. Les frais de recherche et de visite sont acquis dès la prise en charge du dossier.</p>
     <h2>Précommande</h2>
@@ -1501,7 +1501,7 @@ input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:
 /* ---------- Réglages ---------- */
 let TAUX_HTG = 132;           // 1 USD = 132 HTG (taux affiché, modifiable par l'administrateur)
 let TAUX_DATE = "12 novembre 2026";
-const TARIFS = {consultation:150,recherche:150,essai:150,vendre:200,financement:25};
+const TARIFS = {consultation:50,recherche:50,essai:50,vendre:200,financement:25};
 let MODE_REEL = false, CONFIG = null;
 let WA_NUM = "50942405729";
 const ANNEE = 2026;
@@ -1787,17 +1787,17 @@ const SERV={
    statuts:["Paiement confirmé","Préparation du véhicule et des documents","Livraison planifiée","Livré"]},
  consultation:{titre:"Consultation automobile",court:"Consultation",montant:()=>TARIFS.consultation,
    nature:"Frais de service — consultation",
-   cond:"J'accepte que les frais de consultation de 150 $ sont non remboursables et ne constituent pas un acompte sur un véhicule.",
+   cond:"J'accepte que les frais de consultation de 50 $ sont non remboursables et ne constituent pas un acompte sur un véhicule.",
    suite:["Un conseiller vous écrit sur WhatsApp dans les 24 heures ouvrables.","Vous convenez ensemble de la date de la consultation."],
    statuts:["Paiement confirmé","Prise de contact sur WhatsApp","Consultation planifiée","Consultation effectuée"]},
  recherche:{titre:"Recherche personnalisée ou achat accompagné",court:"Recherche",montant:()=>TARIFS.recherche,
    nature:"Frais de service — recherche ou accompagnement",
-   cond:"Je comprends que les 150 $ sont des frais de service : ce n'est ni le prix du véhicule, ni un acompte, ni des frais de financement.",
+   cond:"Je comprends que les 50 $ sont des frais de service : ce n'est ni le prix du véhicule, ni un acompte, ni des frais de financement.",
    suite:["Votre demande est prise en charge par un conseiller.","Nous vous écrivons sur WhatsApp pour affiner vos critères.","Vous recevez les véhicules correspondants dès qu'ils sont trouvés."],
    statuts:["Paiement confirmé","Prise de contact sur WhatsApp","Recherche en cours","Proposition de véhicule","Dossier clôturé"]},
  essai:{titre:"Réservation d'une visite ou d'un essai",court:"Visite ou essai",montant:()=>TARIFS.essai,
    nature:"Frais de service — visite, essai ou inspection",
-   cond:"Je comprends que les 150 $ sont des frais de service et non un acompte sur le véhicule, et que le rendez-vous est confirmé selon la disponibilité réelle du véhicule.",
+   cond:"Je comprends que les 50 $ sont des frais de service et non un acompte sur le véhicule, et que le rendez-vous est confirmé selon la disponibilité réelle du véhicule.",
    suite:["Nous vérifions la disponibilité réelle du véhicule.","Vous recevez la confirmation du rendez-vous sur WhatsApp.","Le jour venu, un conseiller vous accompagne."],
    statuts:["Paiement confirmé","Disponibilité du véhicule vérifiée","Rendez-vous confirmé","Visite ou essai effectué"]},
  vendre:{titre:"Service de vente d'un véhicule",court:"Vente",montant:()=>TARIFS.vendre,
@@ -2159,7 +2159,7 @@ function occupe(f,oui,txt){const b=f.querySelector("button[type=submit]");if(!b)
 function memoRef(r){CPT.ref=r;try{sessionStorage.setItem("ead-compte-ref",r);}catch(_){}}
 
 /* Démonstration : compte enregistré sur cet appareil */
-const DEMO_MONTANTS={precommande:20250,consultation:150,recherche:150,essai:150,vendre:200,financement:25};
+const DEMO_MONTANTS={precommande:20250,consultation:50,recherche:50,essai:50,vendre:200,financement:25};
 function lireDemo(){try{return JSON.parse(localStorage.getItem(CLE_DEMO)||"null");}catch(_){return null;}}
 function ecrireDemo(c){try{c?localStorage.setItem(CLE_DEMO,JSON.stringify(c)):localStorage.removeItem(CLE_DEMO);}catch(_){}}
 function demoDossiers(){

@@ -23,6 +23,13 @@ export async function migrer() {
   await q(readFileSync(new URL("./schema.sql", import.meta.url), "utf8"));
   for (const [cle, valeur] of Object.entries(PARAMETRES_DEFAUT))
     await q("insert into parametres(cle, valeur) values ($1,$2) on conflict (cle) do nothing", [cle, JSON.stringify(valeur)]);
+  // Nouveaux frais de service (50 $ au lieu de 150 $) : appliqués une seule fois aux bases existantes qui avaient encore l'ancien tarif
+  if (!(await un("select 1 from parametres where cle='migration_tarifs_50'"))) {
+    const t = await un("select valeur from parametres where cle='tarifs'");
+    if (t) { const v = t.valeur; let change = false; for (const k of ["consultation", "recherche", "essai"]) if (Number(v[k]) === 150) { v[k] = 50; change = true; }
+      if (change) await q("update parametres set valeur=$1 where cle='tarifs'", [JSON.stringify(v)]); }
+    await q("insert into parametres(cle, valeur) values ('migration_tarifs_50', 'true') on conflict (cle) do nothing");
+  }
   const { n } = await un("select count(*)::int n from vehicules");
   if (n === 0) {
     const ph = COLS_VEHICULE.map((_, i) => "$" + (i + 1)).join(",");

@@ -6,7 +6,7 @@ http.createServer((req, res) => {
     const send = (s, j) => { res.writeHead(s, { "Content-Type": "application/json" }); res.end(JSON.stringify(j)); };
     if (req.method === "POST" && req.url === "/v3/smtp/email") {
       if (req.headers["api-key"] !== "xkeysib-test") return send(401, { message: "clé" });
-      const j = JSON.parse(b); MAILS.push({ a: j.to[0].email, sujet: j.subject, texte: j.textContent, html: j.htmlContent });
+      const j = JSON.parse(b); MAILS.push({ a: j.to[0].email, sujet: j.subject, texte: j.textContent, html: j.htmlContent, pieces: (j.attachment || []).map(p => ({ nom: p.name, octets: Buffer.from(p.content, "base64").length, debut: Buffer.from(p.content, "base64").subarray(0, 5).toString() })) });
       return send(201, { messageId: "<test@brevo>" });
     }
     if (req.method === "GET" && req.url.startsWith("/_emails")) {

@@ -409,6 +409,20 @@ body.booting .main,body.booting .tabbar,body.booting .nav{visibility:hidden}
 .tbl td.acts .btn{white-space:nowrap}
 .telv{display:inline-flex;flex-direction:column;align-items:flex-end;gap:2px}@media (min-width:761px){.telv{align-items:flex-start}}
 @media (max-width:760px){.tbl td.acts .btn{white-space:normal;text-align:left}}
+.dv-eyebrow{display:inline-block;font-size:12px;font-weight:700;letter-spacing:1.6px;color:var(--rouge);margin-bottom:6px}
+.dv-sub{font-weight:600;letter-spacing:.6px;text-transform:uppercase;font-size:13px;color:var(--g500);margin:4px 0 0}
+.dv-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.dv-ligne{display:grid;grid-template-columns:minmax(0,3fr) 90px 130px 120px 40px;gap:10px;align-items:end;padding:12px 0;border-bottom:1px solid var(--g100)}
+.dv-ligne:first-of-type{padding-top:0}
+.dv-lt{font-weight:700;text-align:right;padding-bottom:11px;white-space:nowrap}
+.dv-x{min-height:44px;width:40px;border-radius:var(--r-s);border:1px solid var(--g200);background:#fff;display:grid;place-items:center;color:var(--g500)}
+.dv-x:hover{color:var(--rouge);border-color:var(--rouge)}.dv-x svg{width:18px;height:18px}
+.dv-total{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-top:18px;padding:18px 20px;border-radius:var(--r-m);background:var(--noir);color:#fff}
+.dv-total span{font-size:13px;letter-spacing:1.2px;text-transform:uppercase;color:#C9C9CC;font-weight:600}
+.dv-total b{font-size:clamp(26px,4vw,34px)}
+.dv-actions{display:flex;gap:10px;flex-wrap:wrap}
+.dv-actions .btn{flex:1 1 220px}
+@media (max-width:820px){.dv-grid{grid-template-columns:1fr}.dv-ligne{grid-template-columns:1fr 1fr;grid-template-areas:"d d" "q p" "t x"}.dv-ligne .f-d{grid-area:d}.dv-ligne .f-q{grid-area:q}.dv-ligne .f-p{grid-area:p}.dv-ligne .dv-lt{grid-area:t;text-align:left;padding-bottom:0}.dv-ligne .dv-x{grid-area:x;justify-self:end}}
 </style>
 </head>
 <body class="booting">
@@ -500,7 +514,7 @@ const COLORS={noir:'#1c1c1f',rouge:'#b3171c',blanc:'#e9e9e6',gris:'#8a8a90',arge
 /* ================= Données de démonstration ================= */
 const S={
  rate:132,
- tarifs:{financement:25,consultation:150,vente:200,recherche:150,essai:150,precommande:90},
+ tarifs:{financement:25,consultation:50,vente:200,recherche:50,essai:50,precommande:90},
  clients:[
   {id:'C-104',nom:'Nadège Pierre',tel:'+509 4811 2030',wa:'+509 4811 2030',email:'nadege.pierre@exemple.ht',d:'12 nov.',nb:1,paye:150,reinit:false},
   {id:'C-103',nom:'Jean-Robert Célestin',tel:'+509 3456 7788',wa:'+509 3456 7788',email:'',d:'11 nov.',nb:1,paye:0,reinit:true},
@@ -655,6 +669,7 @@ const ROUTES=[
  {id:'financement',l:'Financement',i:'bank'},
  {id:'precommandes',l:'Précommandes',i:'ship',c:()=>S.pre.filter(p=>p.arr==='arrive'&&p.bal==='attente').length},
  {id:'clients',l:'Clients',i:'user',c:()=>(S.clients||[]).filter(c=>c.reinit).length},
+ {id:'devis',l:'Gestion des devis',i:'file'},
  {id:'rapports',l:'Rapports',i:'chart'},
  {id:'parametres-site',l:'Paramètres du site',i:'gear'}
 ];
@@ -1005,7 +1020,7 @@ V['parametres-site']=()=>{
   return `<div class="head"><div><h1>Paramètres du site</h1><p>Taux de change, tarifs et messages WhatsApp utilisés par les automatisations.</p></div></div>
   <div class="set-grid"><div class="stack">
    <section class="card"><div class="card-h"><h2>Taux de conversion</h2></div><div class="card-b form">
-    <div class="field"><label for="rate">1 USD en gourdes (HTG)</label><input id="rate" inputmode="decimal" value="${S.rate}"><span class="hint">Affiché aux clients avant chaque paiement en gourdes. Exemple : 150 $ = ${fmt(150*S.rate,'HTG')}.</span></div></div></section>
+    <div class="field"><label for="rate">1 USD en gourdes (HTG)</label><input id="rate" inputmode="decimal" value="${S.rate}"><span class="hint">Affiché aux clients avant chaque paiement en gourdes. Exemple : 50 $ = ${fmt(50*S.rate,'HTG')}.</span></div></div></section>
    <section class="card tarifs"><div class="card-h"><h2>Tarifs des services</h2><span class="small muted">USD</span></div><div class="card-b">
     ${Object.entries(S.tarifs).map(([k,v])=>`<div class="trow"><label for="t-${k}">${labels[k]}</label><input id="t-${k}" data-tarif="${k}" inputmode="numeric" value="${v}"></div>`).join('')}
     <p class="small muted" style="margin:10px 0 0">Le solde de précommande est calculé automatiquement : 100 % moins le pourcentage ci-dessus.</p>
@@ -1307,15 +1322,105 @@ function enterLive(){
 async function boot(){
   let ok=false;
   if(/^https?:$/.test(location.protocol)){
-    try{const ctl=new AbortController();const tm=setTimeout(()=>ctl.abort(),4000);
-      const r=await fetch('/api/config',{signal:ctl.signal,headers:{Accept:'application/json'}});clearTimeout(tm);
-      if(r.ok&&(r.headers.get('content-type')||'').includes('json')){CFG=await r.json();ok=!!CFG&&typeof CFG==='object'}}catch(_){}
+    for(let essai=0;essai<2&&!ok;essai++){ // un serveur qui se réveille peut être lent : 2 essais de 20 s
+      try{const ctl=new AbortController();const tm=setTimeout(()=>ctl.abort(),20000);
+        const r=await fetch('/api/config',{signal:ctl.signal,headers:{Accept:'application/json'}});clearTimeout(tm);
+        if(!r.ok||!(r.headers.get('content-type')||'').includes('json'))break;
+        CFG=await r.json();ok=!!CFG&&typeof CFG==='object'}catch(_){}
+    }
   }
   if(ok)enterLive();else{document.body.classList.remove('booting');render()}
 }
 
 /* ================= Rendu & événements ================= */
 let LOGO='',MARK='';
+/* ================= Gestion des devis ================= */
+const DV={id:null,f:{nom:'',email:'',tel:'',frais:''},lignes:[{description:'',quantite:'1',prix_unitaire:''}],list:[],busy:false};
+const dvNum=v=>{const n=Number(String(v==null?'':v).replace(/\s/g,'').replace(',','.'));return isFinite(n)?n:0};
+const dvMoney=n=>(Math.round((n+Number.EPSILON)*100)/100).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,' ').replace('.',',')+' $';
+const dvTotal=()=>DV.lignes.reduce((t,l)=>t+Math.round(dvNum(l.quantite)*dvNum(l.prix_unitaire)*100)/100,0)+dvNum(DV.f.frais);
+const DV_ST={brouillon:['Brouillon','b-g'],envoye:['Envoyé par email','b-ok'],partage:['Partagé sur WhatsApp','b-n']};
+LOADERS.devis=()=>api('/api/admin/devis').then(r=>{DV.list=r||[]});
+NEEDS.devis=['devis'];
+function dvLigne(l,i){
+  const t=Math.round(dvNum(l.quantite)*dvNum(l.prix_unitaire)*100)/100;
+  return `<div class="dv-ligne" data-i="${i}">
+   <div class="field f-d"><label for="dv-d${i}">Description du service ou véhicule</label><input id="dv-d${i}" data-dvl="${i}" data-k="description" value="${esc(l.description)}" maxlength="300" placeholder="Ex. Consultation automobile, Toyota RAV4 2016…"></div>
+   <div class="field f-q"><label for="dv-q${i}">Quantité</label><input id="dv-q${i}" data-dvl="${i}" data-k="quantite" inputmode="decimal" value="${esc(l.quantite)}"></div>
+   <div class="field f-p"><label for="dv-p${i}">Prix unitaire ($)</label><input id="dv-p${i}" data-dvl="${i}" data-k="prix_unitaire" inputmode="decimal" value="${esc(l.prix_unitaire)}" placeholder="0,00"></div>
+   <div class="dv-lt" data-lt="${i}">${dvMoney(t)}</div>
+   <button class="dv-x" type="button" data-dv="rm" data-i="${i}" aria-label="Retirer la ligne ${i+1}" ${DV.lignes.length<2?'disabled':''}>${ic('x')}</button></div>`;
+}
+function dvListe(){
+  if(!DV.list.length)return `<div class="empty"><b>Aucun devis pour le moment</b>Les devis que vous créez apparaissent ici.</div>`;
+  return `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Devis</th><th>Client</th><th class="r">Total</th><th>Statut</th><th>Date</th><th class="r">Actions</th></tr></thead><tbody>${DV.list.map(d=>{const st=DV_ST[d.statut]||DV_ST.brouillon;
+   return `<tr><td><b>${esc(d.numero)}</b></td><td>${esc(d.client_nom)}<div class="small muted">${esc(d.client_email||d.client_tel||'')}</div></td><td class="r"><b>${dvMoney(+d.total_usd)}</b></td><td><span class="badge ${st[1]}">${st[0]}</span></td><td>${esc(fdate(d.cree_le))}</td>
+   <td class="r"><div style="display:inline-flex;gap:6px;flex-wrap:wrap;justify-content:flex-end"><button class="btn btn-t btn-sm" data-dv="edit" data-id="${d.id}">Modifier</button><button class="btn btn-t btn-sm" data-dv="lpdf" data-id="${d.id}">PDF</button><button class="btn btn-t btn-sm" data-dv="lmail" data-id="${d.id}">Email</button><button class="btn btn-t btn-sm" data-dv="lwa" data-id="${d.id}">WhatsApp</button><button class="btn btn-t btn-sm" data-dv="del" data-id="${d.id}" aria-label="Supprimer ${esc(d.numero)}">${ic('x')}</button></div></td></tr>`}).join('')}</tbody></table></div>`;
+}
+V.devis=()=>`<div class="head"><div><span class="dv-eyebrow">ESPACE ADMINISTRATEUR</span><h1>Créer un devis</h1><p class="dv-sub">ELITE AUTO DEAL · Gestion commerciale</p></div></div>
+ <section class="card"><div class="card-b"><div class="empty"><b>Disponible une fois connecté au serveur</b>La gestion des devis (PDF, email, WhatsApp) fonctionne avec le tableau de bord réel, sur le site en ligne.</div></div></section>`;
+VL.devis=()=>`<div class="head"><div><span class="dv-eyebrow">ESPACE ADMINISTRATEUR</span><h1>Créer un devis</h1><p class="dv-sub">ELITE AUTO DEAL · Gestion commerciale</p></div>
+  <div class="actions">${DV.id?`<button class="btn btn-t" type="button" data-dv="reset">${ic('plus')}Nouveau devis</button>`:''}</div></div>
+ <form id="dvForm" novalidate autocomplete="off">
+ <section class="card" style="margin-bottom:18px"><div class="card-h"><h2>Informations du client</h2></div><div class="card-b"><div class="dv-grid">
+   <div class="field"><label for="dv-nom">Nom et prénom</label><input id="dv-nom" data-dvf="nom" value="${esc(DV.f.nom)}" maxlength="120" autocomplete="off"></div>
+   <div class="field"><label for="dv-email">Email</label><input id="dv-email" data-dvf="email" type="email" value="${esc(DV.f.email)}" maxlength="160" autocomplete="off"></div>
+   <div class="field"><label for="dv-tel">Téléphone / WhatsApp</label><input id="dv-tel" data-dvf="tel" type="tel" value="${esc(DV.f.tel)}" maxlength="40" placeholder="+509 0000 0000" autocomplete="off"></div></div></div></section>
+ <section class="card" style="margin-bottom:18px"><div class="card-h"><h2>Détails du devis</h2><span class="small muted">USD</span></div><div class="card-b">
+   <div id="dvLignes">${DV.lignes.map(dvLigne).join('')}</div>
+   <button class="btn btn-t btn-sm" type="button" data-dv="add" style="margin-top:12px">${ic('plus')}Ajouter une ligne</button>
+   <div class="field" style="max-width:260px;margin-top:18px"><label for="dv-frais">Frais supplémentaires ($)</label><input id="dv-frais" data-dvf="frais" inputmode="decimal" value="${esc(DV.f.frais)}" placeholder="0,00"></div>
+   <div class="dv-total" aria-live="polite"><span>Total automatique</span><b id="dvTotal">${dvMoney(dvTotal())}</b></div></div></section>
+ <section class="card" style="margin-bottom:18px"><div class="card-h"><h2>Actions</h2></div><div class="card-b"><div class="dv-actions">
+   <button class="btn btn-n" type="button" data-dv="pdf">${ic('file')}Générer le devis en PDF</button>
+   <button class="btn btn-p" type="button" data-dv="mail">${ic('send')}Envoyer directement par Email</button>
+   <button class="btn btn-wa" type="button" data-dv="wa">${ic('wa')}Partager par WhatsApp</button></div>
+   <p class="small muted" style="margin:12px 0 0">Chaque action enregistre d'abord le devis${DV.id?' (modification du devis en cours)':''}. Le total est recalculé par le serveur.</p></div></section>
+ </form>
+ <section class="card"><div class="card-h"><h2>Devis récents</h2><span class="small muted num">${DV.list.length}</span></div><div class="card-b" style="padding:0" id="dvListe">${dvListe()}</div></section>`;
+function dvMajTotal(){const t=$('#dvTotal');if(t)t.textContent=dvMoney(dvTotal());DV.lignes.forEach((l,i)=>{const e=document.querySelector(`[data-lt="${i}"]`);if(e)e.textContent=dvMoney(Math.round(dvNum(l.quantite)*dvNum(l.prix_unitaire)*100)/100)})}
+function dvCorps(){return {client_nom:DV.f.nom,client_email:DV.f.email,client_tel:DV.f.tel,frais_supplementaires:DV.f.frais===''?0:dvNum(DV.f.frais),lignes:DV.lignes.map(l=>({description:l.description,quantite:dvNum(l.quantite),prix_unitaire:dvNum(l.prix_unitaire)}))}}
+async function dvEnregistrer(){
+  const d=DV.id?await api('/api/admin/devis/'+DV.id,{method:'PATCH',body:dvCorps()}):await api('/api/admin/devis',{method:'POST',body:dvCorps()});
+  DV.id=d.id;LV.loaded.devis=0;return d;
+}
+async function dvRafraichir(){try{await load(['devis'],true)}catch(_){}if(current()==='devis')render()}
+async function dvPdf(id,w){
+  const r=await fetch('/api/admin/devis/'+id+'/pdf',{headers:{Authorization:'Bearer '+TOKEN}});
+  if(!r.ok){if(w)w.close();throw new Error('Le PDF n\'a pas pu être généré.')}
+  const url=URL.createObjectURL(await r.blob());
+  if(w&&!w.closed)w.location.href=url;else{const a=document.createElement('a');a.href=url;a.download='devis.pdf';document.body.appendChild(a);a.click();a.remove()}
+  setTimeout(()=>URL.revokeObjectURL(url),60000);
+}
+async function dvAction(kind,id){
+  if(DV.busy)return;DV.busy=true;
+  const w=(kind==='pdf'||kind==='wa'||kind==='lpdf'||kind==='lwa')?window.open('about:blank','_blank'):null;
+  document.querySelectorAll('[data-dv]').forEach(b=>b.disabled=true);
+  try{
+    let did=id;
+    if(!id){const d=await dvEnregistrer();did=d.id}
+    if(kind==='pdf'||kind==='lpdf'){await dvPdf(did,w);toast('Devis PDF généré')}
+    else if(kind==='mail'||kind==='lmail'){const d=await api(`/api/admin/devis/${did}/email`,{method:'POST',body:{}});toast(`Devis ${d.numero} envoyé à ${d.client_email}`)}
+    else{const r=await api(`/api/admin/devis/${did}/whatsapp`,{method:'POST',body:{}});if(w&&!w.closed)w.location.href=r.lien_whatsapp;else window.open(r.lien_whatsapp,'_blank');toast('WhatsApp ouvert avec le message du devis')}
+  }catch(e){if(w)w.close();fail(e)}
+  finally{DV.busy=false;await dvRafraichir()}
+}
+document.addEventListener('input',e=>{
+  const t=e.target;if(!t.closest||!t.closest('#dvForm'))return;
+  if(t.dataset.dvf){DV.f[t.dataset.dvf]=t.value;if(t.dataset.dvf==='frais')dvMajTotal()}
+  else if(t.dataset.dvl!==undefined){DV.lignes[+t.dataset.dvl][t.dataset.k]=t.value;dvMajTotal()}
+});
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-dv]');if(!b||!$('#view').contains(b))return;
+  const k=b.dataset.dv;
+  if(k==='add'){if(DV.lignes.length>=30)return toastErr('30 lignes maximum.');DV.lignes.push({description:'',quantite:'1',prix_unitaire:''});render();const i=DV.lignes.length-1;const el=$('#dv-d'+i);el&&el.focus();return}
+  if(k==='rm'){DV.lignes.splice(+b.dataset.i,1);render();return}
+  if(k==='reset'){DV.id=null;DV.f={nom:'',email:'',tel:'',frais:''};DV.lignes=[{description:'',quantite:'1',prix_unitaire:''}];render();return}
+  if(k==='edit'){const d=DV.list.find(x=>String(x.id)===b.dataset.id);if(!d)return;DV.id=d.id;DV.f={nom:d.client_nom||'',email:d.client_email||'',tel:d.client_tel||'',frais:+d.frais_supplementaires?String(d.frais_supplementaires):''};DV.lignes=(d.lignes||[]).map(l=>({description:l.description,quantite:String(l.quantite),prix_unitaire:String(l.prix_unitaire)}));render();window.scrollTo({top:0,behavior:'smooth'});return}
+  if(k==='del'){const d=DV.list.find(x=>String(x.id)===b.dataset.id);return confirmBox('Supprimer ce devis ?',`Le devis ${esc(d.numero)} de ${esc(d.client_nom)} sera supprimé définitivement. Un lien WhatsApp déjà partagé ne fonctionnera plus.`,'Supprimer',async()=>{try{await api('/api/admin/devis/'+d.id,{method:'DELETE'});if(DV.id===d.id){DV.id=null}toast('Devis supprimé');await dvRafraichir()}catch(err){fail(err)}},true)}
+  if(['pdf','mail','wa'].includes(k))return dvAction(k);
+  if(['lpdf','lmail','lwa'].includes(k))return dvAction(k,b.dataset.id);
+});
 function render(){baseRender()}
 function baseRender(){
   const id=current();renderNav();

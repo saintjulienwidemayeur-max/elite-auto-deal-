@@ -5,6 +5,7 @@ Disallow: /admin
 Disallow: /admin.html
 Disallow: /api/
 Disallow: /webhooks/
+Disallow: /devis/
 Disallow: /sante
 
 User-agent: Googlebot
@@ -13,6 +14,7 @@ Disallow: /admin
 Disallow: /admin.html
 Disallow: /api/
 Disallow: /webhooks/
+Disallow: /devis/
 
 User-agent: Bingbot
 Allow: /
@@ -20,6 +22,7 @@ Disallow: /admin
 Disallow: /admin.html
 Disallow: /api/
 Disallow: /webhooks/
+Disallow: /devis/
 
 User-agent: GPTBot
 Allow: /
@@ -27,6 +30,7 @@ Disallow: /admin
 Disallow: /admin.html
 Disallow: /api/
 Disallow: /webhooks/
+Disallow: /devis/
 
 User-agent: OAI-SearchBot
 Allow: /
@@ -34,6 +38,7 @@ Disallow: /admin
 Disallow: /admin.html
 Disallow: /api/
 Disallow: /webhooks/
+Disallow: /devis/
 
 User-agent: ChatGPT-User
 Allow: /
@@ -41,6 +46,7 @@ Disallow: /admin
 Disallow: /admin.html
 Disallow: /api/
 Disallow: /webhooks/
+Disallow: /devis/
 
 User-agent: ClaudeBot
 Allow: /
@@ -48,6 +54,7 @@ Disallow: /admin
 Disallow: /admin.html
 Disallow: /api/
 Disallow: /webhooks/
+Disallow: /devis/
 
 User-agent: Claude-SearchBot
 Allow: /
@@ -55,6 +62,7 @@ Disallow: /admin
 Disallow: /admin.html
 Disallow: /api/
 Disallow: /webhooks/
+Disallow: /devis/
 
 User-agent: Claude-User
 Allow: /
@@ -62,6 +70,7 @@ Disallow: /admin
 Disallow: /admin.html
 Disallow: /api/
 Disallow: /webhooks/
+Disallow: /devis/
 
 User-agent: PerplexityBot
 Allow: /
@@ -69,6 +78,7 @@ Disallow: /admin
 Disallow: /admin.html
 Disallow: /api/
 Disallow: /webhooks/
+Disallow: /devis/
 
 User-agent: Perplexity-User
 Allow: /
@@ -76,6 +86,7 @@ Disallow: /admin
 Disallow: /admin.html
 Disallow: /api/
 Disallow: /webhooks/
+Disallow: /devis/
 
 User-agent: Google-Extended
 Allow: /
@@ -83,6 +94,7 @@ Disallow: /admin
 Disallow: /admin.html
 Disallow: /api/
 Disallow: /webhooks/
+Disallow: /devis/
 
 User-agent: Applebot
 Allow: /
@@ -90,6 +102,7 @@ Disallow: /admin
 Disallow: /admin.html
 Disallow: /api/
 Disallow: /webhooks/
+Disallow: /devis/
 
 User-agent: Applebot-Extended
 Allow: /
@@ -97,5 +110,6 @@ Disallow: /admin
 Disallow: /admin.html
 Disallow: /api/
 Disallow: /webhooks/
+Disallow: /devis/
 
 Sitemap: https://eliteautodeal.com/sitemap.xml

@@ -49,3 +49,10 @@ Renseigner `BREVO_API_KEY` et `EMAIL_EXPEDITEUR` (adresse validée dans Brevo �
 - `robots.txt` (admin, API et webhooks exclus ; Google, Bing et assistants IA autorisés), `sitemap.xml`, `llms.txt` (résumé pour les assistants IA), `manifest.webmanifest` (installation sur mobile).
 - `/admin`, `/api`, `/webhooks` et `/sante` envoient `X-Robots-Tag: noindex`.
 - Les adresses du site sont en dur sur `https://eliteautodeal.com` : à modifier dans `sources/site.src.html`, `public/robots.txt`, `sitemap.xml` et `llms.txt` si le domaine change.
+
+## Gestion des devis
+Dans l'administration, « Gestion des devis » permet de créer un devis (client, lignes, frais supplémentaires, total automatique), de le générer en PDF, de l'envoyer par email (PDF en pièce jointe, via Brevo) ou de le partager sur WhatsApp (lien PDF public non devinable). Optionnel : `DEVIS_VALIDITE_JOURS` ajoute une mention de validité dans le PDF.
+
+## Tarifs
+Consultation, recherche/achat accompagné et visite/essai : 50 $ (accompagnement, analyse, préparation des documents, démarches administratives et suivi du client). Vente d'un véhicule confié : 200 $. Dossier de financement : 25 $. Les bases existantes qui avaient encore 150 $ passent automatiquement à 50 $ au premier démarrage (une seule fois ; l'admin peut ensuite modifier les tarifs).
+

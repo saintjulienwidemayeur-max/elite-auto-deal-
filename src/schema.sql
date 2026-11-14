@@ -145,3 +145,21 @@ create index if not exists otp_codes_client_idx on otp_codes(client_id, finalite
 -- Moyens de paiement : MonCash et Natcash séparés ('mobile' = anciens paiements, avant la séparation)
 alter table paiements drop constraint if exists paiements_methode_check;
 alter table paiements add constraint paiements_methode_check check (methode in ('mobile','moncash','natcash','carte'));
+
+-- Gestion des devis (espace administrateur)
+create table if not exists devis (
+  id bigserial primary key,
+  numero text not null unique,
+  jeton text not null unique,                 -- lien public non devinable du PDF (partage WhatsApp)
+  client_nom text not null,
+  client_email text,
+  client_tel text,
+  lignes jsonb not null default '[]'::jsonb,  -- [{description, quantite, prix_unitaire}]
+  frais_supplementaires numeric(12,2) not null default 0,
+  total_usd numeric(12,2) not null,
+  statut text not null default 'brouillon' check (statut in ('brouillon','envoye','partage')),
+  envoye_le timestamptz,
+  cree_le timestamptz not null default now(),
+  maj_le timestamptz not null default now()
+);
+create index if not exists devis_cree_idx on devis(cree_le desc);

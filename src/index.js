@@ -11,7 +11,8 @@ import { q, un, tous, migrer, parametres, journaliser, transaction } from "./db.
 import { SERVICES, COLS_VEHICULE } from "./catalogue.js";
 import { creerPaiement, lirePaiement, signatureValide, modeFreda, fredaConfiguree, ErreurFreda } from "./freda.js";
 import { enregistrer, servir, servirPublic, supprimer } from "./stockage.js";
-import { envoyerEmail, emailConfigure, emailBienvenue, emailCode } from "./email.js";
+import { envoyerEmail, emailConfigure, emailBienvenue, emailCode, emailDevis } from "./email.js";
+import { validerDevis, genererPdf, montant as montantDevis } from "./devis.js";
 
 const PORT = process.env.PORT || 3000;
 const PUBLIC_URL = (process.env.PUBLIC_URL || `http://localhost:${PORT}`).replace(/\/$/, "");
@@ -69,7 +70,7 @@ app.use(helmet({
   },
 }));
 // L'administration, l'API et les webhooks ne doivent jamais être indexés (moteurs de recherche et IA)
-app.use(["/admin", "/admin.html", "/api", "/webhooks", "/sante"], (_req, res, next) => { res.set("X-Robots-Tag", "noindex, nofollow, noarchive"); next(); });
+app.use(["/admin", "/admin.html", "/api", "/webhooks", "/sante", "/devis"], (_req, res, next) => { res.set("X-Robots-Tag", "noindex, nofollow, noarchive"); next(); });
 app.use(express.json({ limit: "200kb" }));
 
 /* ---------- Changement de statut d'un paiement (webhook ou vérification) ---------- */
@@ -728,6 +729,54 @@ app.post("/api/admin/vehicules/:id/photos/:pid/principale", enveloppe(async (req
   res.json(await vehiculeAdmin(req.params.id));
 }));
 
+/* Devis (espace administrateur : Gestion des devis) */
+const VUE_DEVIS = "id, numero, jeton, client_nom, client_email, client_tel, lignes, frais_supplementaires, total_usd, statut, envoye_le, cree_le, maj_le";
+const devisParId = async id => { const d = await un(`select ${VUE_DEVIS} from devis where id=$1`, [Number(id) || 0]); if (!d) throw err(404, "INTROUVABLE", "Devis introuvable."); return d; };
+const verifier = b => { try { return validerDevis(b); } catch (e) { throw err(400, "DEVIS", e.message); } };
+const nomPdf = d => `Devis-${d.numero}.pdf`;
+const lienPdf = d => `${PUBLIC_URL}/devis/${d.jeton}.pdf`;
+app.get("/api/admin/devis", enveloppe(async (_req, res) => res.json(await tous(`select ${VUE_DEVIS} from devis order by cree_le desc limit 200`))));
+app.post("/api/admin/devis", enveloppe(async (req, res) => {
+  const v = verifier(req.body);
+  const { id } = await un("select nextval(pg_get_serial_sequence('devis','id'))::int id");
+  const numero = `DV-${new Date().getFullYear()}-${String(id).padStart(4, "0")}`;
+  const d = await un(`insert into devis(id, numero, jeton, client_nom, client_email, client_tel, lignes, frais_supplementaires, total_usd)
+    values ($1,$2,$3,$4,$5,$6,$7,$8,$9) returning ${VUE_DEVIS}`, [id, numero, crypto.randomBytes(24).toString("base64url"), v.client_nom, v.client_email, v.client_tel, JSON.stringify(v.lignes), v.frais_supplementaires, v.total_usd]);
+  await journaliser(null, `Devis ${numero} créé pour ${v.client_nom} (${montantDevis(v.total_usd)})`, "devis", "administrateur");
+  res.status(201).json(d);
+}));
+app.patch("/api/admin/devis/:id", enveloppe(async (req, res) => {
+  await devisParId(req.params.id); const v = verifier(req.body);
+  res.json(await un(`update devis set client_nom=$2, client_email=$3, client_tel=$4, lignes=$5, frais_supplementaires=$6, total_usd=$7, maj_le=now() where id=$1 returning ${VUE_DEVIS}`,
+    [Number(req.params.id), v.client_nom, v.client_email, v.client_tel, JSON.stringify(v.lignes), v.frais_supplementaires, v.total_usd]));
+}));
+app.delete("/api/admin/devis/:id", enveloppe(async (req, res) => { const d = await devisParId(req.params.id); await q("delete from devis where id=$1", [d.id]); await journaliser(null, `Devis ${d.numero} supprimé`, "devis", "administrateur"); res.json({ ok: true }); }));
+app.get("/api/admin/devis/:id/pdf", enveloppe(async (req, res) => {
+  const d = await devisParId(req.params.id);
+  res.set({ "Content-Type": "application/pdf", "Content-Disposition": `inline; filename="${nomPdf(d)}"`, "Cache-Control": "no-store" }).send(await genererPdf(d));
+}));
+app.post("/api/admin/devis/:id/email", limiteur(30, 15 * 60e3), enveloppe(async (req, res) => {
+  const d = await devisParId(req.params.id);
+  if (!d.client_email) throw err(400, "EMAIL", "Ajoutez l'adresse email du client pour envoyer le devis par email.");
+  if (!emailConfigure()) throw err(503, "EMAIL_INDISPONIBLE", "L'envoi d'email n'est pas configuré (clé Brevo manquante).");
+  const pdf = await genererPdf(d);
+  const ok = await envoyerEmail({ a: d.client_email, nom: d.client_nom, pieces: [{ nom: nomPdf(d), contenu: pdf }],
+    ...emailDevis({ nom: d.client_nom, numero: d.numero, total: montantDevis(d.total_usd), publicUrl: PUBLIC_URL, whatsapp: process.env.WHATSAPP_NUMERO || "50942405729" }) });
+  if (!ok) throw err(502, "EMAIL", "Brevo n'a pas pu envoyer l'email. Vérifiez la clé API et l'expéditeur validé.");
+  const n = await un(`update devis set statut='envoye', envoye_le=now(), maj_le=now() where id=$1 returning ${VUE_DEVIS}`, [d.id]);
+  await journaliser(null, `Devis ${d.numero} envoyé par email à ${d.client_email}`, "devis", "administrateur");
+  res.json(n);
+}));
+app.post("/api/admin/devis/:id/whatsapp", enveloppe(async (req, res) => {
+  const d = await devisParId(req.params.id);
+  const tel = telNorm(d.client_tel);
+  if (tel.length < 8) throw err(400, "TEL", "Ajoutez le numéro WhatsApp du client pour partager le devis.");
+  const message = `Bonjour ${prenomDe(d.client_nom)}, voici votre devis Elite Auto Deal n° ${d.numero} d'un montant de ${montantDevis(d.total_usd)} : ${lienPdf(d)}`;
+  const n = await un(`update devis set statut=case when statut='envoye' then statut else 'partage' end, maj_le=now() where id=$1 returning ${VUE_DEVIS}`, [d.id]);
+  await journaliser(null, `Devis ${d.numero} partagé par WhatsApp (${d.client_nom})`, "devis", "administrateur");
+  res.json({ devis: n, lien_pdf: lienPdf(d), message, lien_whatsapp: `https://wa.me/${tel}?text=${encodeURIComponent(message)}` });
+}));
+
 /* Clients */
 app.get("/api/admin/clients", enveloppe(async (_req, res) => {
   res.json(await tous(`select c.id, c.nom, c.tel, c.whatsapp, c.email, c.cree_le, c.reinit_demandee,
@@ -812,6 +861,12 @@ app.get("/api/admin/rapports", enveloppe(async (req, res) => {
 /* ---------- Fichiers statiques ---------- */
 app.get("/sante", (_req, res) => res.json({ ok: true, paiement: fredaConfiguree() ? modeFreda() : "non configuré" }));
 app.get(["/admin", "/admin/"], (_req, res) => res.sendFile(path.join(DOSSIER_PUBLIC, "admin.html")));
+// Lien public du devis (non devinable) : utilisé pour le partage WhatsApp
+app.get("/devis/:jeton.pdf", limiteur(60, 10 * 60e3), enveloppe(async (req, res) => {
+  const d = await un(`select ${VUE_DEVIS} from devis where jeton=$1`, [String(req.params.jeton || "")]);
+  if (!d) throw err(404, "INTROUVABLE", "Devis introuvable.");
+  res.set({ "Content-Type": "application/pdf", "Content-Disposition": `inline; filename="${nomPdf(d)}"`, "Cache-Control": "private, no-store" }).send(await genererPdf(d));
+}));
 app.use(express.static(DOSSIER_PUBLIC, { extensions: ["html"], maxAge: "5m" }));
 app.use("/api", (_req, _res, next) => next(err(404, "INTROUVABLE", "Route inconnue.")));
 
