@@ -68,6 +68,8 @@ app.use(helmet({
     },
   },
 }));
+// L'administration, l'API et les webhooks ne doivent jamais être indexés (moteurs de recherche et IA)
+app.use(["/admin", "/admin.html", "/api", "/webhooks", "/sante"], (_req, res, next) => { res.set("X-Robots-Tag", "noindex, nofollow, noarchive"); next(); });
 app.use(express.json({ limit: "200kb" }));
 
 /* ---------- Changement de statut d'un paiement (webhook ou vérification) ---------- */

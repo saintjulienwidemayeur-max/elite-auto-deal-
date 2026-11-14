@@ -41,3 +41,11 @@ Un seul service Node.js sert :
 ## Emails (Brevo)
 À l'inscription avec un email, le client reçoit un email de bienvenue contenant un code à 6 chiffres pour confirmer son adresse. « Mot de passe oublié » envoie aussi un code par email (10 min, 5 essais, 1 envoi/minute) ; sans email enregistré ou sans Brevo, le lien WhatsApp géré par l'admin reste utilisé.
 Renseigner `BREVO_API_KEY` et `EMAIL_EXPEDITEUR` (adresse validée dans Brevo → Senders).
+
+## SEO, GEO et identité
+- `public/` contient le logo (`logo.svg`, `logo-blanc.svg`), les icônes (`favicon.ico/svg`, `icon-192/512`, `icon-maskable-512`, `apple-touch-icon`), l'image de partage `og-image.png` (1200x630) et `logo-email.png` (utilisé dans les emails).
+- Régénérer ces fichiers : `node sources/assets/generate.cjs` (Playwright requis) ; reconstruire les pages : `python3 sources/build.py`.
+- `index.html` : balises SEO/Open Graph/Twitter, données structurées JSON-LD (Organization, AutoDealer avec tarifs, WebSite, WebPage, FAQPage) et section FAQ visible.
+- `robots.txt` (admin, API et webhooks exclus ; Google, Bing et assistants IA autorisés), `sitemap.xml`, `llms.txt` (résumé pour les assistants IA), `manifest.webmanifest` (installation sur mobile).
+- `/admin`, `/api`, `/webhooks` et `/sante` envoient `X-Robots-Tag: noindex`.
+- Les adresses du site sont en dur sur `https://eliteautodeal.com` : à modifier dans `sources/site.src.html`, `public/robots.txt`, `sitemap.xml` et `llms.txt` si le domaine change.

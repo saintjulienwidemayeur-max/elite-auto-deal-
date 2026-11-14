@@ -1,0 +1,101 @@
+# Elite Auto Deal : site public ouvert aux moteurs de recherche et aux assistants IA.
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin.html
+Disallow: /api/
+Disallow: /webhooks/
+Disallow: /sante
+
+User-agent: Googlebot
+Allow: /
+Disallow: /admin
+Disallow: /admin.html
+Disallow: /api/
+Disallow: /webhooks/
+
+User-agent: Bingbot
+Allow: /
+Disallow: /admin
+Disallow: /admin.html
+Disallow: /api/
+Disallow: /webhooks/
+
+User-agent: GPTBot
+Allow: /
+Disallow: /admin
+Disallow: /admin.html
+Disallow: /api/
+Disallow: /webhooks/
+
+User-agent: OAI-SearchBot
+Allow: /
+Disallow: /admin
+Disallow: /admin.html
+Disallow: /api/
+Disallow: /webhooks/
+
+User-agent: ChatGPT-User
+Allow: /
+Disallow: /admin
+Disallow: /admin.html
+Disallow: /api/
+Disallow: /webhooks/
+
+User-agent: ClaudeBot
+Allow: /
+Disallow: /admin
+Disallow: /admin.html
+Disallow: /api/
+Disallow: /webhooks/
+
+User-agent: Claude-SearchBot
+Allow: /
+Disallow: /admin
+Disallow: /admin.html
+Disallow: /api/
+Disallow: /webhooks/
+
+User-agent: Claude-User
+Allow: /
+Disallow: /admin
+Disallow: /admin.html
+Disallow: /api/
+Disallow: /webhooks/
+
+User-agent: PerplexityBot
+Allow: /
+Disallow: /admin
+Disallow: /admin.html
+Disallow: /api/
+Disallow: /webhooks/
+
+User-agent: Perplexity-User
+Allow: /
+Disallow: /admin
+Disallow: /admin.html
+Disallow: /api/
+Disallow: /webhooks/
+
+User-agent: Google-Extended
+Allow: /
+Disallow: /admin
+Disallow: /admin.html
+Disallow: /api/
+Disallow: /webhooks/
+
+User-agent: Applebot
+Allow: /
+Disallow: /admin
+Disallow: /admin.html
+Disallow: /api/
+Disallow: /webhooks/
+
+User-agent: Applebot-Extended
+Allow: /
+Disallow: /admin
+Disallow: /admin.html
+Disallow: /api/
+Disallow: /webhooks/
+
+Sitemap: https://eliteautodeal.com/sitemap.xml

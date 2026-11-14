@@ -23,8 +23,9 @@ export async function envoyerEmail({ a, nom, sujet, html, texte }) {
 const NOIR = "#0B0B0C", ROUGE = "#D7191F", GRIS = "#6E6E75", FOND = "#F6F6F4";
 const publicUrl = () => (process.env.PUBLIC_URL || "").replace(/\/$/, "");
 // Logo : image PNG blanche hébergée par vous (EMAIL_LOGO_URL). Sans elle, le nom de la marque s'affiche en texte.
-const enTete = () => process.env.EMAIL_LOGO_URL
-  ? `<img src="${esc(process.env.EMAIL_LOGO_URL)}" width="190" alt="Elite Auto Deal" style="display:block;border:0;outline:none;height:auto;max-width:190px">`
+const urlLogo = () => process.env.EMAIL_LOGO_URL || (publicUrl().startsWith("https://") ? `${publicUrl()}/logo-email.png` : "");
+const enTete = () => urlLogo()
+  ? `<img src="${esc(urlLogo())}" width="190" alt="Elite Auto Deal" style="display:block;border:0;outline:none;height:auto;max-width:190px">`
   : `<span style="font-size:22px;font-weight:bold;letter-spacing:2px;color:#fff;text-transform:uppercase">Elite Auto Deal</span>`;
 
 const cadre = (titre, corps, apercu = "") => `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>${esc(titre)}</title></head>
