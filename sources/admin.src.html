@@ -1051,7 +1051,7 @@ function mapDossier(x){
 function mapPaiement(x){
   const svc=SVC_API[x.service]||x.service;
   const lab=(SVC_LABEL[svc]||x.service)+(x.type==='solde'?' (solde 10 %)':svc==='precommande'?' (90 %)':'');
-  const meth=x.methode==='carte'?'Carte bancaire':x.methode==='mobile'?'MonCash / Natcash':(x.methode||'');
+  const meth=x.methode==='carte'?'Carte bancaire':x.methode==='moncash'?'MonCash':x.methode==='natcash'?'Natcash':x.methode==='mobile'?'MonCash / Natcash':(x.methode||'');
   return {ref:x.id,svc:lab,cl:x.client_nom||'',amt:+x.montant||0,cur:x.devise||'USD',usd:x.montant_usd,prov:(x.prestataire||'Freda Pay Issuing')+(meth?' · '+meth:''),st:PAY_IN[x.statut]||'attente',d:fdate(x.cree_le,true),dos:x.ref,freda:x.freda_id,conf:x.confirme_le,_api:x};
 }
 function splitModel(m,y){m=String(m||'');const t=String(y||'');return t&&m.endsWith(' '+t)?m.slice(0,-t.length-1):m}

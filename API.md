@@ -7,20 +7,20 @@ Montants : toujours calculés par le serveur. Le client n'envoie JAMAIS de monta
 
 ## Public
 
-GET /api/config → `{ "mode": "sandbox"|"live", "taux_htg": 132, "taux_date": "2026-11-12", "tarifs": { "consultation":150, "recherche":150, "essai":150, "vendre":200, "financement":25 }, "whatsapp": "50942405729", "methodes": ["mobile","carte"] }`
-`methodes` peut ne contenir que "mobile" si le paiement carte n'est pas activé.
+GET /api/config → `{ "mode": "sandbox"|"live", "taux_htg": 132, "taux_date": "2026-11-12", "tarifs": { "consultation":150, "recherche":150, "essai":150, "vendre":200, "financement":25 }, "whatsapp": "50942405729", "methodes": ["moncash","natcash","carte"] }`
+`methodes` peut ne contenir que "moncash" et "natcash" si le paiement carte n'est pas activé.
 
 GET /api/vehicules → tableau d'objets avec EXACTEMENT les mêmes clés que le tableau `V` du site (`id, marque, modele, annee, couleur, hex, km, prix, statut, type, forme, moteur, trans, traction, places, delai, note`) + `vedette: bool`. Statuts : disponible | transit | precommande | vendu | indisponible.
 
 POST /api/dossiers — `multipart/form-data` :
 - `service` : precommande | achat | consultation | recherche | essai | vendre | financement (obligatoire)
 - `vehicule_id` : obligatoire pour precommande et achat, optionnel pour essai
-- `methode` : `mobile` (MonCash ou Natcash, payé en HTG au taux affiché) | `carte` (payé en USD)
+- `methode` : `moncash` | `natcash` (payés en HTG au taux affiché, le moyen choisi est envoyé tel quel à Freda Pay Issuing) | `carte` (payé en USD). `mobile`/`all` ne sont plus acceptés
 - `client_nom`, `client_tel` (obligatoires), `client_whatsapp`, `client_email` (obligatoire si methode=carte)
 - `conditions_acceptees` : "1" (obligatoire)
 - `donnees` : chaîne JSON `{ "lignes": [[libellé, valeur], ...], "champs": { nom_du_champ: valeur, ... } }` (le récapitulatif du formulaire)
 - `fichiers` : 0..30 fichiers (photos, vidéos, PDF ; 60 Mo max chacun) — le nom de champ d'origine peut être passé dans `fichiers_champs` (JSON tableau de même longueur).
-Réponse 201 : `{ "ref": "EAD-2026-48213", "montant_usd": 150, "montant": 19800, "devise": "HTG", "methode": "mobile", "checkout_url": "https://...", "paiement_id": "pay_..." }`
+Réponse 201 : `{ "ref": "EAD-2026-48213", "montant_usd": 150, "montant": 19800, "devise": "HTG", "methode": "moncash", "checkout_url": "https://...", "paiement_id": "pay_..." }`
 Le front enregistre `ref` dans localStorage (`ead-derniere-ref`) puis fait `location.href = checkout_url`.
 
 GET /api/dossiers/:ref → vue publique (aucune donnée personnelle sauf prénom) :
@@ -28,7 +28,7 @@ GET /api/dossiers/:ref → vue publique (aucune donnée personnelle sauf prénom
 Si le paiement est `pending`, le serveur interroge Freda Pay (`GET /v1/payments/:id`, au plus une fois toutes les 4 s) avant de répondre.
 Le front affiche une page `#retour` qui lit `ead-derniere-ref` et interroge cette route toutes les 4 s pendant 10 min max : pending → « Paiement en attente de confirmation… », succeeded → écran de confirmation (référence, reçu, prochaines étapes, WhatsApp), failed → message + bouton « Réessayer ».
 
-POST /api/dossiers/:ref/relancer `{ "methode": "mobile"|"carte", "client_email"? }` → `{ "checkout_url" }` (nouveau paiement, seulement si le dernier a échoué ou est resté en attente plus de 10 min).
+POST /api/dossiers/:ref/relancer `{ "methode": "moncash"|"natcash"|"carte", "client_email"? }` → `{ "checkout_url" }` (nouveau paiement, seulement si le dernier a échoué ou est resté en attente plus de 10 min).
 
 ## Administrateur (en-tête `Authorization: Bearer <token>`)
 
@@ -71,7 +71,7 @@ Profil client : `{ "id", "nom", "tel", "whatsapp", "email", "cree_le" }`.
 - GET /api/compte/dossiers/:ref → détail (seulement si le dossier appartient au client) : vue publique + `lignes`, `paiements: [{ id, type, montant, devise, methode, statut, cree_le, confirme_le }]`, `fichiers: [{ id, nom, type, taille, cree_le }]`, `historique: [{ quand, texte }]` (journal sans notes internes), `solde: { prix_usd, paye_usd, solde_usd, statut, arrive } | null`, `peut_payer_solde: bool` (vrai si arrivé en Haïti et solde non payé).
 - GET /api/compte/fichiers/:id → le fichier (s'il appartient au client).
 - POST /api/compte/dossiers/:ref/fichiers multipart `fichiers` (photos, vidéos, PDF, 60 Mo max, 10 par envoi) → détail mis à jour. Ajoute une alerte « Nouveaux documents » côté admin.
-- POST /api/compte/dossiers/:ref/solde `{ methode: "mobile"|"carte" }` → `{ checkout_url }` (réutilise le lien de solde en attente s'il existe).
+- POST /api/compte/dossiers/:ref/solde `{ methode: "moncash"|"natcash"|"carte" }` → `{ checkout_url }` (réutilise le lien de solde en attente s'il existe).
 - GET /api/compte/paiements/:id/recu → `{ numero, date, client, ref, service, detail, montant, devise, montant_usd, methode, prestataire: "Freda Pay Issuing", freda_id, statut }` (paiements réussis uniquement).
 - POST /api/dossiers (existant) : si la session client est valide, le dossier est rattaché au compte, et les champs client manquants sont complétés depuis le profil.
 

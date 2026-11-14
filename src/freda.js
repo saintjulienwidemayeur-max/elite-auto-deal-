@@ -32,7 +32,7 @@ async function appel(methode, chemin, corps) {
 }
 
 /**
- * Crée un paiement. methode interne : "mobile" (MonCash/Natcash en HTG) ou "carte" (USD).
+ * Crée un paiement. methode : "moncash" ou "natcash" (HTG, envoyée telle quelle à Freda) ou "carte" (USD).
  * La référence est unique : la renvoyer retourne le paiement existant (idempotence côté Freda).
  */
 export function creerPaiement({ methode, montant, reference, client_nom, client_email, return_url }) {
@@ -44,7 +44,7 @@ export function creerPaiement({ methode, montant, reference, client_nom, client_
     });
   }
   return appel("POST", "/v1/payments", {
-    amount: Math.round(montant), method: process.env.FREDA_METHODE_MOBILE || "all", currency: "HTG", reference,
+    amount: Math.round(montant), method: methode, currency: "HTG", reference,
   });
 }
 

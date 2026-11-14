@@ -23,7 +23,7 @@ await t("doublon refusé, mot de passe court refusé", async () => {
   assert.equal((await b.f("/api/compte/inscription", { method: "POST", json: { nom: "X Y", tel: TEL2, mot_de_passe: "court" } })).s, 400);
 });
 await t("dossier créé connecté => rattaché, nom complété depuis le profil", async () => {
-  const r = await a.f("/api/dossiers", { method: "POST", body: fd({ service: "consultation", methode: "mobile", conditions_acceptees: "1" }) });
+  const r = await a.f("/api/dossiers", { method: "POST", body: fd({ service: "consultation", methode: "moncash", conditions_acceptees: "1" }) });
   assert.equal(r.s, 201, JSON.stringify(r.b)); refA = r.b.ref;
   const c = await a.f("/api/compte"); assert.equal(c.s, 200); assert.equal(c.b.dossiers[0].ref, refA); assert.equal(c.b.dossiers[0].prenom, "Paul");
 });
@@ -51,13 +51,13 @@ await t("envoi de documents par le client + accès fichier", async () => {
   assert.equal((await b.f("/api/compte/fichiers/" + id)).s, 404);
 });
 await t("rattacher : mauvais téléphone refusé, bon téléphone accepté, déjà pris refusé", async () => {
-  const r = await anon.f("/api/dossiers", { method: "POST", body: fd({ service: "recherche", methode: "mobile", conditions_acceptees: "1", client_nom: "Bea Autre", client_tel: TEL2 }) });
+  const r = await anon.f("/api/dossiers", { method: "POST", body: fd({ service: "recherche", methode: "moncash", conditions_acceptees: "1", client_nom: "Bea Autre", client_tel: TEL2 }) });
   refAnon = r.b.ref;
   assert.equal((await b.f("/api/compte/rattacher", { method: "POST", json: { ref: refAnon, tel: TEL } })).s, 404);
   assert.equal((await b.f("/api/compte/rattacher", { method: "POST", json: { ref: refAnon, tel: TEL2.replace(/\s/g, "") } })).s, 200);
   assert.equal((await a.f("/api/compte/rattacher", { method: "POST", json: { ref: refAnon, tel: TEL2 } })).s, 409);
 });
-await t("solde impossible avant arrivée", async () => assert.equal((await a.f(`/api/compte/dossiers/${refA}/solde`, { method: "POST", json: { methode: "mobile" } })).s, 409));
+await t("solde impossible avant arrivée", async () => assert.equal((await a.f(`/api/compte/dossiers/${refA}/solde`, { method: "POST", json: { methode: "moncash" } })).s, 409));
 await t("profil + changement de mot de passe + déconnexion + connexion par téléphone", async () => {
   assert.equal((await a.f("/api/compte", { method: "PATCH", json: { whatsapp: "+509 4000 0000" } })).b.client.whatsapp, "+509 4000 0000");
   assert.equal((await a.f("/api/compte/mot-de-passe", { method: "POST", json: { actuel: "faux", nouveau: "nouveau123" } })).s, 400);

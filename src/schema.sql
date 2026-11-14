@@ -141,3 +141,7 @@ create table if not exists otp_codes (
   cree_le timestamptz not null default now()
 );
 create index if not exists otp_codes_client_idx on otp_codes(client_id, finalite, cree_le desc);
+
+-- Moyens de paiement : MonCash et Natcash séparés ('mobile' = anciens paiements, avant la séparation)
+alter table paiements drop constraint if exists paiements_methode_check;
+alter table paiements add constraint paiements_methode_check check (methode in ('mobile','moncash','natcash','carte'));

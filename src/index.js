@@ -111,15 +111,21 @@ async function rafraichir(ref) {
 }
 
 /* ---------- Paiement ---------- */
+const LIB_METHODE = { moncash: "MonCash", natcash: "Natcash", mobile: "MonCash ou Natcash", carte: "Carte bancaire" };
+// Le client choisit explicitement MonCash, Natcash ou la carte : c'est cette valeur exacte qui est envoyée à Freda Pay Issuing.
+function lireMethode(v) {
+  if (v === "moncash" || v === "natcash" || v === "carte") return v;
+  throw err(400, "METHODE", "Choisissez MonCash, Natcash ou la carte bancaire.");
+}
 async function lancerPaiement({ dossier, type, methode, montantUsd, email }) {
   if (!fredaConfiguree()) throw err(503, "PAIEMENT_INDISPONIBLE", "Le paiement en ligne n'est pas encore activé. Écrivez-nous sur WhatsApp.");
   if (methode === "carte" && !CARTE_ACTIVE) throw err(400, "CARTE_INACTIVE", "Le paiement par carte n'est pas encore disponible. Choisissez MonCash ou Natcash.");
   const { taux } = await parametres();
   const tentative = ((await un("select count(*)::int n from paiements where ref=$1 and type=$2", [dossier.ref, type])).n) + 1;
   const freda_reference = `${dossier.ref}-${type === "solde" ? "S" : "P"}${tentative}`;
-  const montant = methode === "carte" ? arrondi2(montantUsd) : Math.round(montantUsd * taux.taux_htg);
+  const montant = methode === "carte" ? arrondi2(montantUsd) : Math.round(montantUsd * taux.taux_htg); // MonCash / Natcash : gourdes
   const devise = methode === "carte" ? "USD" : "HTG";
-  if (methode === "mobile" && montant < 20) throw err(400, "MONTANT", "Montant trop faible pour MonCash ou Natcash.");
+  if (methode !== "carte" && montant < 20) throw err(400, "MONTANT", "Montant trop faible pour MonCash ou Natcash.");
   let f;
   try {
     f = await creerPaiement({
@@ -156,7 +162,7 @@ async function avecPhotos(vs, admin = false) {
 app.get("/api/config", enveloppe(async (_req, res) => {
   const { taux, tarifs } = await parametres();
   res.json({ mode: modeFreda(), taux_htg: taux.taux_htg, taux_date: taux.taux_date, tarifs, whatsapp: process.env.WHATSAPP_NUMERO || "50942405729",
-    methodes: CARTE_ACTIVE ? ["mobile", "carte"] : ["mobile"], paiement_actif: fredaConfiguree() });
+    methodes: CARTE_ACTIVE ? ["moncash", "natcash", "carte"] : ["moncash", "natcash"], paiement_actif: fredaConfiguree() });
 }));
 
 app.get("/api/vehicules", enveloppe(async (_req, res) => {
@@ -188,8 +194,7 @@ app.post("/api/dossiers", limiteur(Number(process.env.LIMITE_DOSSIERS) || 12, 15
     const nom = String(b.client_nom || cli?.nom || "").trim().slice(0, 120), tel = String(b.client_tel || cli?.tel || "").trim().slice(0, 40);
     if (nom.length < 2 || tel.replace(/\D/g, "").length < 8) throw err(400, "CLIENT", "Indiquez votre nom complet et un numéro de téléphone valide.");
     if (b.conditions_acceptees !== "1") throw err(400, "CONDITIONS", "Vous devez accepter les conditions avant de payer.");
-    const methode = b.methode === "carte" ? "carte" : b.methode === "mobile" ? "mobile" : null;
-    if (!methode) throw err(400, "METHODE", "Choisissez un moyen de paiement.");
+    const methode = lireMethode(b.methode);
     const email = String(b.client_email || cli?.email || "").trim().slice(0, 160);
     if (methode === "carte" && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) throw err(400, "EMAIL", "Une adresse email est nécessaire pour le paiement par carte (reçu).");
     let donnees = {}; try { donnees = JSON.parse(b.donnees || "{}"); } catch { /* ignoré */ }
@@ -263,7 +268,7 @@ app.post("/api/dossiers/:ref/relancer", limiteur(10, 15 * 60e3), enveloppe(async
   const p = await un("select * from paiements where ref=$1 and type='initial' order by id desc limit 1", [ref]);
   if (p?.statut === "succeeded") throw err(409, "DEJA_PAYE", "Ce dossier est déjà payé.");
   if (p?.statut === "pending" && Date.now() - new Date(p.cree_le).getTime() < 10 * 60e3) return res.json({ checkout_url: p.checkout_url });
-  const methode = req.body?.methode === "carte" ? "carte" : "mobile";
+  const methode = lireMethode(req.body?.methode);
   const r = await lancerPaiement({ dossier: d, type: "initial", methode, montantUsd: d.montant_usd, email: req.body?.client_email });
   res.json({ checkout_url: r.checkout_url });
 }));
@@ -520,7 +525,7 @@ app.post("/api/compte/dossiers/:ref/solde", limiteur(10, 15 * 60e3), enveloppe(a
   const d = await dossierClient(req);
   const det = await detailClient(d);
   if (!det.peut_payer_solde) throw err(409, "SOLDE", "Le solde pourra être réglé à l'arrivée du véhicule en Haïti.");
-  const methode = req.body?.methode === "carte" ? "carte" : "mobile";
+  const methode = lireMethode(req.body?.methode);
   const enAttente = await un("select * from paiements where ref=$1 and type='solde' and statut='pending' and methode=$2 and cree_le > now() - interval '24 hours' order by id desc limit 1", [d.ref, methode]);
   if (enAttente) return res.json({ checkout_url: enAttente.checkout_url });
   if (methode === "carte" && !(req.body?.client_email || d.client_email || req.client.email)) throw err(400, "EMAIL", "Ajoutez une adresse email à votre profil pour payer par carte.");
@@ -535,7 +540,7 @@ app.get("/api/compte/paiements/:id/recu", enveloppe(async (req, res) => {
   if (!p) throw err(404, "INTROUVABLE", "Reçu introuvable.");
   res.json({
     numero: `R-${p.ref}-${p.id}`, date: p.confirme_le, client: p.client_nom, ref: p.ref, service: SERVICES[p.service].titre + (p.type === "solde" ? " (solde)" : ""),
-    detail: p.donnees?.detail || "", montant: p.montant, devise: p.devise, montant_usd: p.montant_usd, methode: p.methode === "carte" ? "Carte bancaire" : "MonCash ou Natcash",
+    detail: p.donnees?.detail || "", montant: p.montant, devise: p.devise, montant_usd: p.montant_usd, methode: LIB_METHODE[p.methode] || p.methode,
     prestataire: "Freda Pay Issuing", freda_id: p.freda_id, statut: p.statut,
   });
 }));
@@ -760,7 +765,7 @@ app.post("/api/admin/precommandes/:ref/solde", enveloppe(async (req, res) => {
   if (!d) throw err(404, "INTROUVABLE", "Précommande introuvable.");
   if (d.statut_solde === "paye") throw err(409, "DEJA_PAYE", "Le solde est déjà réglé.");
   const solde = arrondi2(d.prix_vehicule_usd - d.montant_usd);
-  const methode = req.body?.methode === "carte" ? "carte" : "mobile";
+  const methode = lireMethode(req.body?.methode);
   const p = await lancerPaiement({ dossier: d, type: "solde", methode, montantUsd: solde, email: d.client_email });
   await q("update dossiers set statut_solde='envoye', maj_le=now() where ref=$1", [d.ref]);
   const { messages } = await parametres();

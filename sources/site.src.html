@@ -1526,7 +1526,7 @@ function flux(p){
   if(p.__flux)return p.__flux;
   const nom=p.dataset.service,S=SERV[nom],form=p.querySelector("form.form-service"),principal=p.querySelector(".parcours-principal"),aside=p.querySelector(".resume"),etapier=p.querySelectorAll(".etapier li");
   const zone=document.createElement("div");principal.appendChild(zone);
-  const F={etape:0,devise:"USD",moyen:"MonCash",paie:false,methode:"mobile",email:"",cond:false};
+  const F={etape:0,devise:"USD",moyen:"MonCash",paie:false,methode:"moncash",email:"",cond:false};
   const autres=[...principal.children].filter(x=>x!==zone&&!x.classList.contains("etapier"));
   function marquer(){etapier.forEach((li,i)=>{li.classList.toggle("fait",i<F.etape);li.classList.toggle("encours",i===F.etape);});}
   function montant(){return S.montant(form);}
@@ -1606,9 +1606,9 @@ function flux(p){
     r();haut();
   }
   function paiementReel(){
-    const m=montant(),meths=(CONFIG.methodes&&CONFIG.methodes.length?CONFIG.methodes:["mobile"]).filter(x=>x==="mobile"||x==="carte");
+    const m=montant(),meths=(CONFIG.methodes&&CONFIG.methodes.length?CONFIG.methodes:["moncash","natcash"]).filter(x=>x==="moncash"||x==="natcash"||x==="carte");
     if(!meths.includes(F.methode))F.methode=meths[0];
-    const lib={mobile:["MonCash ou Natcash","Payé en gourdes : "+htg(m)],carte:["Carte bancaire","Payé en dollars : "+usd(m)]};
+    const lib={moncash:["MonCash","Payé en gourdes : "+htg(m)],natcash:["Natcash","Payé en gourdes : "+htg(m)],carte:["Carte bancaire","Payé en dollars : "+usd(m)]};
     const r=()=>{
       const carte=F.methode==="carte";
       zone.innerHTML=`<div class="bloc-form">
@@ -1789,7 +1789,7 @@ async function sonder(){
 }
 function ecranSucces(d){
   const z=document.getElementById("retour-zone"),S=SERV[d.service]||{suite:[]},p=d.paiement||{};
-  const meth=p.methode==="carte"?"Carte bancaire":"MonCash ou Natcash";
+  const meth=LIB_METH[p.methode]||"MonCash ou Natcash";
   const paye=montantDevise(p.montant,p.devise);
   const txt=`Bonjour Elite Auto Deal, je viens de payer en ligne.\nRéférence : ${d.ref}\nService : ${d.titre||""}${d.detail?"\nDétail : "+d.detail:""}\nMontant : ${paye}${d.prenom?"\nNom : "+d.prenom:""}`;
   z.innerHTML=`<div class="bloc-form confirme">
@@ -1815,14 +1815,14 @@ function ecranSucces(d){
 }
 function ecranEchec(d,delai){
   const z=document.getElementById("retour-zone"),ref=RT.ref;
-  const meths=(CONFIG&&CONFIG.methodes&&CONFIG.methodes.length?CONFIG.methodes:["mobile"]).filter(x=>x==="mobile"||x==="carte");
+  const meths=(CONFIG&&CONFIG.methodes&&CONFIG.methodes.length?CONFIG.methodes:["moncash","natcash"]).filter(x=>x==="moncash"||x==="natcash"||x==="carte");
   let m=null;try{m=localStorage.getItem("ead-derniere-methode");}catch(_){}
   if(!meths.includes(m))m=meths[0];
   const r=()=>{
     z.innerHTML=`<div class="bloc-form">
       <h3>${delai?"Paiement non confirmé":"Le paiement n'a pas abouti"}</h3>
       <p class="muted">${delai?"Nous n'avons pas reçu de confirmation de Freda Pay Issuing pour le dossier ":"Freda Pay Issuing n'a pas validé le paiement du dossier "}<b>${esc(ref)}</b>. Aucun montant n'a été validé pour ce dossier. Vous pouvez réessayer.</p>
-      <fieldset><legend>Moyen de paiement</legend><div class="choix deux">${meths.map(k=>`<label><input type="radio" name="methode-retour" value="${k}" ${m===k?"checked":""}><span>${k==="carte"?"Carte bancaire<small>Payé en dollars</small>":"MonCash ou Natcash<small>Payé en gourdes</small>"}</span></label>`).join("")}</div></fieldset>
+      <fieldset><legend>Moyen de paiement</legend><div class="choix deux">${meths.map(k=>`<label><input type="radio" name="methode-retour" value="${k}" ${m===k?"checked":""}><span>${k==="carte"?"Carte bancaire<small>Payé en dollars</small>":(k==="natcash"?"Natcash":"MonCash")+"<small>Payé en gourdes</small>"}</span></label>`).join("")}</div></fieldset>
       ${m==="carte"?`<div class="champ"><label for="email-retour">Email pour le reçu de la carte</label><input id="email-retour" type="email" autocomplete="email" required></div>`:""}
       <div class="erreur-paie cache" id="err-retour" role="alert"></div>
       <div class="form-actions"><a class="lien" href="#suivi">Suivre mon dossier</a><button class="btn btn-rouge" type="button" data-r="relancer">Réessayer le paiement</button></div></div>`;
@@ -2101,13 +2101,13 @@ async function rendreCompte(rafraichir){
 }
 
 /* Détail d'un dossier */
-const LIB_METH={mobile:"MonCash ou Natcash",carte:"Carte bancaire"};
+const LIB_METH={mobile:"MonCash ou Natcash",moncash:"MonCash",natcash:"Natcash",carte:"Carte bancaire"};
 function libStatutPaie(s){return s==="succeeded"?"Payé":s==="failed"?"Non abouti":"En attente";}
 function detailHTML(d){
   const p=d.paiement||{},paye=p.statut==="succeeded",S=SERV[d.service]||{};
   const titre=d.service_titre||d.titre||S.titre||"";
   const txtWa=`Bonjour Elite Auto Deal, je souhaite un point sur mon dossier ${d.ref}${d.detail?" ("+d.detail+")":""}.`;
-  const meths=(MODE_REEL&&CONFIG&&CONFIG.methodes&&CONFIG.methodes.length?CONFIG.methodes:["mobile","carte"]).filter(x=>x==="mobile"||x==="carte");
+  const meths=(MODE_REEL&&CONFIG&&CONFIG.methodes&&CONFIG.methodes.length?CONFIG.methodes:["moncash","natcash","carte"]).filter(x=>x==="moncash"||x==="natcash"||x==="carte");
   const so=d.solde;
   const blocSolde=so?`<section class="bloc-form solde-bloc"><h3>Solde de la précommande</h3>
       <div class="repartition" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,140px),1fr))"><div><span>Prix du véhicule</span><b>${usd(so.prix_usd)}</b></div><div><span>Déjà payé</span><b>${usd(so.paye_usd)}</b></div><div><span>Solde (10 %)</span><b>${usd(so.solde_usd)}</b></div></div>
@@ -2177,7 +2177,7 @@ function envoyerDocuments(inp){
 }
 async function payerSolde(btn){
   const d=CPT.detail;if(!d)return;
-  const m=(document.querySelector('input[name="methode-solde"]:checked')||{}).value||"mobile",err=document.getElementById("err-solde");
+  const m=(document.querySelector('input[name="methode-solde"]:checked')||{}).value||"moncash",err=document.getElementById("err-solde");
   err&&err.classList.add("cache");
   if(!MODE_REEL){toast("Démonstration : aucun paiement réel n'est effectué");return;}
   btn.disabled=true;btn.textContent="Création du lien de paiement…";

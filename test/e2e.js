@@ -10,12 +10,12 @@ const base = { client_nom: "Jean Test", client_tel: "+509 3700 0000", conditions
 
 let refR, payR, refP, payP, token;
 await t("recherche mobile : montant serveur 150 $ x 132 = 19800 HTG", async () => {
-  const r = await j(await fetch(B + "/api/dossiers", { method: "POST", body: fd({ ...base, service: "recherche", methode: "mobile", montant: "1" }) }));
+  const r = await j(await fetch(B + "/api/dossiers", { method: "POST", body: fd({ ...base, service: "recherche", methode: "moncash", montant: "1" }) }));
   assert.equal(r.s, 201, JSON.stringify(r.b)); assert.equal(r.b.montant, 19800); assert.equal(r.b.devise, "HTG"); assert.match(r.b.checkout_url, /^https:/);
   refR = r.b.ref; payR = r.b.paiement_id;
 });
 await t("conditions obligatoires", async () => {
-  const r = await j(await fetch(B + "/api/dossiers", { method: "POST", body: fd({ ...base, conditions_acceptees: "0", service: "consultation", methode: "mobile" }) }));
+  const r = await j(await fetch(B + "/api/dossiers", { method: "POST", body: fd({ ...base, conditions_acceptees: "0", service: "consultation", methode: "moncash" }) }));
   assert.equal(r.s, 400); assert.equal(r.b.error.code, "CONDITIONS");
 });
 await t("carte sans email refusée", async () => {
@@ -23,7 +23,7 @@ await t("carte sans email refusée", async () => {
   assert.equal(r.s, 400); assert.equal(r.b.error.code, "EMAIL");
 });
 await t("type de fichier refusé", async () => {
-  const r = await j(await fetch(B + "/api/dossiers", { method: "POST", body: fd({ ...base, service: "vendre", methode: "mobile" }, [new File(["x"], "a.exe", { type: "application/x-msdownload" })]) }));
+  const r = await j(await fetch(B + "/api/dossiers", { method: "POST", body: fd({ ...base, service: "vendre", methode: "moncash" }, [new File(["x"], "a.exe", { type: "application/x-msdownload" })]) }));
   assert.equal(r.s, 400); assert.equal(r.b.error.code, "FICHIER");
 });
 await t("vente avec photo, carte USD 200", async () => {
@@ -35,7 +35,7 @@ await t("précommande RAV4 : 90 % = 20250 $", async () => {
   assert.equal(r.s, 201, JSON.stringify(r.b)); assert.equal(r.b.montant_usd, 20250); refP = r.b.ref; payP = r.b.paiement_id;
 });
 await t("achat d'un véhicule précommandable refusé", async () => {
-  const r = await j(await fetch(B + "/api/dossiers", { method: "POST", body: fd({ ...base, service: "achat", vehicule_id: "rav16", methode: "mobile" }) }));
+  const r = await j(await fetch(B + "/api/dossiers", { method: "POST", body: fd({ ...base, service: "achat", vehicule_id: "rav16", methode: "moncash" }) }));
   assert.equal(r.s, 409);
 });
 await t("suivi : en attente, pas de données perso", async () => {
@@ -81,7 +81,7 @@ await t("admin : faire avancer un dossier payé", async () => {
 });
 await t("admin : arrivée + lien de solde 10 % puis paiement du solde", async () => {
   assert.equal((await A(`/api/admin/precommandes/${refP}/arrivee`, { method: "POST" })).s, 200);
-  const s = await A(`/api/admin/precommandes/${refP}/solde`, { method: "POST", body: JSON.stringify({ methode: "mobile" }) });
+  const s = await A(`/api/admin/precommandes/${refP}/solde`, { method: "POST", body: JSON.stringify({ methode: "moncash" }) });
   assert.equal(s.s, 200, JSON.stringify(s.b)); assert.match(s.b.message_whatsapp, /297[\s\u202f]?000 HTG/u);
   const pre = (await A("/api/admin/precommandes")).b.find(x => x.ref === refP); assert.equal(pre.statut_solde, "envoye");
   const pays = (await A("/api/admin/paiements")).b.find(x => x.ref === refP && x.type === "solde");

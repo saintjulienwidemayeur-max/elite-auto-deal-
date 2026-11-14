@@ -19,8 +19,6 @@ services:
         generateValue: true
       - key: PUBLIC_URL
         sync: false
-      - key: FREDA_METHODE_MOBILE
-        value: all
       - key: CARTE_ACTIVE
         value: "true"
       - key: SUPABASE_URL
