@@ -928,4 +928,18 @@ app.use((e, _req, res, _next) => {
 
 if (!existsSync(DOSSIER_PUBLIC)) console.warn("Dossier public introuvable :", DOSSIER_PUBLIC);
 await migrer();
+/* Anti-veille : le serveur s'appelle lui-même par son adresse publique toutes les 5 minutes (plan Render gratuit : arrêt après 15 min sans visite).
+   Désactiver avec KEEP_ALIVE=false. KEEP_ALIVE_URL force une autre adresse, KEEP_ALIVE_MINUTES change l'intervalle. */
+const URL_PING = (process.env.KEEP_ALIVE_URL || process.env.RENDER_EXTERNAL_URL || PUBLIC_URL).replace(/\/$/, "") + "/sante";
+if (process.env.KEEP_ALIVE !== "false" && (process.env.KEEP_ALIVE_URL || /^https:\/\//.test(URL_PING))) {
+  const intervalle = Math.max(0.02, Number(process.env.KEEP_ALIVE_MINUTES) || 5) * 60e3;
+  setInterval(async () => {
+    try {
+      const r = await fetch(URL_PING, { signal: AbortSignal.timeout(20000), headers: { "User-Agent": "EliteAutoDeal-KeepAlive" } });
+      await q("select 1"); // garde aussi la connexion à la base active
+      if (process.env.KEEP_ALIVE_VERBOSE === "true") console.log(`[keep-alive] ${URL_PING} -> ${r.status}`);
+      if (!r.ok) console.warn(`[keep-alive] réponse ${r.status} de ${URL_PING}`);
+    } catch (e) { console.warn("[keep-alive] échec :", e.message); }
+  }, intervalle);
+}
 app.listen(PORT, () => console.log(`Elite Auto Deal sur ${PUBLIC_URL} (paiement : ${fredaConfiguree() ? modeFreda() : "non configuré"})`));
