@@ -30,6 +30,12 @@ export async function migrer() {
       if (change) await q("update parametres set valeur=$1 where cle='tarifs'", [JSON.stringify(v)]); }
     await q("insert into parametres(cle, valeur) values ('migration_tarifs_50', 'true') on conflict (cle) do nothing");
   }
+  // Visite ou essai : 30 $ (appliqué une seule fois aux bases qui avaient encore 50 $)
+  if (!(await un("select 1 from parametres where cle='migration_essai_30'"))) {
+    const t = await un("select valeur from parametres where cle='tarifs'");
+    if (t && Number(t.valeur.essai) === 50) { t.valeur.essai = 30; await q("update parametres set valeur=$1 where cle='tarifs'", [JSON.stringify(t.valeur)]); }
+    await q("insert into parametres(cle, valeur) values ('migration_essai_30', 'true') on conflict (cle) do nothing");
+  }
   const { n } = await un("select count(*)::int n from vehicules");
   if (n === 0) {
     const ph = COLS_VEHICULE.map((_, i) => "$" + (i + 1)).join(",");

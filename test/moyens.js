@@ -17,6 +17,10 @@ for (const m of ["moncash", "natcash"]) await t(`${m} => Freda reçoit "${m}" en
   const r = await fetch(B + "/api/dossiers", { method: "POST", body: fd({ ...base, methode: m }) }); const b = await r.json();
   assert.equal(r.status, 201, JSON.stringify(b)); assert.deepEqual(await cote(b.ref), { freda: m, base: m, devise: "HTG" });
 });
+await t("visite ou essai : 30 $ x 132 = 3960 HTG ; consultation : 50 $ = 6600 HTG", async () => {
+  const e = await (await fetch(B + "/api/dossiers", { method: "POST", body: fd({ ...base, service: "essai", methode: "natcash" }) })).json(); assert.equal(e.montant_usd, 30); assert.equal(e.montant, 3960);
+  const c = await (await fetch(B + "/api/dossiers", { method: "POST", body: fd({ ...base, service: "consultation", methode: "moncash" }) })).json(); assert.equal(c.montant_usd, 50); assert.equal(c.montant, 6600);
+});
 await t("« mobile », « all » ou vide refusés", async () => {
   for (const m of ["mobile", "all", ""]) assert.equal((await fetch(B + "/api/dossiers", { method: "POST", body: fd({ ...base, methode: m }) })).status, 400);
 });

@@ -20,7 +20,7 @@ await t("chaque page a son URL, son titre unique, son canonical et sa vue active
 });
 await t("les tarifs viennent de la base (50 $, 200 $, 25 $) et pas de 150 $", async () => {
   assert.match((await get("/consultation")).h, /<title>[^<]*50 \$/); assert.match((await get("/vendre-mon-vehicule")).h, /<title>[^<]*200 \$/); assert.match((await get("/financement")).h, /<title>[^<]*25 \$/);
-  const g = ld((await get("/essai-visite")).h)["@graph"]; assert.equal(g.find(x => x["@type"] === "Service").offers.price, "50");
+  assert.match((await get("/essai-visite")).h, /<title>[^<]*30 \$/); const g = ld((await get("/essai-visite")).h)["@graph"]; assert.equal(g.find(x => x["@type"] === "Service").offers.price, "30");
 });
 await t("JSON-LD : fil d'Ariane et FAQ seulement sur l'accueil", async () => {
   const a = ld((await get("/")).h)["@graph"].map(x => x["@type"]); assert.ok(a.includes("FAQPage") && a.includes("BreadcrumbList") && a.includes("AutoDealer"));

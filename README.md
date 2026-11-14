@@ -54,7 +54,7 @@ Renseigner `BREVO_API_KEY` et `EMAIL_EXPEDITEUR` (adresse validée dans Brevo �
 Dans l'administration, « Gestion des devis » permet de créer un devis (client, lignes, frais supplémentaires, total automatique), de le générer en PDF, de l'envoyer par email (PDF en pièce jointe, via Brevo) ou de le partager sur WhatsApp (lien PDF public non devinable). Optionnel : `DEVIS_VALIDITE_JOURS` ajoute une mention de validité dans le PDF.
 
 ## Tarifs
-Consultation, recherche/achat accompagné et visite/essai : 50 $ (accompagnement, analyse, préparation des documents, démarches administratives et suivi du client). Vente d'un véhicule confié : 200 $. Dossier de financement : 25 $. Les bases existantes qui avaient encore 150 $ passent automatiquement à 50 $ au premier démarrage (une seule fois ; l'admin peut ensuite modifier les tarifs).
+Consultation et recherche/achat accompagné : 50 $ (accompagnement, analyse, préparation des documents, démarches administratives et suivi du client). Visite ou essai : 30 $. Vente d'un véhicule confié : 200 $. Dossier de financement : 25 $. Les bases existantes qui avaient encore 150 $ passent automatiquement à 50 $ au premier démarrage (une seule fois ; l'admin peut ensuite modifier les tarifs). La visite/essai passe de 50 $ à 30 $ de la même façon..
 
 ## Code d'accès administrateur
 Au départ, le code d'accès est la variable `ADMIN_PASSWORD`. Depuis l'administration (Paramètres du site → Code d'accès administrateur), il peut être modifié : le nouveau code est stocké haché en base (table `parametres`, clé `admin_acces`) et remplace `ADMIN_PASSWORD`. Changer le code déconnecte les autres appareils.
