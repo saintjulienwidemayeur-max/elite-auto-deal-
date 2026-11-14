@@ -2262,12 +2262,15 @@ function rerendre(){
 async function demarrer(){
   if(!/^https?:$/.test(location.protocol))return;
   let cfg=null;
-  try{
-    const ctl=new AbortController(),t=setTimeout(()=>ctl.abort(),4000);
-    const r=await fetch("/api/config",{signal:ctl.signal,headers:{"Accept":"application/json"}});clearTimeout(t);
-    if(!r.ok||!/json/i.test(r.headers.get("content-type")||""))return;
-    cfg=await r.json();
-  }catch(_){return;}
+  // Un serveur qui se réveille peut répondre lentement : 2 essais de 20 s avant de basculer en démonstration.
+  for(let essai=0;essai<2&&!cfg;essai++){
+    try{
+      const ctl=new AbortController(),t=setTimeout(()=>ctl.abort(),20000);
+      const r=await fetch("/api/config",{signal:ctl.signal,headers:{"Accept":"application/json"}});clearTimeout(t);
+      if(!r.ok||!/json/i.test(r.headers.get("content-type")||""))return;
+      cfg=await r.json();
+    }catch(_){}
+  }
   if(!cfg||typeof cfg!=="object"||!cfg.tarifs)return;
   CONFIG=cfg;MODE_REEL=true;document.documentElement.classList.add("mode-reel");
   if(cfg.taux_htg)TAUX_HTG=+cfg.taux_htg;
