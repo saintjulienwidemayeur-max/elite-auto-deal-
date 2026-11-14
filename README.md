@@ -36,4 +36,8 @@ Un seul service Node.js sert :
 5. Fichiers clients : créer un bucket privé `dossiers` dans Supabase Storage et renseigner `SUPABASE_URL` + `SUPABASE_SERVICE_KEY` (le disque Render est effacé à chaque déploiement).
 
 ## Tests locaux
-`node test/mock-freda.js` (faux Freda sur :4555), puis `node --env-file=.env.test src/index.js`, puis `npm test` (16 scénarios paiement + 12 scénarios espace client).
+`node test/mock-freda.js` (faux Freda sur :4555), puis `node --env-file=.env.test src/index.js`, puis `npm test` (paiement, espace client et emails/OTP ; lancer aussi `node test/mock-brevo.js`, avec `BREVO_API_KEY=xkeysib-test`, `BREVO_API_URL=http://localhost:4556/v3/smtp/email` et `EMAIL_EXPEDITEUR=test@ex.ht` dans `.env.test`).
+
+## Emails (Brevo)
+À l'inscription avec un email, le client reçoit un email de bienvenue contenant un code à 6 chiffres pour confirmer son adresse. « Mot de passe oublié » envoie aussi un code par email (10 min, 5 essais, 1 envoi/minute) ; sans email enregistré ou sans Brevo, le lien WhatsApp géré par l'admin reste utilisé.
+Renseigner `BREVO_API_KEY` et `EMAIL_EXPEDITEUR` (adresse validée dans Brevo → Senders).

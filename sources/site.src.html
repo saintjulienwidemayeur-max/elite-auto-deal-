@@ -1916,10 +1916,10 @@ function ecranAuth(){
     <form class="form-compte" id="f-reinit" novalidate>${champMdp("ri-mdp","Nouveau mot de passe","new-password","8 caractères minimum.")}${champMdp("ri-mdp2","Confirmer le mot de passe","new-password")}
       <div class="erreur-paie cache" role="alert"></div><button class="btn btn-rouge" type="submit">Enregistrer et me connecter</button></form>`;
   }else if(o==="oubli"){
-    corps=`<h1 tabindex="-1">Mot de passe oublié</h1><p class="muted">Indiquez le téléphone ou l'email de votre compte. Un conseiller Elite Auto Deal vous enverra un lien de réinitialisation sur WhatsApp, valable 24 heures.</p>
+    corps=`<h1 tabindex="-1">Mot de passe oublié</h1><p class="muted">Indiquez le téléphone ou l'email de votre compte. Si une adresse email est enregistrée, nous vous envoyons un code à 6 chiffres (valable 10 minutes). Sinon, un conseiller Elite Auto Deal vous enverra un lien sur WhatsApp, valable 24 heures.</p>
     <form class="form-compte" id="f-oubli" novalidate><div class="champ"><label for="ou-id">Téléphone ou email</label><input id="ou-id" type="text" autocomplete="username" required></div>
       <div class="erreur-paie cache" role="alert"></div><div id="ou-ok"></div>
-      <div class="form-actions" style="margin-top:0"><button class="lien" type="button" data-onglet="connexion">Retour à la connexion</button><button class="btn btn-noir" type="submit">Envoyer la demande</button></div></form>`;
+      <div class="form-actions" style="margin-top:0"><button class="lien" type="button" data-onglet="connexion">Retour à la connexion</button><button class="btn btn-noir" type="submit">Recevoir un code</button></div></form>`;
   }else{
     const ins=o==="inscription";
     corps=`<h1 tabindex="-1">${ins?"Créer mon espace":"Mon espace"}</h1>
@@ -1973,6 +1973,16 @@ function brancherAuth(z){
     let msg=def;
     if(MODE_REEL){occupe(fo,true,"Envoi…");try{const d=await jenvoi("/api/compte/oubli",{identifiant:fo.querySelector("#ou-id").value.trim()});msg=d&&d.message||def;}catch(x){occupe(fo,false);erreurForm(fo,x.message);return;}occupe(fo,false);}
     ok.innerHTML=`<div class="encadre" style="margin:0"><svg aria-hidden="true"><use href="#i-check" stroke="currentColor"/></svg><p>${esc(msg)}</p></div>`;
+    if(MODE_REEL){
+      ok.insertAdjacentHTML("beforeend",`<form class="form-compte" id="f-code" novalidate style="margin-top:16px"><div class="champ"><label for="cd-code">Code reçu par email</label><input id="cd-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="000000" required></div>${champMdp("cd-mdp","Nouveau mot de passe","new-password","8 caractères minimum.")}<div class="erreur-paie cache" role="alert"></div><button class="btn btn-rouge" type="submit">Enregistrer et me connecter</button></form>`);
+      const fk=ok.querySelector("#f-code");
+      fk.onsubmit=async ev=>{ev.preventDefault();
+        if(!fk.checkValidity()){fk.reportValidity();return;}
+        occupe(fk,true,"Vérification…");
+        try{const d=await jenvoi("/api/compte/reinitialiser",{identifiant:fo.querySelector("#ou-id").value.trim(),code:fk.querySelector("#cd-code").value.trim(),mot_de_passe:fk.querySelector("#cd-mdp").value});apresConnexion(d.client,"Mot de passe enregistré");}
+        catch(x){occupe(fk,false);erreurForm(fk,x.message);}
+      };
+    }
   };
   if(fr)fr.onsubmit=async e=>{e.preventDefault();
     if(!fr.checkValidity()){fr.reportValidity();return;}
@@ -2025,10 +2035,18 @@ function panneauHTML(){
       <div class="erreur-paie cache" role="alert"></div><div class="form-actions" style="margin-top:0"><span></span><button class="btn btn-contour" type="submit">Changer le mot de passe</button></div></form></div>`;
   return "";
 }
+function verifEmailHTML(){
+  const c=CPT.client;
+  if(!MODE_REEL||!c||!c.email||c.email_verifie)return "";
+  return `<form class="bloc-compte" id="f-verif" novalidate style="margin-top:18px"><p><b>Confirmez votre email.</b> Nous avons envoyé un code à 6 chiffres à ${esc(c.email)}.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center"><label class="sr-only" for="vf-code" style="position:absolute;left:-9999px">Code de confirmation</label><input id="vf-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="000000" required style="width:9ch;min-height:44px;text-align:center;letter-spacing:3px">
+    <button class="btn btn-noir btn-sm" type="submit">Confirmer</button><button class="lien" type="button" id="vf-renvoi">Renvoyer le code</button></div><div class="erreur-paie cache" role="alert" style="flex-basis:100%"></div></form>`;
+}
 function tableauHTML(){
   const c=CPT.client,s=CPT.stats||demoStats(CPT.dossiers),l=CPT.dossiers||[];
   return `${demoNote}<div class="compte-tete"><div><span class="muted" style="font-weight:600">Mon espace</span><h1 tabindex="-1">Bonjour ${esc(prenomDe(c.nom))}</h1><p class="lead">Suivez vos dossiers, vos paiements et vos documents.</p></div>
     <div class="compte-actions"><button class="btn btn-contour btn-sm" type="button" data-panneau="rattacher">Ajouter un dossier existant</button><button class="btn btn-contour btn-sm" type="button" data-panneau="profil">Mon profil</button><button class="btn btn-contour btn-sm" type="button" data-deconnexion>Se déconnecter</button></div></div>
+    ${verifEmailHTML()}
     <div id="compte-panneau">${panneauHTML()}</div>
     <div class="stats-compte"><div class="stat"><span>Dossiers en cours</span><b>${s.en_cours||0}</b></div><div class="stat"><span>Total payé</span><b>${usd(s.payes_usd||0)}</b></div><div class="stat${s.soldes_usd>0?" du":""}"><span>Solde à régler</span><b>${usd(s.soldes_usd||0)}</b></div></div>
     <div class="rang-titre"><h2>Mes dossiers</h2><a class="btn btn-rouge btn-sm" href="#accueil" data-nouvelle>Nouvelle demande</a></div>
@@ -2036,7 +2054,18 @@ function tableauHTML(){
     :`<div class="vide-compte"><b>Aucun dossier pour le moment.</b><p class="muted">Lancez une demande : elle apparaîtra ici dès sa création. Un dossier créé avant votre inscription peut être ajouté avec sa référence.</p><div class="compte-actions"><a class="btn btn-noir btn-sm" href="#recherche">Trouver un véhicule</a><a class="btn btn-contour btn-sm" href="#vehicules">Voir les véhicules</a><button class="btn btn-contour btn-sm" type="button" data-panneau="rattacher">Ajouter un dossier existant</button></div></div>`}`;
 }
 function brancherPanneau(z){
-  const fr=z.querySelector("#f-rattacher"),fp=z.querySelector("#f-profil"),fm=z.querySelector("#f-mdp");
+  const fr=z.querySelector("#f-rattacher"),fp=z.querySelector("#f-profil"),fm=z.querySelector("#f-mdp"),fv=z.querySelector("#f-verif");
+  if(fv){
+    fv.onsubmit=async e=>{e.preventDefault();
+      if(!fv.checkValidity()){fv.reportValidity();return;}
+      occupe(fv,true,"Vérification…");
+      try{const d=await jenvoi("/api/compte/email/verifier",{code:fv.querySelector("#vf-code").value.trim()});CPT.client=d.client;toast("Email confirmé");rendreCompte();}
+      catch(x){occupe(fv,false);erreurForm(fv,x.message);}
+    };
+    fv.querySelector("#vf-renvoi").onclick=async()=>{
+      try{await jenvoi("/api/compte/email/envoyer",{});toast("Nouveau code envoyé");}catch(x){erreurForm(fv,x.message);}
+    };
+  }
   if(fr)fr.onsubmit=async e=>{e.preventDefault();
     if(!fr.checkValidity()){fr.reportValidity();return;}
     const ref=fr.querySelector("#ra-ref").value.trim().toUpperCase(),tel=fr.querySelector("#ra-tel").value.trim();

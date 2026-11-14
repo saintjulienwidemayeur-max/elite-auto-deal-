@@ -11,6 +11,7 @@ import { q, un, tous, migrer, parametres, journaliser, transaction } from "./db.
 import { SERVICES, COLS_VEHICULE } from "./catalogue.js";
 import { creerPaiement, lirePaiement, signatureValide, modeFreda, fredaConfiguree, ErreurFreda } from "./freda.js";
 import { enregistrer, servir, servirPublic, supprimer } from "./stockage.js";
+import { envoyerEmail, emailConfigure, emailBienvenue, emailCode } from "./email.js";
 
 const PORT = process.env.PORT || 3000;
 const PUBLIC_URL = (process.env.PUBLIC_URL || `http://localhost:${PORT}`).replace(/\/$/, "");
@@ -300,7 +301,36 @@ async function client(req, _res, next) {
     req.client = c; next();
   } catch (e) { next(e); }
 }
-const profil = c => ({ id: c.id, nom: c.nom, tel: c.tel, whatsapp: c.whatsapp, email: c.email, cree_le: c.cree_le });
+const profil = c => ({ id: c.id, nom: c.nom, tel: c.tel, whatsapp: c.whatsapp, email: c.email, email_verifie: !!c.email_verifie_le, cree_le: c.cree_le });
+
+/* ---------- Codes à usage unique (OTP) par email ---------- */
+const OTP_VALIDITE_MIN = 10, OTP_ESSAIS_MAX = 5, OTP_DELAI_RENVOI_MS = 60e3;
+const otpHash = (clientId, finalite, code) => crypto.createHmac("sha256", SESSION_SECRET).update(`${clientId}:${finalite}:${code}`).digest("hex");
+// Crée un code (l'ancien est invalidé). Retourne null si un code a été émis il y a moins d'une minute.
+async function creerOtp(c, finalite) {
+  const dernier = await un("select cree_le from otp_codes where client_id=$1 and finalite=$2 order by id desc limit 1", [c.id, finalite]);
+  if (dernier && Date.now() - new Date(dernier.cree_le).getTime() < OTP_DELAI_RENVOI_MS) return null;
+  const code = String(crypto.randomInt(0, 1e6)).padStart(6, "0");
+  await q("update otp_codes set utilise=true where client_id=$1 and finalite=$2 and not utilise", [c.id, finalite]);
+  await q("insert into otp_codes(client_id, finalite, code_hash, expire_le) values ($1,$2,$3, now() + make_interval(mins => $4))", [c.id, finalite, otpHash(c.id, finalite, code), OTP_VALIDITE_MIN]);
+  return code;
+}
+async function verifierOtp(c, finalite, saisi) {
+  const o = await un("select * from otp_codes where client_id=$1 and finalite=$2 and not utilise and expire_le > now() order by id desc limit 1", [c.id, finalite]);
+  const echec = err(400, "CODE", "Code incorrect ou expiré. Demandez-en un nouveau.");
+  if (!o) throw echec;
+  const { tentatives } = await un("update otp_codes set tentatives=tentatives+1 where id=$1 returning tentatives", [o.id]);
+  if (tentatives > OTP_ESSAIS_MAX) { await q("update otp_codes set utilise=true where id=$1", [o.id]); throw err(429, "CODE_ESSAIS", "Trop d'essais. Demandez un nouveau code."); }
+  const a = Buffer.from(o.code_hash), b = Buffer.from(otpHash(c.id, finalite, String(saisi || "").replace(/\D/g, "")));
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) throw echec;
+  await q("update otp_codes set utilise=true where id=$1", [o.id]);
+}
+async function envoyerCodeEmail(c, finalite) {
+  const code = await creerOtp(c, finalite);
+  if (!code) return false;
+  await envoyerEmail({ a: c.email, nom: c.nom, ...emailCode({ code, finalite }) });
+  return true;
+}
 const emailOk = e => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e);
 
 async function vuePublique(d) {
@@ -346,6 +376,11 @@ app.post("/api/compte/inscription", limiteur(8, 15 * 60e3), enveloppe(async (req
   const c = await un("insert into clients(nom, tel, tel_norm, whatsapp, email, mdp_hash) values ($1,$2,$3,$4,$5,$6) returning *",
     [nom, tel, tn, String(b.whatsapp || tel).slice(0, 40), email, await hacher(mdp)]);
   await journaliser(null, `Nouveau compte client : ${nom}`, "client");
+  if (email) { // email de bienvenue + code de confirmation ; un échec d'envoi ne bloque jamais l'inscription
+    creerOtp(c, "verification")
+      .then(code => envoyerEmail({ a: email, nom, ...emailBienvenue({ nom, code, publicUrl: PUBLIC_URL, whatsapp: process.env.WHATSAPP_NUMERO || "50942405729" }) }))
+      .catch(e => console.error("[email] bienvenue :", e.message));
+  }
   poserSession(res, c.id); res.status(201).json({ client: profil(c) });
 }));
 
@@ -361,13 +396,24 @@ app.post("/api/compte/deconnexion", (_req, res) => { finirSession(res); res.json
 app.post("/api/compte/oubli", limiteur(5, 15 * 60e3), enveloppe(async (req, res) => {
   const id = String(req.body?.identifiant || "").trim();
   const c = id.includes("@") ? await un("select * from clients where lower(email)=lower($1)", [id]) : await un("select * from clients where tel_norm=$1", [telNorm(id)]);
-  if (c) { await q("update clients set reinit_demandee=true where id=$1", [c.id]); await journaliser(null, `Mot de passe oublié : ${c.nom} (${c.tel})`, "alerte"); }
-  res.json({ ok: true, message: "Si un compte existe, un conseiller Elite Auto Deal vous enverra un lien sur WhatsApp." });
+  if (c && c.email && emailConfigure()) {
+    await envoyerCodeEmail(c, "reinit").catch(e => console.error("[email] code :", e.message));
+  } else if (c) { await q("update clients set reinit_demandee=true where id=$1", [c.id]); await journaliser(null, `Mot de passe oublié : ${c.nom} (${c.tel})`, "alerte"); }
+  res.json({ ok: true, message: "Si un compte existe, vous recevrez un code par email (s'il y a une adresse enregistrée), sinon un conseiller Elite Auto Deal vous enverra un lien sur WhatsApp." });
 }));
 
 app.post("/api/compte/reinitialiser", limiteur(10, 15 * 60e3), enveloppe(async (req, res) => {
   const j = String(req.body?.jeton || ""), mdp = String(req.body?.mot_de_passe || "");
   if (mdp.length < 8) throw err(400, "MDP", "Le mot de passe doit contenir au moins 8 caractères.");
+  if (!j) { // réinitialisation par code reçu par email
+    const id = String(req.body?.identifiant || "").trim();
+    const cl = id.includes("@") ? await un("select * from clients where lower(email)=lower($1)", [id]) : await un("select * from clients where tel_norm=$1", [telNorm(id)]);
+    if (!cl) throw err(400, "CODE", "Code incorrect ou expiré. Demandez-en un nouveau.");
+    await verifierOtp(cl, "reinit", req.body?.code);
+    const n = await un("update clients set mdp_hash=$2, reinit_hash=null, reinit_expire=null, reinit_demandee=false, email_verifie_le=coalesce(email_verifie_le, now()), maj_le=now() where id=$1 returning *", [cl.id, await hacher(mdp)]);
+    await journaliser(null, `Mot de passe réinitialisé par code email : ${cl.nom}`, "client");
+    poserSession(res, n.id); return res.json({ client: profil(n) });
+  }
   const h = crypto.createHash("sha256").update(j).digest("hex");
   const c = await un("update clients set mdp_hash=$2, reinit_hash=null, reinit_expire=null, reinit_demandee=false, maj_le=now() where reinit_hash=$1 and reinit_expire > now() returning *", [h, await hacher(mdp)]);
   if (!c) throw err(400, "LIEN", "Ce lien a expiré ou a déjà été utilisé. Demandez-en un nouveau.");
@@ -401,8 +447,26 @@ app.patch("/api/compte", enveloppe(async (req, res) => {
   if (email && !emailOk(email)) throw err(400, "EMAIL", "Adresse email invalide.");
   if (await un("select 1 from clients where id<>$3 and (tel_norm=$1 or ($2::text is not null and lower(email)=$2))", [tn, email, c.id]))
     throw err(409, "EXISTE", "Ce téléphone ou cet email est déjà utilisé par un autre compte.");
-  const n = await un("update clients set nom=$2, tel=$3, tel_norm=$4, whatsapp=$5, email=$6, maj_le=now() where id=$1 returning *",
-    [c.id, nom, tel, tn, b.whatsapp != null ? String(b.whatsapp).slice(0, 40) : c.whatsapp, email]);
+  const emailChange = email !== c.email;
+  const n = await un("update clients set nom=$2, tel=$3, tel_norm=$4, whatsapp=$5, email=$6, email_verifie_le=case when $7 then null else email_verifie_le end, maj_le=now() where id=$1 returning *",
+    [c.id, nom, tel, tn, b.whatsapp != null ? String(b.whatsapp).slice(0, 40) : c.whatsapp, email, emailChange]);
+  if (emailChange && email) envoyerCodeEmail(n, "verification").catch(e => console.error("[email] code :", e.message));
+  res.json({ client: profil(n) });
+}));
+
+app.post("/api/compte/email/envoyer", limiteur(5, 15 * 60e3), enveloppe(async (req, res) => {
+  const c = req.client;
+  if (!c.email) throw err(400, "EMAIL", "Aucune adresse email n'est enregistrée sur votre compte.");
+  if (c.email_verifie_le) throw err(400, "DEJA", "Votre adresse email est déjà confirmée.");
+  if (!emailConfigure()) throw err(503, "EMAIL_INDISPONIBLE", "L'envoi d'email n'est pas disponible pour le moment.");
+  if (!(await envoyerCodeEmail(c, "verification"))) throw err(429, "TROP_TOT", "Patientez une minute avant de demander un nouveau code.");
+  res.json({ ok: true });
+}));
+app.post("/api/compte/email/verifier", limiteur(10, 15 * 60e3), enveloppe(async (req, res) => {
+  const c = req.client;
+  if (!c.email) throw err(400, "EMAIL", "Aucune adresse email n'est enregistrée sur votre compte.");
+  await verifierOtp(c, "verification", req.body?.code);
+  const n = await un("update clients set email_verifie_le=now(), maj_le=now() where id=$1 returning *", [c.id]);
   res.json({ client: profil(n) });
 }));
 

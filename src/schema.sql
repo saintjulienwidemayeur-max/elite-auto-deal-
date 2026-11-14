@@ -127,3 +127,17 @@ create table if not exists clients (
 create unique index if not exists clients_email_idx on clients(lower(email)) where email is not null;
 alter table dossiers add column if not exists client_id uuid references clients(id) on delete set null;
 create index if not exists dossiers_client_idx on dossiers(client_id);
+
+-- Codes à usage unique (OTP) envoyés par email : vérification d'adresse et réinitialisation du mot de passe
+alter table clients add column if not exists email_verifie_le timestamptz;
+create table if not exists otp_codes (
+  id bigserial primary key,
+  client_id uuid not null references clients(id) on delete cascade,
+  finalite text not null check (finalite in ('verification','reinit')),
+  code_hash text not null,
+  expire_le timestamptz not null,
+  tentatives int not null default 0,
+  utilise boolean not null default false,
+  cree_le timestamptz not null default now()
+);
+create index if not exists otp_codes_client_idx on otp_codes(client_id, finalite, cree_le desc);
