@@ -1695,11 +1695,11 @@ const cheminDeVue=(v,vid)=>v==="vehicule"&&vid?"/vehicules/"+encodeURIComponent(
 function vueCourante(){const r=vueDeChemin(location.pathname);if(!r)return"accueil";if(r.id)etat.v=r.id;return r.vue;}
 function allerChemin(chemin,remplacer){
   if(location.pathname+location.search===chemin){route();return;}
-  history[remplacer?"replaceState":"pushState"](null,"",chemin);route();
+  history[remplacer?"replaceState":"pushState"](null,"",chemin);if(!remplacer)TITRE_CLIENT=true;route();
 }
 // Anciennes adresses avec # (liens déjà partagés) : on les convertit vers la vraie URL
 (function(){const h=location.hash.slice(1);if(h&&CHEMINS[h]!==undefined&&location.pathname==="/")history.replaceState(null,"",CHEMINS[h]+location.search);})();
-let PREMIERE_ROUTE=true;
+let TITRE_CLIENT=false; // vrai après une navigation dans la page ; avant, on garde le titre complet envoyé par le serveur
 const VUES=["accueil","vehicules","vehicule","precommande","achat","consultation","recherche","essai","vendre","financement","suivi","conditions","retour","compte","compte-dossier"];
 function route(){
   let h=vueCourante();
@@ -1719,12 +1719,11 @@ function route(){
   if(p){flux(p).entrer();preremplir(p);}
   if(h==="financement")document.getElementById("fi-depuis-achat").classList.toggle("cache",!etat.depuisAchat);
   window.scrollTo({top:0,behavior:"instant"in window?"instant":"auto"});
-  if(!PREMIERE_ROUTE){if(h!=="vehicule")document.title=(h==="accueil"?"Elite Auto Deal — Véhicules et services automobiles en Haïti":(document.querySelector(`.vue[data-vue="${h}"] h1`)?.textContent||"Elite Auto Deal")+" | Elite Auto Deal");
+  if(TITRE_CLIENT){if(h!=="vehicule")document.title=(h==="accueil"?"Elite Auto Deal — Véhicules et services automobiles en Haïti":(document.querySelector(`.vue[data-vue="${h}"] h1`)?.textContent||"Elite Auto Deal")+" | Elite Auto Deal");
   else{const v=parId(etat.v);if(v)document.title=nomV(v)+" | Elite Auto Deal";}}
-  PREMIERE_ROUTE=false; // le titre de la première page est celui envoyé par le serveur (plus complet pour le SEO)
 }
 function aller(vue,vid){if(vid)etat.v=vid;if(vue!=="financement")etat.depuisAchat=false;allerChemin(cheminDeVue(vue,vue==="vehicule"?etat.v:null));}
-window.addEventListener("popstate",route);
+window.addEventListener("popstate",()=>{TITRE_CLIENT=true;route();});
 window.addEventListener("hashchange",()=>{const h=location.hash.slice(1);if(CHEMINS[h]!==undefined&&h!=="accueil")aller(h);});
 // Liens internes : navigation sans rechargement (les liens # vers une vue et les liens vers une vraie URL)
 document.addEventListener("click",e=>{
