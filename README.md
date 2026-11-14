@@ -56,3 +56,7 @@ Dans l'administration, « Gestion des devis » permet de créer un devis (client
 ## Tarifs
 Consultation, recherche/achat accompagné et visite/essai : 50 $ (accompagnement, analyse, préparation des documents, démarches administratives et suivi du client). Vente d'un véhicule confié : 200 $. Dossier de financement : 25 $. Les bases existantes qui avaient encore 150 $ passent automatiquement à 50 $ au premier démarrage (une seule fois ; l'admin peut ensuite modifier les tarifs).
 
+## Code d'accès administrateur
+Au départ, le code d'accès est la variable `ADMIN_PASSWORD`. Depuis l'administration (Paramètres du site → Code d'accès administrateur), il peut être modifié : le nouveau code est stocké haché en base (table `parametres`, clé `admin_acces`) et remplace `ADMIN_PASSWORD`. Changer le code déconnecte les autres appareils.
+Code oublié : supprimer la ligne `admin_acces` de la table `parametres` (Supabase → Table Editor) : `ADMIN_PASSWORD` redevient le code valable.
+

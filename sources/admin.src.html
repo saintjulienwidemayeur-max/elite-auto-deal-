@@ -1421,6 +1421,28 @@ document.addEventListener('click',e=>{
   if(['pdf','mail','wa'].includes(k))return dvAction(k);
   if(['lpdf','lmail','lwa'].includes(k))return dvAction(k,b.dataset.id);
 });
+/* ================= Code d'accès administrateur ================= */
+const _vParams=V['parametres-site'];
+const accesCarte=()=>`<section class="card" style="margin-top:18px;max-width:560px"><div class="card-h"><h2>Code d'accès administrateur</h2></div><div class="card-b">
+  <form class="form" id="accForm" novalidate autocomplete="off">
+   <div class="field"><label for="acc-a">Code d'accès actuel</label><input id="acc-a" type="password" autocomplete="current-password" required></div>
+   <div class="field"><label for="acc-n">Nouveau code d'accès</label><input id="acc-n" type="password" autocomplete="new-password" minlength="8" required><span class="hint">8 caractères minimum. Utilisez une phrase ou un mélange de lettres, chiffres et symboles.</span></div>
+   <div class="field"><label for="acc-c">Confirmer le nouveau code</label><input id="acc-c" type="password" autocomplete="new-password" required></div>
+   <div class="small" id="accErr" role="alert" style="color:var(--rouge);min-height:18px"></div>
+   <button class="btn btn-n" type="submit" id="accBtn">Modifier le code d'accès</button>
+   <p class="small muted" style="margin:0">Les autres appareils connectés sont déconnectés. Gardez ce code en lieu sûr : il donne accès aux dossiers clients et aux paiements.</p></form></div></section>`;
+V['parametres-site']=()=>_vParams()+(LIVE?accesCarte():'');
+document.addEventListener('submit',async e=>{
+  if(e.target.id!=='accForm')return;e.preventDefault();
+  const err=$('#accErr'),b=$('#accBtn'),a=$('#acc-a').value,n=$('#acc-n').value,c=$('#acc-c').value;err.textContent='';
+  if(!a||!n)return err.textContent='Remplissez tous les champs.';
+  if(n.length<8)return err.textContent='Le nouveau code doit contenir au moins 8 caractères.';
+  if(n!==c)return err.textContent='La confirmation ne correspond pas au nouveau code.';
+  b.disabled=true;
+  try{const r=await api('/api/admin/mot-de-passe',{method:'POST',body:{actuel:a,nouveau:n,confirmation:c}});TOKEN=r.token;try{sessionStorage.setItem('ead-admin-token',TOKEN)}catch(_){}toast('Code d\'accès modifié');e.target.reset()}
+  catch(x){err.textContent=x.message}
+  finally{b.disabled=false}
+});
 function render(){baseRender()}
 function baseRender(){
   const id=current();renderNav();

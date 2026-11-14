@@ -550,23 +550,46 @@ app.get("/api/compte/paiements/:id/recu", enveloppe(async (req, res) => {
 
 
 /* ---------- Administration ---------- */
-function jeton() { const exp = Date.now() + 12 * 3600e3; const c = `adm.${exp}`; return { token: `${c}.${signer(c)}`, expire_le: new Date(exp).toISOString() }; }
-function admin(req, _res, next) {
-  const t = (req.get("Authorization") || "").replace(/^Bearer\s+/i, "");
-  const [a, exp, sig] = t.split(".");
-  const attendu = Buffer.from(signer(`${a}.${exp}`)), recu = Buffer.from(sig || "");
-  const ok = a === "adm" && Number(exp) > Date.now() && attendu.length === recu.length && crypto.timingSafeEqual(attendu, recu);
-  ok ? next() : next(err(401, "SESSION", "Session expirée. Reconnectez-vous."));
+/* Code d'accès administrateur : modifiable depuis l'administration (haché en base). Sans modification, ADMIN_PASSWORD (variable d'environnement) reste valable. */
+const accesAdmin = async () => (await un("select valeur from parametres where cle='admin_acces'"))?.valeur || null; // { hash, version }
+async function codeAdminValide(saisi, acces) {
+  if (acces?.hash) return verifierMdp(saisi, acces.hash);
+  const a = crypto.createHash("sha256").update(String(saisi || "")).digest(), b = crypto.createHash("sha256").update(ADMIN_PASSWORD).digest();
+  return crypto.timingSafeEqual(a, b);
+}
+// Le jeton contient la version du code : changer le code déconnecte toutes les autres sessions
+function jeton(version = 0) { const exp = Date.now() + 12 * 3600e3; const c = `adm.${exp}.${version}`; return { token: `${c}.${signer(c)}`, expire_le: new Date(exp).toISOString() }; }
+async function admin(req, _res, next) {
+  try {
+    const t = (req.get("Authorization") || "").replace(/^Bearer\s+/i, "");
+    const [a, exp, version, sig] = t.split(".");
+    const attendu = Buffer.from(signer(`${a}.${exp}.${version}`)), recu = Buffer.from(sig || "");
+    let ok = a === "adm" && Number(exp) > Date.now() && attendu.length === recu.length && crypto.timingSafeEqual(attendu, recu);
+    if (ok) ok = Number(version) === Number((await accesAdmin())?.version || 0);
+    ok ? next() : next(err(401, "SESSION", "Session expirée. Reconnectez-vous."));
+  } catch (e) { next(e); }
 }
 
 app.post("/api/admin/login", limiteur(6, 15 * 60e3), enveloppe(async (req, res) => {
-  if (!ADMIN_PASSWORD) throw err(503, "NON_CONFIGURE", "Mot de passe administrateur non configuré sur le serveur.");
-  const a = crypto.createHash("sha256").update(String(req.body?.password || "")).digest();
-  const b = crypto.createHash("sha256").update(ADMIN_PASSWORD).digest();
-  if (!crypto.timingSafeEqual(a, b)) throw err(401, "MOT_DE_PASSE", "Mot de passe incorrect.");
-  res.json(jeton());
+  const acces = await accesAdmin();
+  if (!acces && !ADMIN_PASSWORD) throw err(503, "NON_CONFIGURE", "Mot de passe administrateur non configuré sur le serveur.");
+  if (!(await codeAdminValide(String(req.body?.password || ""), acces))) throw err(401, "MOT_DE_PASSE", "Mot de passe incorrect.");
+  res.json(jeton(Number(acces?.version || 0)));
 }));
 app.use("/api/admin", admin);
+app.post("/api/admin/mot-de-passe", limiteur(6, 15 * 60e3), enveloppe(async (req, res) => {
+  const { actuel, nouveau, confirmation } = req.body || {};
+  const acces = await accesAdmin();
+  if (!(await codeAdminValide(String(actuel || ""), acces))) throw err(400, "MDP_ACTUEL", "Le code d'accès actuel est incorrect.");
+  const n = String(nouveau || "");
+  if (n.length < 8) throw err(400, "MDP", "Le nouveau code doit contenir au moins 8 caractères.");
+  if (confirmation != null && String(confirmation) !== n) throw err(400, "MDP_CONFIRMATION", "La confirmation ne correspond pas au nouveau code.");
+  if (n === String(actuel)) throw err(400, "MDP_IDENTIQUE", "Le nouveau code doit être différent de l'actuel.");
+  const version = Number(acces?.version || 0) + 1;
+  await q("insert into parametres(cle, valeur) values ('admin_acces', $1) on conflict (cle) do update set valeur=excluded.valeur", [JSON.stringify({ hash: await hacher(n), version })]);
+  await journaliser(null, "Code d'accès administrateur modifié", "parametres", "administrateur");
+  res.json({ ok: true, ...jeton(version) }); // nouveau jeton : la session en cours reste ouverte
+}));
 
 function etatCalc(d, p) { return !p || p.statut !== "succeeded" ? "paiement_en_attente" : d.etat; }
 const LISTE_DOSSIERS = `
