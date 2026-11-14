@@ -20,25 +20,49 @@ export async function envoyerEmail({ a, nom, sujet, html, texte }) {
   } catch (e) { console.error("[email] échec d'envoi :", e.message); return false; }
 }
 
-const cadre = (titre, corps) => `<!doctype html><html lang="fr"><body style="margin:0;background:#f4f4f5;font-family:Arial,Helvetica,sans-serif;color:#111">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:24px 12px">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#fff;border-radius:8px;overflow:hidden">
-<tr><td style="background:#111;color:#fff;padding:18px 24px;font-size:18px;font-weight:bold">Elite Auto Deal</td></tr>
-<tr><td style="padding:28px 24px;font-size:15px;line-height:1.55"><h1 style="margin:0 0 14px;font-size:20px">${titre}</h1>${corps}</td></tr>
-<tr><td style="padding:16px 24px;font-size:12px;color:#777;border-top:1px solid #eee">Vous recevez ce message parce qu'un compte Elite Auto Deal utilise cette adresse. Si ce n'est pas vous, ignorez-le.</td></tr>
+const NOIR = "#0B0B0C", ROUGE = "#D7191F", GRIS = "#6E6E75", FOND = "#F6F6F4";
+const publicUrl = () => (process.env.PUBLIC_URL || "").replace(/\/$/, "");
+// Logo : image PNG blanche hébergée par vous (EMAIL_LOGO_URL). Sans elle, le nom de la marque s'affiche en texte.
+const enTete = () => process.env.EMAIL_LOGO_URL
+  ? `<img src="${esc(process.env.EMAIL_LOGO_URL)}" width="190" alt="Elite Auto Deal" style="display:block;border:0;outline:none;height:auto;max-width:190px">`
+  : `<span style="font-size:22px;font-weight:bold;letter-spacing:2px;color:#fff;text-transform:uppercase">Elite Auto Deal</span>`;
+
+const cadre = (titre, corps, apercu = "") => `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>${esc(titre)}</title></head>
+<body style="margin:0;padding:0;background:${FOND};font-family:Arial,Helvetica,sans-serif;color:${NOIR};-webkit-text-size-adjust:100%">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:${FOND}">${esc(apercu)}&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${FOND}"><tr><td align="center" style="padding:28px 12px">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:580px">
+<tr><td style="background:${NOIR};padding:26px 30px;border-radius:12px 12px 0 0">${enTete()}</td></tr>
+<tr><td style="background:${ROUGE};height:4px;line-height:4px;font-size:0">&nbsp;</td></tr>
+<tr><td style="background:#fff;padding:34px 30px 30px;font-size:16px;line-height:1.6;color:#222">
+<h1 style="margin:0 0 18px;font-size:24px;line-height:1.25;color:${NOIR}">${titre}</h1>${corps}</td></tr>
+<tr><td style="background:#fff;padding:0 30px"><div style="border-top:1px solid #ececec"></div></td></tr>
+<tr><td style="background:#fff;padding:20px 30px 26px;font-size:13px;line-height:1.55;color:${GRIS};border-radius:0 0 12px 12px">
+<b style="color:${NOIR}">Elite Auto Deal</b><br>Véhicules, précommandes et services automobiles en Haïti<br>
+<a href="mailto:${esc(process.env.EMAIL_EXPEDITEUR || "")}" style="color:${GRIS}">${esc(process.env.EMAIL_EXPEDITEUR || "")}</a>${publicUrl() ? ` · <a href="${esc(publicUrl())}" style="color:${GRIS}">${esc(publicUrl().replace(/^https?:\/\//, ""))}</a>` : ""}</td></tr>
+<tr><td style="padding:18px 10px;font-size:12px;line-height:1.5;color:#9a9aa0;text-align:center">Vous recevez ce message parce qu'un compte Elite Auto Deal utilise cette adresse email. Si ce n'est pas vous, vous pouvez l'ignorer.</td></tr>
 </table></td></tr></table></body></html>`;
 
-const blocCode = code => `<p style="margin:18px 0;text-align:center"><span style="display:inline-block;letter-spacing:8px;font-size:30px;font-weight:bold;background:#f4f4f5;padding:12px 18px;border-radius:6px">${esc(code)}</span></p>`;
+const blocCode = code => `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:22px 0"><tr><td align="center" style="background:${FOND};border:1px solid #e4e4e0;border-radius:10px;padding:20px 12px">
+<div style="font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:${GRIS};margin-bottom:8px">Votre code</div>
+<div style="font-family:'Courier New',Courier,monospace;font-size:36px;font-weight:bold;letter-spacing:10px;color:${NOIR};padding-left:10px">${esc(code)}</div>
+<div style="font-size:13px;color:${GRIS};margin-top:10px">Valable 10 minutes</div></td></tr></table>`;
 
-export function emailBienvenue({ nom, code, publicUrl, whatsapp }) {
+const bouton = (url, libelle) => `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:8px 0 4px"><tr><td style="background:${ROUGE};border-radius:8px"><a href="${esc(url)}" style="display:inline-block;padding:14px 26px;color:#fff;text-decoration:none;font-weight:bold;font-size:16px">${esc(libelle)}</a></td></tr></table>`;
+
+const avantage = (t, d) => `<tr><td width="26" valign="top" style="padding:7px 0;color:${ROUGE};font-size:18px;font-weight:bold">&#10003;</td><td style="padding:7px 0;font-size:15px"><b>${t}</b><br><span style="color:${GRIS}">${d}</span></td></tr>`;
+
+export function emailBienvenue({ nom, code, publicUrl: url, whatsapp }) {
   const prenom = esc(String(nom).trim().split(/\s+/)[0]);
   return {
     sujet: "Bienvenue chez Elite Auto Deal",
-    html: cadre(`Bienvenue, ${prenom} !`, `<p>Votre espace Elite Auto Deal est créé. Vous y suivez l'avancement de vos dossiers, retrouvez vos reçus de paiement et ajoutez vos documents.</p>
-      ${code ? `<p>Pour confirmer votre adresse email, saisissez ce code dans votre espace (valable 10 minutes) :</p>${blocCode(code)}` : ""}
-      <p><a href="${esc(publicUrl)}/#compte" style="display:inline-block;background:#c8102e;color:#fff;text-decoration:none;padding:12px 20px;border-radius:6px;font-weight:bold">Ouvrir mon espace</a></p>
-      <p style="color:#555">Une question ? Écrivez-nous sur WhatsApp${whatsapp ? ` au +${esc(whatsapp)}` : ""}.</p>`),
-    texte: `Bienvenue, ${String(nom).trim().split(/\s+/)[0]} ! Votre espace Elite Auto Deal est créé.${code ? ` Code de confirmation de votre email (10 min) : ${code}.` : ""} ${publicUrl}/#compte`,
+    html: cadre(`Bienvenue, ${prenom} !`, `<p style="margin:0 0 14px">Votre espace Elite Auto Deal est créé. Voici ce que vous pouvez y faire :</p>
+      <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 6px">${avantage("Suivre vos dossiers", "L'avancement de chaque demande, étape par étape.")}${avantage("Retrouver vos reçus", "Vos paiements confirmés, consultables à tout moment.")}${avantage("Envoyer vos documents", "Photos et pièces depuis votre téléphone.")}</table>
+      ${code ? `<p style="margin:22px 0 0">Pour confirmer votre adresse email, saisissez ce code dans votre espace :</p>${blocCode(code)}` : ""}
+      ${bouton(`${url}/#compte`, "Ouvrir mon espace")}
+      <p style="margin:22px 0 0;color:${GRIS};font-size:14px">Une question ? Écrivez-nous sur WhatsApp${whatsapp ? ` au <b style="color:${NOIR}">+${esc(whatsapp)}</b>` : ""}.</p>`,
+      "Votre espace est prêt : suivez vos dossiers, vos reçus et vos documents."),
+    texte: `Bienvenue, ${String(nom).trim().split(/\s+/)[0]} ! Votre espace Elite Auto Deal est créé.${code ? ` Code de confirmation de votre email (10 minutes) : ${code}.` : ""} Ouvrir mon espace : ${url}/#compte`,
   };
 }
 
@@ -47,7 +71,9 @@ export function emailCode({ code, finalite }) {
   const titre = reinit ? "Réinitialiser votre mot de passe" : "Confirmer votre adresse email";
   return {
     sujet: `${code} : votre code Elite Auto Deal`,
-    html: cadre(titre, `<p>${reinit ? "Utilisez ce code pour choisir un nouveau mot de passe." : "Utilisez ce code pour confirmer votre adresse email."} Il est valable 10 minutes.</p>${blocCode(code)}<p style="color:#555">Ne partagez ce code avec personne, pas même un conseiller Elite Auto Deal.</p>`),
+    html: cadre(titre, `<p style="margin:0">${reinit ? "Vous avez demandé à changer votre mot de passe. Saisissez ce code dans votre espace pour en choisir un nouveau." : "Saisissez ce code dans votre espace pour confirmer votre adresse email."}</p>${blocCode(code)}
+      <p style="margin:0 0 6px;font-size:14px;color:${GRIS}"><b style="color:${NOIR}">Ne partagez ce code avec personne</b>, pas même avec un conseiller Elite Auto Deal.${reinit ? " Si vous n'avez rien demandé, ignorez cet email : votre mot de passe reste inchangé." : ""}</p>`,
+      `Votre code : ${code} (valable 10 minutes)`),
     texte: `${titre} : votre code est ${code} (valable 10 minutes). Ne le partagez avec personne.`,
   };
 }

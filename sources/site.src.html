@@ -1916,7 +1916,7 @@ function ecranAuth(){
     <form class="form-compte" id="f-reinit" novalidate>${champMdp("ri-mdp","Nouveau mot de passe","new-password","8 caractères minimum.")}${champMdp("ri-mdp2","Confirmer le mot de passe","new-password")}
       <div class="erreur-paie cache" role="alert"></div><button class="btn btn-rouge" type="submit">Enregistrer et me connecter</button></form>`;
   }else if(o==="oubli"){
-    corps=`<h1 tabindex="-1">Mot de passe oublié</h1><p class="muted">Indiquez le téléphone ou l'email de votre compte. Si une adresse email est enregistrée, nous vous envoyons un code à 6 chiffres (valable 10 minutes). Sinon, un conseiller Elite Auto Deal vous enverra un lien sur WhatsApp, valable 24 heures.</p>
+    corps=`<h1 tabindex="-1">Mot de passe oublié</h1><p class="muted">Indiquez le téléphone ou l'email de votre compte. Nous vous envoyons un code à 6 chiffres par email (valable 10 minutes). Sans email enregistré, un conseiller vous enverra un lien sur WhatsApp.</p>
     <form class="form-compte" id="f-oubli" novalidate><div class="champ"><label for="ou-id">Téléphone ou email</label><input id="ou-id" type="text" autocomplete="username" required></div>
       <div class="erreur-paie cache" role="alert"></div><div id="ou-ok"></div>
       <div class="form-actions" style="margin-top:0"><button class="lien" type="button" data-onglet="connexion">Retour à la connexion</button><button class="btn btn-noir" type="submit">Recevoir un code</button></div></form>`;
@@ -1948,6 +1948,31 @@ function ecranAuth(){
       <li><svg aria-hidden="true"><use href="#i-check"/></svg><span><b>Solde de précommande</b>Réglez les 10 % à l'arrivée de votre véhicule, en ligne.</span></li></ul>
       <svg class="filigrane" aria-hidden="true" viewBox="0 0 680 118"><use href="#marque"/></svg></aside></div>`;
 }
+function etapeCode(z,id){
+  const carte=z.querySelector(".auth-carte");if(!carte)return;
+  carte.innerHTML=`${demoNote}<h1 tabindex="-1">Entrez votre code</h1>
+    <p class="muted">Si un compte correspond à <b>${esc(id)}</b> et qu'une adresse email y est enregistrée, nous venons d'y envoyer un code à 6 chiffres, valable 10 minutes. Pensez à vérifier vos courriers indésirables.</p>
+    <form class="form-compte" id="f-code" novalidate>
+      <div class="champ"><label for="cd-code">Code reçu par email</label><input id="cd-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="000000" required style="letter-spacing:8px;font-size:24px;text-align:center;font-weight:700"></div>
+      ${champMdp("cd-mdp","Nouveau mot de passe","new-password","8 caractères minimum.")}${champMdp("cd-mdp2","Confirmer le mot de passe","new-password")}
+      <div class="erreur-paie cache" role="alert"></div>
+      <button class="btn btn-rouge" type="submit">Enregistrer et me connecter</button>
+      <div class="form-actions" style="margin-top:4px"><button class="lien" type="button" id="cd-renvoi" disabled>Renvoyer le code</button><button class="lien" type="button" data-onglet="oubli">Changer d'identifiant</button></div>
+      <p class="muted" style="font-size:13.5px;margin:0">Pas d'email enregistré sur votre compte ? Un conseiller Elite Auto Deal vous contactera sur WhatsApp avec un lien de réinitialisation.</p></form>`;
+  const fk=carte.querySelector("#f-code"),rb=carte.querySelector("#cd-renvoi");
+  fk.querySelector("#cd-code").focus();
+  let reste=60,tic=setInterval(()=>{if(!rb.isConnected){clearInterval(tic);return;}reste--;if(reste<=0){clearInterval(tic);rb.disabled=false;rb.textContent="Renvoyer le code";}else rb.textContent=`Renvoyer le code (${reste} s)`;},1000);
+  rb.textContent="Renvoyer le code (60 s)";
+  rb.onclick=async()=>{rb.disabled=true;try{await jenvoi("/api/compte/oubli",{identifiant:id});toast("Nouveau code envoyé");}catch(x){erreurForm(fk,x.message);}reste=60;clearInterval(tic);tic=setInterval(()=>{if(!rb.isConnected){clearInterval(tic);return;}reste--;if(reste<=0){clearInterval(tic);rb.disabled=false;rb.textContent="Renvoyer le code";}else rb.textContent=`Renvoyer le code (${reste} s)`;},1000);};
+  fk.onsubmit=async ev=>{ev.preventDefault();
+    if(!fk.checkValidity()){fk.reportValidity();return;}
+    const a=fk.querySelector("#cd-mdp").value,b=fk.querySelector("#cd-mdp2").value;
+    if(a!==b){erreurForm(fk,"Les deux mots de passe ne correspondent pas.");return;}
+    occupe(fk,true,"Vérification…");
+    try{const d=await jenvoi("/api/compte/reinitialiser",{identifiant:id,code:fk.querySelector("#cd-code").value.trim(),mot_de_passe:a});clearInterval(tic);apresConnexion(d.client,"Mot de passe enregistré");}
+    catch(x){occupe(fk,false);erreurForm(fk,x.message);}
+  };
+}
 function brancherAuth(z){
   const fc=z.querySelector("#f-connexion"),fi=z.querySelector("#f-inscription"),fo=z.querySelector("#f-oubli"),fr=z.querySelector("#f-reinit");
   if(fc)fc.onsubmit=async e=>{e.preventDefault();
@@ -1969,20 +1994,12 @@ function brancherAuth(z){
   };
   if(fo)fo.onsubmit=async e=>{e.preventDefault();
     if(!fo.checkValidity()){fo.reportValidity();return;}
-    const ok=fo.querySelector("#ou-ok"),def="Demande reçue. Un conseiller vous enverra un lien de réinitialisation sur WhatsApp. Le lien est valable 24 heures.";
-    let msg=def;
-    if(MODE_REEL){occupe(fo,true,"Envoi…");try{const d=await jenvoi("/api/compte/oubli",{identifiant:fo.querySelector("#ou-id").value.trim()});msg=d&&d.message||def;}catch(x){occupe(fo,false);erreurForm(fo,x.message);return;}occupe(fo,false);}
-    ok.innerHTML=`<div class="encadre" style="margin:0"><svg aria-hidden="true"><use href="#i-check" stroke="currentColor"/></svg><p>${esc(msg)}</p></div>`;
-    if(MODE_REEL){
-      ok.insertAdjacentHTML("beforeend",`<form class="form-compte" id="f-code" novalidate style="margin-top:16px"><div class="champ"><label for="cd-code">Code reçu par email</label><input id="cd-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="000000" required></div>${champMdp("cd-mdp","Nouveau mot de passe","new-password","8 caractères minimum.")}<div class="erreur-paie cache" role="alert"></div><button class="btn btn-rouge" type="submit">Enregistrer et me connecter</button></form>`);
-      const fk=ok.querySelector("#f-code");
-      fk.onsubmit=async ev=>{ev.preventDefault();
-        if(!fk.checkValidity()){fk.reportValidity();return;}
-        occupe(fk,true,"Vérification…");
-        try{const d=await jenvoi("/api/compte/reinitialiser",{identifiant:fo.querySelector("#ou-id").value.trim(),code:fk.querySelector("#cd-code").value.trim(),mot_de_passe:fk.querySelector("#cd-mdp").value});apresConnexion(d.client,"Mot de passe enregistré");}
-        catch(x){occupe(fk,false);erreurForm(fk,x.message);}
-      };
-    }
+    const ok=fo.querySelector("#ou-ok"),id=fo.querySelector("#ou-id").value.trim();
+    if(!MODE_REEL){ok.innerHTML=`<div class="encadre" style="margin:0"><svg aria-hidden="true"><use href="#i-check" stroke="currentColor"/></svg><p>Démonstration : aucun message n'est envoyé.</p></div>`;return;}
+    occupe(fo,true,"Envoi…");
+    try{await jenvoi("/api/compte/oubli",{identifiant:id});}
+    catch(x){occupe(fo,false);erreurForm(fo,x.message);return;}
+    etapeCode(z,id);
   };
   if(fr)fr.onsubmit=async e=>{e.preventDefault();
     if(!fr.checkValidity()){fr.reportValidity();return;}
