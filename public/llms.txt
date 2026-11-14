@@ -15,19 +15,19 @@ Langue : français. Zone de service : Delmas, Port-au-Prince et toute la région
 
 ## Services et tarifs (frais de service, différents du prix du véhicule)
 Les frais de 50 $ couvrent l'accompagnement, l'analyse, la préparation des documents, les démarches administratives et le suivi du client.
-- [Consultation automobile](https://eliteautodeal.com/#consultation) : 50 $. Choix du véhicule, budget et critères.
-- [Recherche ou achat accompagné](https://eliteautodeal.com/#recherche) : 50 $. Véhicule absent du site ou déjà en Haïti.
-- [Visite ou essai](https://eliteautodeal.com/#essai) : 50 $. Visite, essai routier ou inspection d'un véhicule disponible en Haïti.
-- [Vente de votre véhicule](https://eliteautodeal.com/#vendre) : 200 $, non remboursable. Photos, vidéos, fiche détaillée et vérification avant publication.
-- [Financement](https://eliteautodeal.com/#financement) : dossier à 25 $ (ou l'équivalent en gourdes) ; l'approbation n'est pas garantie.
+- [Consultation automobile](https://eliteautodeal.com/consultation) : 50 $. Choix du véhicule, budget et critères.
+- [Recherche ou achat accompagné](https://eliteautodeal.com/recherche-vehicule) : 50 $. Véhicule absent du site ou déjà en Haïti.
+- [Visite ou essai](https://eliteautodeal.com/essai-visite) : 50 $. Visite, essai routier ou inspection d'un véhicule disponible en Haïti.
+- [Vente de votre véhicule](https://eliteautodeal.com/vendre-mon-vehicule) : 200 $, non remboursable. Photos, vidéos, fiche détaillée et vérification avant publication.
+- [Financement](https://eliteautodeal.com/financement) : dossier à 25 $ (ou l'équivalent en gourdes) ; l'approbation n'est pas garantie.
 
 ## Véhicules
-- [Inventaire](https://eliteautodeal.com/#vehicules) : chaque annonce indique si le véhicule est en Haïti, en transit ou ouvert à la précommande.
-- [Précommande](https://eliteautodeal.com/#precommande) : 90 % du prix à la précommande, 10 % restants à l'arrivée du véhicule en Haïti.
+- [Inventaire](https://eliteautodeal.com/vehicules) : chaque annonce indique si le véhicule est en Haïti, en transit ou ouvert à la précommande.
+- [Précommande](https://eliteautodeal.com/precommande) : 90 % du prix à la précommande, 10 % restants à l'arrivée du véhicule en Haïti.
 
 ## Informations utiles
-- [Suivi de dossier](https://eliteautodeal.com/#suivi) : chaque demande reçoit une référence ; l'avancement et les reçus sont consultables en ligne.
-- [Conditions des services](https://eliteautodeal.com/#conditions) : remboursement, précommande, paiements, données personnelles.
+- [Suivi de dossier](https://eliteautodeal.com/suivi-dossier) : chaque demande reçoit une référence ; l'avancement et les reçus sont consultables en ligne.
+- [Conditions des services](https://eliteautodeal.com/conditions) : remboursement, précommande, paiements, données personnelles.
 - Remboursement : frais de financement, de consultation et de vente non remboursables ; frais de recherche et de visite acquis dès la prise en charge.
 - Un paiement est confirmé uniquement par le prestataire de paiement (Freda Pay Issuing).
 - Un véhicule trouvé ailleurs par le client reste la propriété de son vendeur ; Elite Auto Deal ne le présente pas comme faisant partie de son inventaire.

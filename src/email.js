@@ -60,10 +60,10 @@ export function emailBienvenue({ nom, code, publicUrl: url, whatsapp }) {
     html: cadre(`Bienvenue, ${prenom} !`, `<p style="margin:0 0 14px">Votre espace Elite Auto Deal est créé. Voici ce que vous pouvez y faire :</p>
       <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 6px">${avantage("Suivre vos dossiers", "L'avancement de chaque demande, étape par étape.")}${avantage("Retrouver vos reçus", "Vos paiements confirmés, consultables à tout moment.")}${avantage("Envoyer vos documents", "Photos et pièces depuis votre téléphone.")}</table>
       ${code ? `<p style="margin:22px 0 0">Pour confirmer votre adresse email, saisissez ce code dans votre espace :</p>${blocCode(code)}` : ""}
-      ${bouton(`${url}/#compte`, "Ouvrir mon espace")}
+      ${bouton(`${url}/mon-espace`, "Ouvrir mon espace")}
       <p style="margin:22px 0 0;color:${GRIS};font-size:14px">Une question ? Écrivez-nous sur WhatsApp${whatsapp ? ` au <b style="color:${NOIR}">+${esc(whatsapp)}</b>` : ""}.</p>`,
       "Votre espace est prêt : suivez vos dossiers, vos reçus et vos documents."),
-    texte: `Bienvenue, ${String(nom).trim().split(/\s+/)[0]} ! Votre espace Elite Auto Deal est créé.${code ? ` Code de confirmation de votre email (10 minutes) : ${code}.` : ""} Ouvrir mon espace : ${url}/#compte`,
+    texte: `Bienvenue, ${String(nom).trim().split(/\s+/)[0]} ! Votre espace Elite Auto Deal est créé.${code ? ` Code de confirmation de votre email (10 minutes) : ${code}.` : ""} Ouvrir mon espace : ${url}/mon-espace`,
   };
 }
 

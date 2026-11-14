@@ -6,7 +6,11 @@ Disallow: /admin.html
 Disallow: /api/
 Disallow: /webhooks/
 Disallow: /devis/
+Disallow: /mon-espace
+Disallow: /retour-paiement
 Disallow: /sante
+Disallow: /mon-espace
+Disallow: /retour-paiement
 
 User-agent: Googlebot
 Allow: /
@@ -15,6 +19,8 @@ Disallow: /admin.html
 Disallow: /api/
 Disallow: /webhooks/
 Disallow: /devis/
+Disallow: /mon-espace
+Disallow: /retour-paiement
 
 User-agent: Bingbot
 Allow: /
@@ -23,6 +29,8 @@ Disallow: /admin.html
 Disallow: /api/
 Disallow: /webhooks/
 Disallow: /devis/
+Disallow: /mon-espace
+Disallow: /retour-paiement
 
 User-agent: GPTBot
 Allow: /
@@ -31,6 +39,8 @@ Disallow: /admin.html
 Disallow: /api/
 Disallow: /webhooks/
 Disallow: /devis/
+Disallow: /mon-espace
+Disallow: /retour-paiement
 
 User-agent: OAI-SearchBot
 Allow: /
@@ -39,6 +49,8 @@ Disallow: /admin.html
 Disallow: /api/
 Disallow: /webhooks/
 Disallow: /devis/
+Disallow: /mon-espace
+Disallow: /retour-paiement
 
 User-agent: ChatGPT-User
 Allow: /
@@ -47,6 +59,8 @@ Disallow: /admin.html
 Disallow: /api/
 Disallow: /webhooks/
 Disallow: /devis/
+Disallow: /mon-espace
+Disallow: /retour-paiement
 
 User-agent: ClaudeBot
 Allow: /
@@ -55,6 +69,8 @@ Disallow: /admin.html
 Disallow: /api/
 Disallow: /webhooks/
 Disallow: /devis/
+Disallow: /mon-espace
+Disallow: /retour-paiement
 
 User-agent: Claude-SearchBot
 Allow: /
@@ -63,6 +79,8 @@ Disallow: /admin.html
 Disallow: /api/
 Disallow: /webhooks/
 Disallow: /devis/
+Disallow: /mon-espace
+Disallow: /retour-paiement
 
 User-agent: Claude-User
 Allow: /
@@ -71,6 +89,8 @@ Disallow: /admin.html
 Disallow: /api/
 Disallow: /webhooks/
 Disallow: /devis/
+Disallow: /mon-espace
+Disallow: /retour-paiement
 
 User-agent: PerplexityBot
 Allow: /
@@ -79,6 +99,8 @@ Disallow: /admin.html
 Disallow: /api/
 Disallow: /webhooks/
 Disallow: /devis/
+Disallow: /mon-espace
+Disallow: /retour-paiement
 
 User-agent: Perplexity-User
 Allow: /
@@ -87,6 +109,8 @@ Disallow: /admin.html
 Disallow: /api/
 Disallow: /webhooks/
 Disallow: /devis/
+Disallow: /mon-espace
+Disallow: /retour-paiement
 
 User-agent: Google-Extended
 Allow: /
@@ -95,6 +119,8 @@ Disallow: /admin.html
 Disallow: /api/
 Disallow: /webhooks/
 Disallow: /devis/
+Disallow: /mon-espace
+Disallow: /retour-paiement
 
 User-agent: Applebot
 Allow: /
@@ -103,6 +129,8 @@ Disallow: /admin.html
 Disallow: /api/
 Disallow: /webhooks/
 Disallow: /devis/
+Disallow: /mon-espace
+Disallow: /retour-paiement
 
 User-agent: Applebot-Extended
 Allow: /
@@ -111,5 +139,7 @@ Disallow: /admin.html
 Disallow: /api/
 Disallow: /webhooks/
 Disallow: /devis/
+Disallow: /mon-espace
+Disallow: /retour-paiement
 
 Sitemap: https://eliteautodeal.com/sitemap.xml

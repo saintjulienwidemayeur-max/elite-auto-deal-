@@ -1616,8 +1616,10 @@ document.getElementById("heros-prec").onclick=()=>{herosAfficher(H.i-1,true);her
 document.getElementById("heros-suiv").onclick=()=>{herosAfficher(H.i+1,true);herosAuto();};
 elP.onclick=e=>{const b=e.target.closest("button");if(b){herosAfficher(+b.dataset.i,true);herosAuto();}};
 const heros=document.getElementById("heros");
-heros.addEventListener("mouseenter",()=>clearInterval(H.t));heros.addEventListener("mouseleave",herosAuto);
-heros.addEventListener("focusin",()=>clearInterval(H.t));
+// Pause seulement avec une vraie souris (sur téléphone, un simple toucher ne doit pas arrêter le défilement) ; reprise quand le focus quitte le bloc
+heros.addEventListener("pointerenter",e=>{if(e.pointerType==="mouse")clearInterval(H.t);});heros.addEventListener("pointerleave",e=>{if(e.pointerType==="mouse")herosAuto();});
+heros.addEventListener("focusin",()=>clearInterval(H.t));heros.addEventListener("focusout",()=>herosAuto());
+document.addEventListener("visibilitychange",()=>{if(document.hidden)clearInterval(H.t);else herosAuto();});
 herosPoints();herosAfficher(0,false);herosAuto();
 
 /* ---------- Flotte accueil ---------- */
@@ -1681,13 +1683,29 @@ function rendreDetail(){
 
 /* ---------- Routage ---------- */
 const etat={v:null,depuisAchat:false};
+/* Vraies URL (History API) : chaque page a son adresse, ex. /consultation ou /vehicules/rav16 */
+const CHEMINS={accueil:"/",vehicules:"/vehicules",precommande:"/precommande",achat:"/acheter",consultation:"/consultation",recherche:"/recherche-vehicule",essai:"/essai-visite",vendre:"/vendre-mon-vehicule",financement:"/financement",suivi:"/suivi-dossier",conditions:"/conditions",retour:"/retour-paiement",compte:"/mon-espace","compte-dossier":"/mon-espace/dossier"};
+function vueDeChemin(p){
+  p=(p||"/").replace(/\/+$/,"")||"/";
+  if(p.startsWith("/vehicules/")&&p.length>11)return{vue:"vehicule",id:decodeURIComponent(p.slice(11))};
+  for(const[v,c]of Object.entries(CHEMINS))if(c===p)return{vue:v};
+  return null;
+}
+const cheminDeVue=(v,vid)=>v==="vehicule"&&vid?"/vehicules/"+encodeURIComponent(vid):(CHEMINS[v]||"/");
+function vueCourante(){const r=vueDeChemin(location.pathname);if(!r)return"accueil";if(r.id)etat.v=r.id;return r.vue;}
+function allerChemin(chemin,remplacer){
+  if(location.pathname+location.search===chemin){route();return;}
+  history[remplacer?"replaceState":"pushState"](null,"",chemin);route();
+}
+// Anciennes adresses avec # (liens déjà partagés) : on les convertit vers la vraie URL
+(function(){const h=location.hash.slice(1);if(h&&CHEMINS[h]!==undefined&&location.pathname==="/")history.replaceState(null,"",CHEMINS[h]+location.search);})();
+let PREMIERE_ROUTE=true;
 const VUES=["accueil","vehicules","vehicule","precommande","achat","consultation","recherche","essai","vendre","financement","suivi","conditions","retour","compte","compte-dossier"];
 function route(){
-  let h=(location.hash||"#accueil").slice(1);
-  if(h==="contenu")h="accueil";
+  let h=vueCourante();
   if(!VUES.includes(h))h="accueil";
   document.querySelectorAll(".vue").forEach(x=>x.classList.toggle("active",x.dataset.vue===h));
-  document.querySelectorAll(".nav a").forEach(a=>{if(a.getAttribute("href")==="#"+h)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current");});
+  document.querySelectorAll(".nav a").forEach(a=>{if(a.getAttribute("href")===cheminDeVue(h,etat.v))a.setAttribute("aria-current","page");else a.removeAttribute("aria-current");});
   fermerMenu();
   if(h!=="retour")arreterRetour();
   if(h==="retour")afficherRetour();
@@ -1701,10 +1719,23 @@ function route(){
   if(p){flux(p).entrer();preremplir(p);}
   if(h==="financement")document.getElementById("fi-depuis-achat").classList.toggle("cache",!etat.depuisAchat);
   window.scrollTo({top:0,behavior:"instant"in window?"instant":"auto"});
-  document.title=(h==="accueil"?"Elite Auto Deal — Véhicules et services automobiles en Haïti":(document.querySelector(`.vue[data-vue="${h}"] h1`)?.textContent||"Elite Auto Deal")+" | Elite Auto Deal");
+  if(!PREMIERE_ROUTE){if(h!=="vehicule")document.title=(h==="accueil"?"Elite Auto Deal — Véhicules et services automobiles en Haïti":(document.querySelector(`.vue[data-vue="${h}"] h1`)?.textContent||"Elite Auto Deal")+" | Elite Auto Deal");
+  else{const v=parId(etat.v);if(v)document.title=nomV(v)+" | Elite Auto Deal";}}
+  PREMIERE_ROUTE=false; // le titre de la première page est celui envoyé par le serveur (plus complet pour le SEO)
 }
-function aller(vue,vid){if(vid)etat.v=vid;if(vue!=="financement")etat.depuisAchat=false;if(location.hash==="#"+vue)route();else location.hash=vue;}
-window.addEventListener("hashchange",route);
+function aller(vue,vid){if(vid)etat.v=vid;if(vue!=="financement")etat.depuisAchat=false;allerChemin(cheminDeVue(vue,vue==="vehicule"?etat.v:null));}
+window.addEventListener("popstate",route);
+window.addEventListener("hashchange",()=>{const h=location.hash.slice(1);if(CHEMINS[h]!==undefined&&h!=="accueil")aller(h);});
+// Liens internes : navigation sans rechargement (les liens # vers une vue et les liens vers une vraie URL)
+document.addEventListener("click",e=>{
+  if(e.defaultPrevented||e.button||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;
+  const a=e.target.closest("a[href]");if(!a||a.target||a.hasAttribute("download"))return;
+  const h=a.getAttribute("href");
+  if(h.startsWith("#")){const v=h.slice(1);if(CHEMINS[v]!==undefined){e.preventDefault();aller(v);}return;}
+  let u;try{u=new URL(a.href,location.href);}catch(_){return;}
+  if(u.origin!==location.origin)return;
+  const r=vueDeChemin(u.pathname);if(r){e.preventDefault();if(r.id)etat.v=r.id;if(r.vue!=="financement")etat.depuisAchat=false;allerChemin(u.pathname+u.search);}
+});
 document.addEventListener("click",e=>{
   const b=e.target.closest("[data-aller]");
   if(b){e.preventDefault();aller(b.dataset.aller,b.dataset.v);}
@@ -1978,7 +2009,7 @@ function flux(p){
       if(xhr.status>=200&&xhr.status<300&&d&&d.ref){
         try{localStorage.setItem("ead-derniere-ref",d.ref);localStorage.setItem("ead-derniere-methode",d.methode||F.methode);}catch(_){}
         if(d.checkout_url){const t=document.getElementById("etat-"+nom);if(t)t.textContent="Redirection vers la page de paiement sécurisée Freda Pay Issuing…";location.href=d.checkout_url;}
-        else{location.hash="retour";}
+        else{aller("retour");}
         return;
       }
       fin();erreurPaie(d&&d.error&&d.error.message?d.error.message:"Le paiement n'a pas pu être lancé. Réessayez dans un instant ou écrivez-nous sur WhatsApp.");
@@ -2026,7 +2057,7 @@ function flux(p){
   function soumettre(e){
     e.preventDefault();
     if(!form.checkValidity()){form.reportValidity();return;}
-    if(nom==="achat"){const mode=form.querySelector('input[name=mode]:checked').value;if(mode==="Financement"){etat.v=form.vehicule.value;etat.depuisAchat=true;location.hash="financement";return;}}
+    if(nom==="achat"){const mode=form.querySelector('input[name=mode]:checked').value;if(mode==="Financement"){etat.v=form.vehicule.value;etat.depuisAchat=true;aller("financement");return;}}
     if(!montant()){toast("Ce véhicule n'a pas de prix affiché : contactez-nous sur WhatsApp.");return;}
     recap();
   }
@@ -2066,7 +2097,7 @@ async function suiviReel(ref,out){
    ${d.solde_usd?`<p class="muted">Solde à régler à l'arrivée en Haïti : <b>${usd(d.solde_usd)}</b></p>`:""}
    ${pai.statut!=="succeeded"?`<button class="btn btn-rouge btn-sm" type="button" data-suivre-paiement="${esc(d.ref)}">Voir l'état du paiement</button>`:""}
    <a class="btn btn-wa btn-sm" target="_blank" rel="noopener" href="${waUrl("Bonjour Elite Auto Deal, je souhaite un point sur mon dossier "+d.ref+".")}"><svg aria-hidden="true"><use href="#i-wa"/></svg>Poser une question sur WhatsApp</a></div>`;
-  const b=out.querySelector("[data-suivre-paiement]");if(b)b.onclick=()=>{try{localStorage.setItem("ead-derniere-ref",d.ref);}catch(_){}location.hash="retour";};
+  const b=out.querySelector("[data-suivre-paiement]");if(b)b.onclick=()=>{try{localStorage.setItem("ead-derniere-ref",d.ref);}catch(_){}aller("retour");};
 }
 
 /* Retour de la page de paiement */
@@ -2079,7 +2110,7 @@ function afficherRetour(){
   if(!MODE_REEL){z.innerHTML=`<div class="carte-suivi"><b>Aucun paiement en cours sur cet appareil.</b><p class="muted" style="margin-top:6px">Retrouvez votre dossier avec sa référence dans la page de suivi.</p><a class="btn btn-noir btn-sm" href="#suivi">Suivre mon dossier</a></div>`;return;}
   if(!ref){z.innerHTML=`<div class="carte-suivi"><b>Aucun paiement en cours sur cet appareil.</b><p class="muted" style="margin-top:6px">Si vous avez déjà payé, retrouvez votre dossier avec la référence reçue.</p><a class="btn btn-noir btn-sm" href="#suivi">Suivre mon dossier</a></div>`;return;}
   let sref=null;try{sref=localStorage.getItem("ead-solde-ref");}catch(_){}
-  if(sref&&sref===ref){try{localStorage.removeItem("ead-solde-ref");}catch(_){}memoRef(ref);CPT.avis="Paiement du solde en cours de vérification auprès de Freda Pay Issuing. Cette page se met à jour toute seule.";location.hash="compte-dossier";return;}
+  if(sref&&sref===ref){try{localStorage.removeItem("ead-solde-ref");}catch(_){}memoRef(ref);CPT.avis="Paiement du solde en cours de vérification auprès de Freda Pay Issuing. Cette page se met à jour toute seule.";aller("compte-dossier");return;}
   RT.ref=ref;RT.debut=Date.now();RT.enCours=true;
   z.innerHTML=`<div class="bloc-form"><div class="verif" role="status"><span class="spin"></span>Vérification du paiement du dossier ${esc(ref)} auprès de Freda Pay Issuing…</div></div>`;
   sonder();
@@ -2213,7 +2244,7 @@ async function apresConnexion(c,msg){
   if(CPT.aRattacher&&MODE_REEL){try{await jenvoi("/api/compte/rattacher",{ref:CPT.aRattacher,tel:c.tel});}catch(_){}}
   CPT.aRattacher=null;
   await chargerCompte();toast(msg);
-  if(location.hash==="#compte")rendreCompte();else aller("compte");
+  if(vueCourante()==="compte")rendreCompte();else aller("compte");
   document.querySelectorAll(".parcours").forEach(preremplir);
 }
 
@@ -2422,7 +2453,7 @@ function brancherPanneau(z){
 async function rendreCompte(rafraichir){
   const z=zoneCompte();if(!z)return;
   if(!CPT.pret){z.innerHTML=`<div class="verif" role="status" style="margin-top:20px"><span class="spin"></span>Chargement de votre espace…</div>`;return;}
-  if(rafraichir&&CPT.client&&MODE_REEL){chargerCompte().then(()=>{if(location.hash==="#compte")rendreCompte();});}
+  if(rafraichir&&CPT.client&&MODE_REEL){chargerCompte().then(()=>{if(vueCourante()==="compte")rendreCompte();});}
   if(rafraichir&&!MODE_REEL&&CPT.client){CPT.dossiers=demoDossiers();CPT.stats=demoStats(CPT.dossiers);}
   if(!CPT.client||CPT.reinit){z.innerHTML=ecranAuth();brancherAuth(z);}
   else{z.innerHTML=tableauHTML();brancherPanneau(z);}
@@ -2471,13 +2502,13 @@ async function rendreDossierCompte(silencieux){
   const z=document.getElementById("compte-dossier-zone");if(!z)return;
   clearTimeout(CPT.t);
   if(!CPT.pret){z.innerHTML=`<div class="verif" role="status" style="margin-top:20px"><span class="spin"></span>Chargement…</div>`;return;}
-  if(!CPT.client||!CPT.ref){location.hash="compte";return;}
+  if(!CPT.client||!CPT.ref){aller("compte");return;}
   if(!silencieux){CPT.tours=0;z.innerHTML=`<div class="verif" role="status" style="margin-top:20px"><span class="spin"></span>Chargement du dossier ${esc(CPT.ref)}…</div>`;}
   let d=null;
-  if(MODE_REEL){try{d=await api("/api/compte/dossiers/"+encodeURIComponent(CPT.ref));}catch(e){if(e.status===401){CPT.client=null;majEntete();location.hash="compte";return;}z.innerHTML=`<a class="retour-lien" href="#compte"><svg aria-hidden="true"><use href="#i-fleche-g"/></svg>Mes dossiers</a><div class="carte-suivi"><b>${esc(e.message)}</b></div>`;return;}}
+  if(MODE_REEL){try{d=await api("/api/compte/dossiers/"+encodeURIComponent(CPT.ref));}catch(e){if(e.status===401){CPT.client=null;majEntete();aller("compte");return;}z.innerHTML=`<a class="retour-lien" href="#compte"><svg aria-hidden="true"><use href="#i-fleche-g"/></svg>Mes dossiers</a><div class="carte-suivi"><b>${esc(e.message)}</b></div>`;return;}}
   else d=demoDetail(CPT.ref);
   if(!d){z.innerHTML=`<a class="retour-lien" href="#compte"><svg aria-hidden="true"><use href="#i-fleche-g"/></svg>Mes dossiers</a><div class="carte-suivi"><b>Dossier introuvable dans votre espace.</b></div>`;return;}
-  if(location.hash!=="#compte-dossier")return;
+  if(vueCourante()!=="compte-dossier")return;
   CPT.detail=d;
   const y=window.scrollY;
   z.innerHTML=detailHTML(d);
@@ -2499,7 +2530,7 @@ function envoyerDocuments(inp){
   const x=new XMLHttpRequest();x.open("POST","/api/compte/dossiers/"+encodeURIComponent(ref)+"/fichiers");x.timeout=600000;
   x.upload.onprogress=e=>{if(!e.lengthComputable)return;const b=document.getElementById("cpt-barre");if(b)b.style.width=Math.round(e.loaded/e.total*100)+"%";if(e.loaded>=e.total){const t=document.getElementById("cpt-envoi-txt");if(t)t.textContent="Enregistrement…";}};
   x.onload=()=>{let d=null;try{d=JSON.parse(x.responseText);}catch(_){}
-    if(x.status>=200&&x.status<300&&d){toast(fs.length>1?"Documents envoyés":"Document envoyé");if(location.hash==="#compte-dossier"){CPT.detail=d;const y=window.scrollY;document.getElementById("compte-dossier-zone").innerHTML=detailHTML(d);window.scrollTo(0,y);}return;}
+    if(x.status>=200&&x.status<300&&d){toast(fs.length>1?"Documents envoyés":"Document envoyé");if(vueCourante()==="compte-dossier"){CPT.detail=d;const y=window.scrollY;document.getElementById("compte-dossier-zone").innerHTML=detailHTML(d);window.scrollTo(0,y);}return;}
     inp.disabled=false;box.innerHTML=`<div class="erreur-paie" role="alert">${esc(d&&d.error&&d.error.message?d.error.message:"L'envoi a échoué. Réessayez.")}</div>`;};
   x.onerror=x.ontimeout=()=>{inp.disabled=false;box.innerHTML=`<div class="erreur-paie" role="alert">Connexion impossible. Vérifiez votre connexion internet et réessayez.</div>`;};
   x.send(fd);
@@ -2565,18 +2596,18 @@ document.addEventListener("click",e=>{
   if((b=t.closest("[data-onglet]"))){CPT.onglet=b.dataset.onglet;rendreCompte();const f=zoneCompte().querySelector(CPT.onglet==="oubli"?"#ou-id":`[data-onglet="${CPT.onglet}"][role=tab]`);f&&f.focus();return;}
   if((b=t.closest("[data-panneau]"))){CPT.panneau=b.dataset.panneau||null;rendreCompte();if(!CPT.panneau){const x=zoneCompte().querySelector("h1");x&&x.focus({preventScroll:true});}return;}
   if((b=t.closest("[data-deconnexion]"))){(async()=>{if(MODE_REEL){try{await jenvoi("/api/compte/deconnexion",{});}catch(_){}}else ecrireDemo(null);CPT.client=null;CPT.dossiers=[];CPT.stats=null;CPT.panneau=null;CPT.onglet="connexion";majEntete();toast("Vous êtes déconnecté");rendreCompte();})();return;}
-  if((b=t.closest("[data-ouvrir-dossier]"))){memoRef(b.dataset.ouvrirDossier);if(location.hash==="#compte-dossier"){e.preventDefault();rendreDossierCompte();}return;}
+  if((b=t.closest("[data-ouvrir-dossier]"))){memoRef(b.dataset.ouvrirDossier);if(vueCourante()==="compte-dossier"){e.preventDefault();rendreDossierCompte();}return;}
   if((b=t.closest("[data-recu]"))){ouvrirRecu(b.dataset.recu);return;}
   if((b=t.closest("[data-payer-solde]"))){payerSolde(b);return;}
   if((b=t.closest("[data-copier-ref]"))){copier(b.dataset.copierRef,"Référence copiée");return;}
-  if((b=t.closest("[data-etat-paie]"))){try{localStorage.setItem("ead-derniere-ref",b.dataset.etatPaie);}catch(_){}location.hash="retour";return;}
-  if((b=t.closest("[data-voir-espace]"))){memoRef(b.dataset.voirEspace);location.hash="compte-dossier";return;}
+  if((b=t.closest("[data-etat-paie]"))){try{localStorage.setItem("ead-derniere-ref",b.dataset.etatPaie);}catch(_){}aller("retour");return;}
+  if((b=t.closest("[data-voir-espace]"))){memoRef(b.dataset.voirEspace);aller("compte-dossier");return;}
   if((b=t.closest("[data-creer-espace]"))){CPT.aRattacher=b.dataset.creerEspace;CPT.onglet="inscription";aller("compte");return;}
 });
 document.addEventListener("change",e=>{if(e.target&&e.target.id==="cpt-fichiers")envoyerDocuments(e.target);});
 
 /* Démarrage de l'espace (démonstration) et lien de réinitialisation */
-{const ri=new URLSearchParams(location.search).get("reinit");if(ri){CPT.reinit=ri;if(location.hash!=="#compte")location.hash="compte";}}
+{const ri=new URLSearchParams(location.search).get("reinit");if(ri){CPT.reinit=ri;if(vueCourante()!=="compte")allerChemin(CHEMINS.compte+location.search,true);}}
 chargerCompte();
 
 /* Démarrage : détection du serveur */
@@ -2607,8 +2638,8 @@ async function demarrer(){
   Object.assign(TARIFS,cfg.tarifs);
   if(cfg.whatsapp)WA_NUM=String(cfg.whatsapp);
   const q=new URLSearchParams(location.search).get("ref");
-  if(q){try{localStorage.setItem("ead-derniere-ref",q.trim().toUpperCase());}catch(_){}if(!location.hash||location.hash==="#accueil")location.hash="retour";}
-  const ri=new URLSearchParams(location.search).get("reinit");if(ri){CPT.reinit=ri;if(location.hash!=="#compte")location.hash="compte";}
+  if(q){try{localStorage.setItem("ead-derniere-ref",q.trim().toUpperCase());}catch(_){}if(vueCourante()==="accueil")allerChemin(CHEMINS.retour+location.search,true);}
+  const ri=new URLSearchParams(location.search).get("reinit");if(ri){CPT.reinit=ri;if(vueCourante()!=="compte")allerChemin(CHEMINS.compte+location.search,true);}
   CPT.pret=false;CPT.client=null;
   await Promise.all([(async()=>{try{const l=await api("/api/vehicules");if(Array.isArray(l)){V.length=0;l.forEach(v=>V.push(v));rerendre();}}catch(_){}})(),chargerCompte()]);
   route();

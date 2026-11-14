@@ -60,3 +60,6 @@ Consultation, recherche/achat accompagné et visite/essai : 50 $ (accompagnement
 Au départ, le code d'accès est la variable `ADMIN_PASSWORD`. Depuis l'administration (Paramètres du site → Code d'accès administrateur), il peut être modifié : le nouveau code est stocké haché en base (table `parametres`, clé `admin_acces`) et remplace `ADMIN_PASSWORD`. Changer le code déconnecte les autres appareils.
 Code oublié : supprimer la ligne `admin_acces` de la table `parametres` (Supabase → Table Editor) : `ADMIN_PASSWORD` redevient le code valable.
 
+## URL par page (SEO)
+Chaque page a sa vraie adresse : `/`, `/vehicules`, `/vehicules/<id>`, `/precommande`, `/acheter`, `/consultation`, `/recherche-vehicule`, `/essai-visite`, `/vendre-mon-vehicule`, `/financement`, `/suivi-dossier`, `/conditions` (pages privées non indexées : `/mon-espace`, `/mon-espace/dossier`, `/retour-paiement`). Le serveur (`src/seo.js`) envoie pour chaque URL son titre, sa description, son canonical, ses balises Open Graph, son JSON-LD (fil d'Ariane, Service avec tarif de la base, Car + Offer pour une fiche véhicule) et sa vue initiale. `/sitemap.xml` est généré à partir des véhicules publiés. Une adresse inconnue renvoie un 404 non indexé. Les anciens liens `/#consultation` et `/?ref=…` sont convertis automatiquement côté navigateur.
+

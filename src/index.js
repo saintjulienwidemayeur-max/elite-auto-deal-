@@ -13,6 +13,7 @@ import { creerPaiement, lirePaiement, signatureValide, modeFreda, fredaConfigure
 import { enregistrer, servir, servirPublic, supprimer } from "./stockage.js";
 import { envoyerEmail, emailConfigure, emailBienvenue, emailCode, emailDevis } from "./email.js";
 import { validerDevis, genererPdf, montant as montantDevis } from "./devis.js";
+import { pageHtml, sitemapXml, CHEMINS } from "./seo.js";
 
 const PORT = process.env.PORT || 3000;
 const PUBLIC_URL = (process.env.PUBLIC_URL || `http://localhost:${PORT}`).replace(/\/$/, "");
@@ -133,7 +134,7 @@ async function lancerPaiement({ dossier, type, methode, montantUsd, email }) {
   try {
     f = await creerPaiement({
       methode, montant, reference: freda_reference, client_nom: dossier.client_nom, client_email: email || dossier.client_email,
-      return_url: `${PUBLIC_URL}/?ref=${encodeURIComponent(dossier.ref)}#retour`,
+      return_url: `${PUBLIC_URL}/retour-paiement?ref=${encodeURIComponent(dossier.ref)}`,
     });
   } catch (e) {
     await journaliser(dossier.ref, `Création du paiement refusée par Freda Pay Issuing : ${e.message}`, "alerte");
@@ -811,7 +812,7 @@ app.post("/api/admin/clients/:id/reinitialisation", enveloppe(async (req, res) =
   const j = crypto.randomBytes(24).toString("base64url");
   const c = await un("update clients set reinit_hash=$2, reinit_expire=now() + interval '24 hours' where id=$1 returning *", [req.params.id, crypto.createHash("sha256").update(j).digest("hex")]).catch(() => null);
   if (!c) throw err(404, "INTROUVABLE", "Client introuvable.");
-  const lien = `${PUBLIC_URL}/?reinit=${j}#compte`;
+  const lien = `${PUBLIC_URL}/mon-espace?reinit=${j}`;
   await journaliser(null, `Lien de réinitialisation créé pour ${c.nom}`, "client", "administrateur");
   res.json({ lien, whatsapp: c.whatsapp || c.tel, message_whatsapp: `Bonjour ${prenomDe(c.nom)}, voici votre lien pour choisir un nouveau mot de passe sur votre espace Elite Auto Deal (valable 24 h) : ${lien}` });
 }));
@@ -884,6 +885,22 @@ app.get("/api/admin/rapports", enveloppe(async (req, res) => {
 /* ---------- Fichiers statiques ---------- */
 app.get("/sante", (_req, res) => res.json({ ok: true, paiement: fredaConfiguree() ? modeFreda() : "non configuré" }));
 app.get(["/admin", "/admin/"], (_req, res) => res.sendFile(path.join(DOSSIER_PUBLIC, "admin.html")));
+/* ---------- Vraies URL par page (SEO) ---------- */
+const envoyerPage = async (res, vue, chemin, { vehicule, statut = 200, noindex } = {}) => {
+  const { tarifs } = await parametres();
+  res.status(statut).set({ "Content-Type": "text/html; charset=utf-8", "Cache-Control": "public, max-age=0, must-revalidate" }).send(pageHtml(DOSSIER_PUBLIC, vue, { tarifs, vehicule, chemin, noindex }));
+};
+for (const [vue, chemin] of Object.entries(CHEMINS)) app.get(chemin, enveloppe(async (_req, res) => envoyerPage(res, vue, chemin)));
+app.get("/vehicules/:id", enveloppe(async (req, res) => {
+  const v = await un(`${VUE_V} where id=$1 and not retire`, [String(req.params.id)]);
+  if (!v) return envoyerPage(res, "vehicules", "/vehicules", { statut: 404, noindex: true });
+  await avecPhotos(v);
+  envoyerPage(res, "vehicule", `/vehicules/${encodeURIComponent(v.id)}`, { vehicule: v });
+}));
+app.get("/sitemap.xml", enveloppe(async (_req, res) => {
+  res.set({ "Content-Type": "application/xml; charset=utf-8", "Cache-Control": "public, max-age=3600" }).send(sitemapXml(await tous("select id, maj_le from vehicules where not retire order by maj_le desc")));
+}));
+
 // Lien public du devis (non devinable) : utilisé pour le partage WhatsApp
 app.get("/devis/:jeton.pdf", limiteur(60, 10 * 60e3), enveloppe(async (req, res) => {
   const d = await un(`select ${VUE_DEVIS} from devis where jeton=$1`, [String(req.params.jeton || "")]);
@@ -892,6 +909,11 @@ app.get("/devis/:jeton.pdf", limiteur(60, 10 * 60e3), enveloppe(async (req, res)
 }));
 app.use(express.static(DOSSIER_PUBLIC, { extensions: ["html"], maxAge: "5m" }));
 app.use("/api", (_req, _res, next) => next(err(404, "INTROUVABLE", "Route inconnue.")));
+// Adresse inconnue : page d'accueil avec le statut 404 (non indexée)
+app.use(enveloppe(async (req, res, next) => {
+  if (req.method !== "GET" || /\.[a-z0-9]{2,5}$/i.test(req.path) || !req.accepts("html")) return next();
+  await envoyerPage(res, "accueil", "/", { statut: 404, noindex: true });
+}));
 
 /* ---------- Erreurs ---------- */
 app.use((e, _req, res, _next) => {

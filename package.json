@@ -4,7 +4,7 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "test": "node test/e2e.js && node test/compte.js && node test/email.js && node test/moyens.js && node test/devis.js && node test/acces.js"
+    "test": "node test/e2e.js && node test/compte.js && node test/email.js && node test/moyens.js && node test/devis.js && node test/acces.js && node test/urls.js"
   },
   "dependencies": {
     "compression": "^1.8.2",
