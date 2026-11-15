@@ -36,10 +36,10 @@ await t("WhatsApp : message avec le lien de la page, jamais celui d'un autre dev
   const r = await A(`/api/admin/devis/${d.id}/whatsapp`, { method: "POST", body: "{}" }); const w = await r.json();
   assert.equal(r.status, 200, JSON.stringify(w)); assert.match(w.lien_whatsapp, /^https:\/\/wa\.me\/509/); assert.ok(w.message.includes(`/devis/${d.jeton}`) && !w.message.includes(".pdf")); assert.ok(w.message.includes("valable jusqu'au"));
 });
-await t("page publique du devis : HTML noindex, API sans email ni téléphone, PDF par lien", async () => {
+await t("page publique du devis : HTML noindex, API avec les informations du client (sans jeton), PDF par lien", async () => {
   const page = await fetch(`${B}/devis/${d.jeton}`); const h = await page.text(); assert.equal(page.status, 200); assert.ok(h.includes('<div class="vue active" data-vue="devis">')); assert.match(h, /<meta name="robots" content="noindex/);
   const api = await (await fetch(`${B}/api/devis/${d.jeton}`)).json();
-  assert.equal(api.numero, d.numero); assert.equal(api.total_usd, 12670.5); assert.equal(api.statut, "actif"); assert.equal(api.client_email, undefined); assert.equal(api.client_tel, undefined); assert.equal(api.jeton, undefined);
+  assert.equal(api.numero, d.numero); assert.equal(api.total_usd, 12670.5); assert.equal(api.statut, "actif"); assert.equal(api.client_email, EMAIL); assert.equal(api.client_tel, corps.client_tel); assert.equal(api.jeton, undefined);
   const pdf = await fetch(`${B}/devis/${d.jeton}.pdf`); assert.equal(pdf.status, 200); assert.equal(Buffer.from(await pdf.arrayBuffer()).subarray(0, 5).toString(), "%PDF-");
 });
 await t("paiement : le montant vient du devis (le client ne peut rien changer), MonCash envoyé à Freda en gourdes", async () => {

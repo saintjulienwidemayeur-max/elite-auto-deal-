@@ -89,5 +89,5 @@ Admin :
 
 ### Devis (client, sans compte)
 - Page : `/devis/<jeton>` (jeton non devinable, un jeton = un seul devis, `noindex`). PDF : `/devis/<jeton>.pdf`.
-- GET /api/devis/:jeton → `{ numero, client_nom, lignes, frais_supplementaires, total_usd, cree_le, expire_le, statut: "actif"|"paye"|"expire", ref, paiement, methodes, taux_htg, ... }` (sans email ni téléphone).
+- GET /api/devis/:jeton → `{ numero, client_nom, lignes, frais_supplementaires, total_usd, cree_le, expire_le, statut: "actif"|"paye"|"expire", ref, paiement, methodes, taux_htg, ... }` (avec `client_email` et `client_tel` : les informations de ce client seulement, visibles uniquement avec son lien personnel).
 - POST /api/devis/:jeton/payer `{ methode: "moncash"|"natcash"|"carte", client_email? }` → `{ ref, checkout_url }`. Le montant est celui du devis ; réponses 409 (déjà payé) et 410 (expiré).

@@ -211,6 +211,10 @@ app.post("/api/dossiers", limiteur(Number(process.env.LIMITE_DOSSIERS) || 12, 15
     const { tarifs } = await parametres();
     let v = null, montantUsd, prixV = null;
     if (b.vehicule_id && b.vehicule_id !== "autre") v = await un(`${VUE_V} where id=$1 and not retire`, [b.vehicule_id]);
+    if (service === "essai") { // visite ou essai : uniquement un véhicule de l'inventaire, disponible en Haïti
+      if (!v) throw err(400, "VEHICULE", "Choisissez un véhicule de notre inventaire.");
+      if (v.statut !== "disponible") throw err(409, "VEHICULE_INDISPONIBLE", "Ce véhicule n'est plus disponible pour une visite ou un essai.");
+    }
     if (S.vehicule === "precommandable" || S.vehicule === "disponible") {
       if (!v) throw err(400, "VEHICULE", "Choisissez un véhicule.");
       if (v.prix == null) throw err(400, "PRIX", "Ce véhicule n'a pas de prix affiché. Contactez-nous sur WhatsApp.");
@@ -988,7 +992,7 @@ const vueDevisPublic = async d => {
   const p = d.dossier_ref ? await un("select statut, methode, confirme_le from paiements where ref=$1 and type='initial' order by id desc limit 1", [d.dossier_ref]) : null;
   const expire = d.expire_le && new Date(d.expire_le).getTime() < Date.now();
   const { taux } = await parametres();
-  return { numero: d.numero, client_nom: d.client_nom, lignes: d.lignes, frais_supplementaires: Number(d.frais_supplementaires), total_usd: Number(d.total_usd), cree_le: d.cree_le, expire_le: d.expire_le,
+  return { numero: d.numero, client_nom: d.client_nom, client_email: d.client_email || "", client_tel: d.client_tel || "", lignes: d.lignes, frais_supplementaires: Number(d.frais_supplementaires), total_usd: Number(d.total_usd), cree_le: d.cree_le, expire_le: d.expire_le,
     statut: d.statut === "paye" ? "paye" : expire ? "expire" : "actif", ref: d.dossier_ref, paiement: p ? { statut: p.statut, methode: p.methode, confirme_le: p.confirme_le } : null,
     methodes: CARTE_ACTIVE ? ["moncash", "natcash", "carte"] : ["moncash", "natcash"], taux_htg: taux.taux_htg, paiement_actif: fredaConfiguree(), whatsapp: process.env.WHATSAPP_NUMERO || "50942405729" };
 };

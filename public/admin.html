@@ -1385,7 +1385,8 @@ VL.devis=()=>`<div class="head"><div><span class="dv-eyebrow">ESPACE ADMINISTRAT
    <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:18px">
     <div class="field" style="flex:1 1 220px;max-width:260px"><label for="dv-frais">Frais supplémentaires ($)</label><input id="dv-frais" data-dvf="frais" inputmode="decimal" value="${esc(DV.f.frais)}" placeholder="0,00"></div>
     <div class="field" style="flex:1 1 220px;max-width:260px"><label for="dv-expire">Valable jusqu'au</label><input id="dv-expire" data-dvf="expire" type="date" value="${esc(DV.f.expire)}" min="${dvAujourdhui()}"><span class="hint">30 jours par défaut.</span></div></div>
-   <div class="dv-total" aria-live="polite"><span>Total automatique</span><b id="dvTotal">${dvMoney(dvTotal())}</b></div></div></section>
+   <div class="dv-total" aria-live="polite"><span>Total automatique</span><b id="dvTotal">${dvMoney(dvTotal())}</b></div>
+   <div style="margin-top:12px"><button class="btn btn-p" type="button" data-dv="pay" style="width:100%">${ic('card')}Payer maintenant</button><p class="small muted" style="margin:8px 0 0">Enregistre le devis puis ouvre sa page de paiement (client présent, ou pour tester le lien).</p></div></div></section>
  <section class="card" style="margin-bottom:18px"><div class="card-h"><h2>Actions</h2></div><div class="card-b"><div class="dv-actions">
    <button class="btn btn-n" type="button" data-dv="pdf">${ic('file')}Générer le devis en PDF</button>
    <button class="btn btn-p" type="button" data-dv="mail">${ic('send')}Envoyer directement par Email</button>
@@ -1410,13 +1411,14 @@ async function dvPdf(id,w){
 }
 async function dvAction(kind,id){
   if(DV.busy)return;DV.busy=true;
-  const w=(kind==='pdf'||kind==='wa'||kind==='lpdf'||kind==='lwa')?window.open('about:blank','_blank'):null;
+  const w=(kind==='pdf'||kind==='wa'||kind==='lpdf'||kind==='lwa'||kind==='pay')?window.open('about:blank','_blank'):null;
   document.querySelectorAll('[data-dv]').forEach(b=>b.disabled=true);
   try{
     let did=id;
     if(!id){const d=await dvEnregistrer();did=d.id}
     if(kind==='pdf'||kind==='lpdf'){await dvPdf(did,w);toast('Devis PDF généré')}
     else if(kind==='mail'||kind==='lmail'){const d=await api(`/api/admin/devis/${did}/email`,{method:'POST',body:{}});toast(`Devis ${d.numero} envoyé à ${d.client_email}`)}
+    else if(kind==='pay'){const d=DV.list.find(x=>x.id===did)||await api('/api/admin/devis').then(l=>l.find(x=>x.id===did));if(w&&!w.closed)w.location.href=dvLien(d);else window.open(dvLien(d),'_blank');toast('Page de paiement du devis ouverte')}
     else if(kind==='copy'||kind==='lcopy'){const d=DV.list.find(x=>x.id===did)||await api('/api/admin/devis').then(l=>l.find(x=>x.id===did));const lien=dvLien(d);try{await navigator.clipboard.writeText(lien);toast('Lien sécurisé copié')}catch(_){window.prompt('Copiez le lien du devis :',lien)}}
     else{const r=await api(`/api/admin/devis/${did}/whatsapp`,{method:'POST',body:{}});if(w&&!w.closed)w.location.href=r.lien_whatsapp;else window.open(r.lien_whatsapp,'_blank');toast('WhatsApp ouvert avec le message du devis')}
   }catch(e){if(w)w.close();fail(e)}
@@ -1436,7 +1438,7 @@ document.addEventListener('click',e=>{
   if(k==='reset'){DV.id=null;DV.f={nom:'',email:'',tel:'',frais:'',expire:dvExpireDefaut()};DV.lignes=[{description:'',quantite:'1',prix_unitaire:''}];render();return}
   if(k==='edit'){const d=DV.list.find(x=>String(x.id)===b.dataset.id);if(!d)return;DV.id=d.id;DV.f={nom:d.client_nom||'',email:d.client_email||'',tel:d.client_tel||'',frais:+d.frais_supplementaires?String(d.frais_supplementaires):'',expire:d.expire_le?String(d.expire_le).slice(0,10):dvExpireDefaut()};DV.lignes=(d.lignes||[]).map(l=>({description:l.description,quantite:String(l.quantite),prix_unitaire:String(l.prix_unitaire)}));render();window.scrollTo({top:0,behavior:'smooth'});return}
   if(k==='del'){const d=DV.list.find(x=>String(x.id)===b.dataset.id);return confirmBox('Supprimer ce devis ?',`Le devis ${esc(d.numero)} de ${esc(d.client_nom)} sera supprimé définitivement. Un lien WhatsApp déjà partagé ne fonctionnera plus.`,'Supprimer',async()=>{try{await api('/api/admin/devis/'+d.id,{method:'DELETE'});if(DV.id===d.id){DV.id=null}toast('Devis supprimé');await dvRafraichir()}catch(err){fail(err)}},true)}
-  if(['pdf','mail','wa','copy'].includes(k))return dvAction(k);
+  if(['pdf','mail','wa','copy','pay'].includes(k))return dvAction(k);
   if(['lpdf','lmail','lwa','lcopy'].includes(k))return dvAction(k,+b.dataset.id);
 });
 /* ================= Code d'accès administrateur ================= */

@@ -819,7 +819,9 @@ input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:
 .dv-bandeau{margin:0 clamp(16px,3vw,24px) clamp(16px,3vw,24px);padding:14px 18px;border-radius:var(--r-m);font-weight:600}.dv-bandeau.ok{background:#E7F4EC;color:#14653A}.dv-bandeau.ko{background:#FBF1E0;color:#8A5200}
 .dv-actions{display:flex;gap:10px;flex-wrap:wrap}.dv-actions .btn{flex:1 1 210px}
 @media (max-width:640px){.dv-tab thead{display:none}.dv-tab,.dv-tab tbody{display:block}.dv-tab tr{display:flex;flex-wrap:wrap;gap:4px 16px;align-items:baseline;padding:12px clamp(18px,3vw,30px);border-bottom:1px solid var(--gris-100)}.dv-tab td{border:0;padding:0}.dv-tab td:first-child{flex:0 0 100%;font-weight:600}.dv-tab td:last-child{margin-left:auto}.dv-tab td[data-l]{color:var(--gris-700);font-size:14px}.dv-tab td[data-l]::before{content:attr(data-l)" : ";color:var(--gris-500)}}
-@media print{body *{visibility:hidden}.dv-carte,.dv-carte *{visibility:visible}.dv-carte{position:absolute;left:0;top:0;width:100%;border:0}}
+.dv-sec{border-bottom:1px solid var(--gris-100)}.dv-sec>h3{font-size:12px;letter-spacing:1.4px;text-transform:uppercase;color:var(--gris-500);padding:18px clamp(18px,3vw,30px) 0}
+.dv-sec .dv-meta{border-bottom:0}.dv-carte .bloc-form{margin:0 clamp(16px,3vw,24px) clamp(16px,3vw,24px);border:1px solid var(--gris-200)}
+@media print{body *{visibility:hidden}.dv-carte,.dv-carte *{visibility:visible}.dv-carte{position:absolute;left:0;top:0;width:100%;border:0}.dv-carte #dv-paie{display:none}}
 .badge.st-promo{background:var(--rouge);border-color:var(--rouge)}.badge.st-promo::before{background:#fff}.badge.st-promo span{color:#fff}
 .prix-barre{font-family:var(--f-corps);font-weight:500;font-size:.62em;color:var(--gris-500);margin-right:6px}
 .heros-vehicule .heros-prix{font-size:15px;color:var(--noir)}.heros-vehicule .heros-prix s{color:var(--gris-500);margin-right:6px}.heros-vehicule .heros-prix b{font-size:20px;font-family:var(--f-titre)}
@@ -1210,12 +1212,12 @@ input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:
 <div class="vue" data-vue="recherche">
   <div class="wrap">
     <div class="page-tete"><div class="fil"><a href="/">Accueil</a> / Trouver un véhicule</div>
-      <div class="rang"><div><h1>Votre recherche automobile</h1><p class="lead">Un véhicule absent du site, ou un véhicule déjà en Haïti que vous voulez acheter ou faire inspecter avec nous.</p></div>
+      <div class="rang"><div><h1>Confiez-nous l'achat de votre véhicule</h1><p class="lead">Vous souhaitez acheter un véhicule, mais vous manquez de temps ou vous ne savez pas où chercher ? Elite Auto Deal s'occupe de tout pour vous !</p></div>
       <div class="etiquette-prix"><b>30 $</b><span>frais de dossier, pas un acompte</span></div></div>
     </div>
     <div class="parcours" data-service="recherche">
       <div class="parcours-principal">
-        <div class="encadre" style="margin:0 0 14px"><svg aria-hidden="true"><use href="#i-info"/></svg><p><b>À l'ouverture : <span data-tarif="recherche">30 $</span> de frais de dossier.</b> Une fois le véhicule trouvé, vous recevez un devis par lien sécurisé : <b data-tarif="service_recherche">150 $</b> de frais de service, plus le montant du véhicule, que vous pouvez payer en ligne.</p></div>
+        <div class="encadre" style="margin:0 0 14px"><svg aria-hidden="true"><use href="#i-info"/></svg><p>Notre équipe effectue les recherches pour trouver le véhicule qui correspond à vos besoins et à votre budget.<br>Frais de service : <b data-tarif="service_recherche">150 $</b> US. Le montant total du véhicule vous sera communiqué après confirmation de votre dossier.</p></div>
         <ol class="etapier"><li>Informations</li><li>Récapitulatif</li><li>Paiement</li><li>Confirmation</li></ol>
         <form class="form-service" novalidate>
           <div class="bloc-form">
@@ -1235,7 +1237,6 @@ input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:
             <fieldset><legend>Type de demande</legend>
               <div class="choix">
                 <label><input type="radio" name="type" value="Recherche confiée à Elite Auto Deal" data-lbl="Type de demande" checked><span>Je confie la recherche à Elite Auto Deal<small>Nous cherchons le véhicule correspondant à vos critères.</small></span></label>
-                <label><input type="radio" name="type" value="Achat ou inspection d'un véhicule déjà en Haïti" data-lbl="Type de demande"><span>Je veux acheter ou inspecter un véhicule déjà en Haïti<small>Le véhicule reste la propriété de son vendeur ; nous vous accompagnons.</small></span></label>
               </div>
             </fieldset>
             <div class="champ"><label for="re-plus">Précisions supplémentaires</label><textarea id="re-plus" name="precisions" data-lbl="Précisions" placeholder="Couleur, kilométrage maximum, lieu du véhicule déjà repéré…"></textarea></div>
@@ -1269,20 +1270,7 @@ input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:
         <form class="form-service" novalidate>
           <div class="bloc-form">
             <h3>Le véhicule</h3>
-            <fieldset><legend>Quel véhicule ?</legend>
-              <div class="choix deux">
-                <label><input type="radio" name="origine" value="Inventaire Elite Auto Deal" data-lbl="Origine" checked data-bascule="es-inv"><span>Un véhicule de notre inventaire</span></label>
-                <label><input type="radio" name="origine" value="Véhicule trouvé ailleurs" data-lbl="Origine" data-bascule="es-ext"><span>Un véhicule trouvé ailleurs<small>Déjà en Haïti</small></span></label>
-              </div>
-            </fieldset>
-            <div id="es-inv" class="champ"><label for="es-v">Véhicule</label><select id="es-v" name="vehicule" data-lbl="Véhicule" data-vselect="disponible" required></select></div>
-            <div id="es-ext" class="cache">
-              <div class="grille-champs">
-                <div class="champ large"><label for="es-desc">Marque, modèle et année</label><input id="es-desc" name="description" data-lbl="Véhicule décrit" type="text" placeholder="Honda CR-V 2017"></div>
-                <div class="champ large"><label for="es-lieu">Où se trouve le véhicule ?</label><input id="es-lieu" name="lieu" data-lbl="Lieu du véhicule" type="text" placeholder="Pétion-Ville, chez un particulier"></div>
-              </div>
-              <div class="encadre alerte" style="margin-top:14px"><svg aria-hidden="true"><use href="#i-info"/></svg><p>Ce véhicule reste la propriété de son vendeur. Elite Auto Deal vous accompagne pour la visite, la vérification ou l'essai, sans le présenter comme faisant partie de son inventaire.</p></div>
-            </div>
+            <div id="es-inv" class="champ"><label for="es-v">Quel véhicule de notre inventaire ?</label><select id="es-v" name="vehicule" data-lbl="Véhicule" data-vselect="disponible" required></select><span class="aide">Seuls les véhicules disponibles en Haïti sont proposés.</span></div>
             <fieldset><legend>Type de rendez-vous</legend>
               <div class="choix">
                 <label><input type="radio" name="rdv" value="Visite" data-lbl="Rendez-vous" checked><span>Visite du véhicule</span></label>
@@ -1482,8 +1470,6 @@ input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:
     <p>Un paiement est confirmé uniquement par le prestataire de paiement, jamais sur la base d'une capture d'écran. Les montants en gourdes sont calculés au taux affiché au moment du paiement.</p>
     <h2>Données personnelles</h2>
     <p>Les informations et documents transmis servent uniquement au traitement de votre demande et sont conservés de manière sécurisée.</p>
-    <h2>Véhicules de tiers</h2>
-    <p>Un véhicule trouvé ailleurs par le client reste la propriété de son vendeur. Elite Auto Deal ne le présente jamais comme faisant partie de son inventaire.</p>
   </div>
 </div>
 
@@ -1747,7 +1733,7 @@ async function rendreDevisPublic(){
   let bas="";
   if(d.statut==="paye")bas=`<div class="dv-bandeau ok">Devis payé, merci ! Votre dossier ${esc(d.ref||"")} est pris en charge.</div>`;
   else if(d.statut==="expire")bas=`<div class="dv-bandeau ko">Ce devis a expiré le ${esc(dateFr(d.expire_le))}. Contactez-nous sur WhatsApp pour obtenir un nouveau devis.</div>`;
-  const paiement=actif?`<section class="bloc-form" id="dv-paie"><h3>Payer ce devis</h3>
+  const paiement=actif?`<section class="bloc-form" id="dv-paie"><h3>Payer maintenant</h3>
     ${d.paiement_actif?`<fieldset><legend>Moyen de paiement</legend><div class="choix deux">${d.methodes.map(k=>`<label><input type="radio" name="dv-methode" value="${k}" ${DVP.methode===k?"checked":""}><span>${libM[k][0]}<small>${libM[k][1]}</small></span></label>`).join("")}</div></fieldset>
     <div class="a-payer"><div><span>Montant à payer</span><br><b>${carte?eur(total):Math.round(total*d.taux_htg).toLocaleString("fr-FR").replace(/[  ]/g," ")+" HTG"}</b></div><span>${carte?"Payé en dollars par carte":`${eur(total)} au taux de ${Number(d.taux_htg).toLocaleString("fr-FR")} HTG pour 1 USD`}</span></div>
     ${carte?`<div class="champ"><label for="dv-email">Email pour le reçu de la carte</label><input id="dv-email" type="email" autocomplete="email" required value="${esc(DVP.email)}"></div>`:""}
@@ -1758,10 +1744,12 @@ async function rendreDevisPublic(){
     :`<p class="muted">Le paiement en ligne n'est pas encore disponible. Écrivez-nous sur WhatsApp pour régler ce devis.</p>`}</section>`:"";
   z.innerHTML=`<div class="dv-page">
     <article class="dv-carte" id="dv-carte"><div class="dv-tete"><svg class="logo" role="img" aria-label="Elite Auto Deal"><use href="#logo"/></svg><div class="dv-num"><span>DEVIS</span><b>${esc(d.numero)}</b></div></div>
-      <div class="dv-meta"><div><span>Client</span><b>${esc(d.client_nom)}</b></div><div><span>Émis le</span><b>${esc(dateFr(d.cree_le))}</b></div><div><span>Valable jusqu'au</span><b>${esc(dateFr(d.expire_le))}</b></div></div>
-      <table class="dv-tab"><thead><tr><th>Description</th><th class="r">Qté</th><th class="r">Prix unitaire</th><th class="r">Total</th></tr></thead><tbody>${lignes}</tbody></table>
-      <div class="dv-total"><span>Total à payer</span><b>${eur(total)}</b></div>${bas}</article>
-    ${paiement}
+      <section class="dv-sec"><h3>Informations du client</h3><div class="dv-meta"><div><span>Nom et prénom</span><b>${esc(d.client_nom)}</b></div><div><span>Email</span><b>${d.client_email?esc(d.client_email):"—"}</b></div><div><span>Téléphone / WhatsApp</span><b>${d.client_tel?esc(d.client_tel):"—"}</b></div></div></section>
+      <section class="dv-sec"><h3>Détails du devis</h3><table class="dv-tab"><thead><tr><th>Description du service ou véhicule</th><th class="r">Quantité</th><th class="r">Prix unitaire ($)</th><th class="r">Total</th></tr></thead><tbody>${lignes}</tbody></table>
+        <div class="dv-meta"><div><span>Émis le</span><b>${esc(dateFr(d.cree_le))}</b></div><div><span>Valable jusqu'au</span><b>${esc(dateFr(d.expire_le))}</b></div></div></section>
+      <div class="dv-total"><span>Total à payer</span><b>${eur(total)}</b></div>${bas}
+      ${paiement}
+    </article>
     <div class="dv-actions"><a class="btn btn-contour" href="/devis/${encodeURIComponent(j)}.pdf" target="_blank" rel="noopener">Télécharger le PDF</a><button class="btn btn-contour" type="button" id="dv-imprimer">Imprimer</button><a class="btn btn-wa" target="_blank" rel="noopener" href="${waUrl("Bonjour Elite Auto Deal, j'ai une question sur mon devis "+d.numero+".")}"><svg aria-hidden="true"><use href="#i-wa"/></svg>Écrire sur WhatsApp</a></div>
     <p class="muted" style="font-size:13.5px">Ce lien est personnel : il donne accès à ce devis uniquement. L'original est cette page ; le PDF est une copie à télécharger ou imprimer.</p></div>`;
   const imp=document.getElementById("dv-imprimer");if(imp)imp.onclick=()=>window.print();
@@ -1867,14 +1855,6 @@ function remplirSelectV(s){
 }
 const dateEssai=document.getElementById("es-date");
 {const d=new Date();d.setDate(d.getDate()+1);dateEssai.min=d.toISOString().slice(0,10);}
-// Bascule essai inventaire / externe
-document.querySelectorAll("[data-bascule]").forEach(r=>r.addEventListener("change",()=>{
-  const inv=document.getElementById("es-inv"),ext=document.getElementById("es-ext"),interne=r.dataset.bascule==="es-inv";
-  inv.classList.toggle("cache",!interne);ext.classList.toggle("cache",interne);
-  document.getElementById("es-v").required=interne;
-  document.getElementById("es-desc").required=!interne;document.getElementById("es-lieu").required=!interne;
-  document.querySelector('[data-service="essai"]').__flux&&document.querySelector('[data-service="essai"]').__flux.resume();
-}));
 // Aperçus fichiers
 document.querySelectorAll('input[type=file]').forEach(inp=>inp.addEventListener("change",()=>{
   const box=inp.closest(".champ").querySelector(`[data-apercu]`);if(!box)return;
@@ -1958,6 +1938,7 @@ function flux(p){
     if(nom==="precommande")note="Le délai estimé, les conditions d'annulation et de retard sont affichés avant le paiement. Le solde n'est jamais prélevé automatiquement.";
     else if(nom==="achat")note="Paiement du prix du véhicule. Si vous choisissez le financement, vous êtes redirigé vers la demande de financement, sans paiement du véhicule à cette étape.";
     else if(nom==="financement")note="Frais de dossier : ni acompte, ni garantie d'approbation.";
+    else if(nom==="recherche")note="Frais de dossier : ce n'est ni le prix du véhicule, ni un acompte. Les frais de service de "+usd(TARIFS.service_recherche)+" sont dus seulement lorsque le véhicule est trouvé, avec le prix du véhicule, par devis.";
     else note="Frais de service : ce n'est ni le prix d'un véhicule, ni un acompte de réservation, ni des frais de financement."+(nom==="vendre"||nom==="consultation"?" Non remboursables.":"");
     aside.innerHTML=`<h3>Ce que vous payez</h3><div class="montant">${m?usd(m):"—"}</div><p class="muted" style="font-size:13.5px">${esc(S.nature)}</p><dl>${lignes}</dl><p class="note">${note}</p><p class="note" style="border:0;padding:0;margin-top:-6px">Taux affiché : 1 USD = ${TAUX_HTG} HTG (mis à jour le ${TAUX_DATE}).</p>`;
   }

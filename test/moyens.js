@@ -18,8 +18,15 @@ for (const m of ["moncash", "natcash"]) await t(`${m} => Freda reçoit "${m}" en
   assert.equal(r.status, 201, JSON.stringify(b)); assert.deepEqual(await cote(b.ref), { freda: m, base: m, devise: "HTG" });
 });
 await t("visite ou essai : 30 $ x 132 = 3960 HTG ; consultation : 50 $ = 6600 HTG", async () => {
-  const e = await (await fetch(B + "/api/dossiers", { method: "POST", body: fd({ ...base, service: "essai", methode: "natcash" }) })).json(); assert.equal(e.montant_usd, 30); assert.equal(e.montant, 3960);
+  const dispo = (await (await fetch(B + "/api/vehicules")).json()).find(v => v.statut === "disponible");
+  const e = await (await fetch(B + "/api/dossiers", { method: "POST", body: fd({ ...base, service: "essai", methode: "natcash", vehicule_id: dispo.id }) })).json(); assert.equal(e.montant_usd, 30); assert.equal(e.montant, 3960);
   const c = await (await fetch(B + "/api/dossiers", { method: "POST", body: fd({ ...base, service: "consultation", methode: "moncash" }) })).json(); assert.equal(c.montant_usd, 50); assert.equal(c.montant, 6600);
+});
+await t("visite ou essai : seulement un véhicule de l'inventaire, disponible en Haïti", async () => {
+  const l = await (await fetch(B + "/api/vehicules")).json(); const transit = l.find(v => v.statut === "transit");
+  assert.equal((await fetch(B + "/api/dossiers", { method: "POST", body: fd({ ...base, service: "essai", methode: "moncash" }) })).status, 400, "sans véhicule");
+  assert.equal((await fetch(B + "/api/dossiers", { method: "POST", body: fd({ ...base, service: "essai", methode: "moncash", vehicule_id: "autre" }) })).status, 400, "véhicule « autre »");
+  assert.equal((await fetch(B + "/api/dossiers", { method: "POST", body: fd({ ...base, service: "essai", methode: "moncash", vehicule_id: transit.id }) })).status, 409, "véhicule en transit");
 });
 await t("« mobile », « all » ou vide refusés", async () => {
   for (const m of ["mobile", "all", ""]) assert.equal((await fetch(B + "/api/dossiers", { method: "POST", body: fd({ ...base, methode: m }) })).status, 400);
