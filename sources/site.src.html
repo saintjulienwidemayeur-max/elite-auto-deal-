@@ -820,6 +820,10 @@ input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:
 .dv-actions{display:flex;gap:10px;flex-wrap:wrap}.dv-actions .btn{flex:1 1 210px}
 @media (max-width:640px){.dv-tab thead{display:none}.dv-tab,.dv-tab tbody{display:block}.dv-tab tr{display:flex;flex-wrap:wrap;gap:4px 16px;align-items:baseline;padding:12px clamp(18px,3vw,30px);border-bottom:1px solid var(--gris-100)}.dv-tab td{border:0;padding:0}.dv-tab td:first-child{flex:0 0 100%;font-weight:600}.dv-tab td:last-child{margin-left:auto}.dv-tab td[data-l]{color:var(--gris-700);font-size:14px}.dv-tab td[data-l]::before{content:attr(data-l)" : ";color:var(--gris-500)}}
 @media print{body *{visibility:hidden}.dv-carte,.dv-carte *{visibility:visible}.dv-carte{position:absolute;left:0;top:0;width:100%;border:0}}
+.badge.st-promo{background:var(--rouge);border-color:var(--rouge)}.badge.st-promo::before{background:#fff}.badge.st-promo span{color:#fff}
+.prix-barre{font-family:var(--f-corps);font-weight:500;font-size:.62em;color:var(--gris-500);margin-right:6px}
+.heros-vehicule .heros-prix{font-size:15px;color:var(--noir)}.heros-vehicule .heros-prix s{color:var(--gris-500);margin-right:6px}.heros-vehicule .heros-prix b{font-size:20px;font-family:var(--f-titre)}
+.vitrine-img.vitrine-photo{aspect-ratio:16/10;object-fit:cover;border-radius:var(--r-l);filter:none;-webkit-box-reflect:unset;box-shadow:0 24px 50px rgba(11,11,12,.18)}
 </style>
 </head>
 <body>
@@ -1581,7 +1585,7 @@ function voitureSVG(v,cls){
 }
 
 /* ---------- Cartes ---------- */
-function badge(v){return `<span class="badge ${STCLS[v.statut]}"><span>${STATUTS[v.statut]}</span></span>`;}
+function badge(v){return `<span class="badge ${STCLS[v.statut]}"><span>${STATUTS[v.statut]}</span></span>${v.prix_normal?` <span class="badge st-promo"><span>Promo</span></span>`:""}`;}
 function boutonsV(v){
   if(v.statut==="vendu"||v.statut==="indisponible") return `<a class="btn btn-contour seul" href="#recherche">Trouver un véhicule similaire</a>`;
   if(precommandable(v)) return `<button class="btn btn-rouge seul" type="button" data-aller="precommande" data-v="${v.id}">Précommander ce véhicule</button>`;
@@ -1597,7 +1601,7 @@ function carte(v){
      <h3>${esc(v.marque)} ${esc(v.modele.replace(/\s\d{4}$/,""))}<small>${esc(v.couleur)}, ${v.places} places, ${esc(v.trans.toLowerCase())}</small></h3>
      <ul class="specs">${specs.map(s=>`<li>${esc(s)}</li>`).join("")}</ul>
      <div class="vcarte-pied">
-       <div class="prix-ligne"><span class="prix">${usd(v.prix)}</span>${precommandable(v)&&v.prix?`<span class="prix-note">90 % : ${usd(v.prix*.9)}</span>`:(v.note?`<span class="prix-note">${esc(v.note)}</span>`:"")}</div>
+       <div class="prix-ligne"><span class="prix">${v.prix_normal?`<s class="prix-barre">${usd(v.prix_normal)}</s>`:""}${usd(v.prix)}</span>${precommandable(v)&&v.prix?`<span class="prix-note">90 % : ${usd(v.prix*.9)}</span>`:(v.note?`<span class="prix-note">${esc(v.note)}</span>`:"")}</div>
        <div class="vcarte-btns">${boutonsV(v)}</div>
      </div>
    </div></article>`;
@@ -1607,25 +1611,19 @@ function carte(v){
 const H={i:0,t:null};
 const elA=document.getElementById("heros-annee"),elV=document.getElementById("heros-voiture"),elI=document.getElementById("heros-info"),elP=document.getElementById("heros-points");
 const reduit=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-/* Vitrine du hero : modèles sur demande (photos détourées) */
-const IMG_VITRINE=__VITRINE_JSON__;
-const VITRINE=[
- {id:"mercedes-gle-coupe",marque:"Mercedes-Benz",modele:"GLE Coupé",filigrane:"GLE",accroche:"SUV coupé puissant à la signature sportive"},
- {id:"range-rover-evoque",marque:"Range Rover",modele:"Evoque",filigrane:"EVOQUE",accroche:"SUV compact au style affirmé"},
- {id:"mg-hs",marque:"MG",modele:"HS",filigrane:"HS",accroche:"SUV familial moderne et bien équipé"},
- {id:"lexus-gx",marque:"Lexus",modele:"GX",filigrane:"GX",accroche:"SUV robuste, confort et fiabilité"},
- {id:"mercedes-glc-coupe",marque:"Mercedes-Benz",modele:"GLC Coupé",filigrane:"GLC",accroche:"SUV coupé élégant au design affirmé"},
- {id:"audi-q3",marque:"Audi",modele:"Q3 Sportback",filigrane:"Q3",accroche:"SUV coupé, élégant et compact"},
- {id:"audi-q8",marque:"Audi",modele:"Q8",filigrane:"Q8",accroche:"Le grand SUV coupé haut de gamme"},
- {id:"jetour-x70",marque:"Jetour",modele:"X70 Plus",filigrane:"X70",accroche:"Spacieux, bien équipé, 7 places"}
-];
+/* Vitrine du hero : diapositives gérées dans l'administration (Vitrine du site), injectées par le serveur */
+let VITRINE=Array.isArray(window.__VITRINE__)?window.__VITRINE__:[];
 function herosPoints(){elP.innerHTML=VITRINE.map((m,i)=>`<button type="button" aria-label="${esc(m.marque+" "+m.modele)}" data-i="${i}"></button>`).join("");}
 function herosAfficher(i,anim){
+  if(!VITRINE.length)return;
   H.i=(i+VITRINE.length)%VITRINE.length;const m=VITRINE[H.i];
   const poser=()=>{
-    elV.innerHTML=`<img class="vitrine-img" src="${IMG_VITRINE[m.id]}" alt="${esc(m.marque+" "+m.modele)}" decoding="async">`;
+    elV.innerHTML=`<img class="vitrine-img${m.photo?" vitrine-photo":""}" src="${esc(m.image)}" alt="${esc(m.marque+" "+m.modele)}" decoding="async">`;
     elA.textContent=m.filigrane;
-    elI.innerHTML=`<span><span class="badge st-transit"><span>Sur demande</span></span></span><strong>${esc(m.marque+" "+m.modele)}</strong><span class="ligne"><span>${esc(m.accroche)}</span><button class="lien" type="button" data-vitrine="${m.id}">Je veux ce modèle</button></span>`;
+    const lie=!!m.vehicule_id;
+    const pastille=m.promo?`<span class="badge st-promo"><span>Promo${m.promo_texte?" · "+esc(m.promo_texte):""}</span></span>`:(lie?`<span class="badge st-disponible"><span>En vedette</span></span>`:`<span class="badge st-transit"><span>Sur demande</span></span>`);
+    const prix=m.prix!=null?`<span class="heros-prix">${m.prix_normal?`<s>${usd(m.prix_normal)}</s>`:""}<b>${usd(m.prix)}</b></span>`:"";
+    elI.innerHTML=`<span>${pastille}</span><strong>${esc(m.marque+" "+m.modele)}</strong>${prix}<span class="ligne"><span>${esc(m.accroche||"")}</span>${lie?`<a class="lien" href="/vehicules/${encodeURIComponent(m.vehicule_id)}">Voir ce véhicule</a>`:`<button class="lien" type="button" data-vitrine="${esc(m.id)}">Je veux ce modèle</button>`}</span>`;
     elP.querySelectorAll("button").forEach((b,k)=>b.setAttribute("aria-current",k===H.i?"true":"false"));
   };
   if(!anim||reduit){poser();return;}
@@ -1648,7 +1646,7 @@ const heros=document.getElementById("heros");
 heros.addEventListener("pointerenter",e=>{if(e.pointerType==="mouse")clearInterval(H.t);});heros.addEventListener("pointerleave",e=>{if(e.pointerType==="mouse")herosAuto();});
 heros.addEventListener("focusin",()=>clearInterval(H.t));heros.addEventListener("focusout",()=>herosAuto());
 document.addEventListener("visibilitychange",()=>{if(document.hidden)clearInterval(H.t);else herosAuto();});
-herosPoints();herosAfficher(0,false);herosAuto();
+if(VITRINE.length){herosPoints();herosAfficher(0,false);herosAuto();}else{elV.innerHTML="";elI.innerHTML="";elP.innerHTML="";}
 
 /* ---------- Flotte accueil ---------- */
 const flotte=document.getElementById("flotte");
@@ -1704,7 +1702,7 @@ function rendreDetail(){
   else btns=`<div class="detail-btns"><button class="btn btn-rouge" type="button" data-aller="achat" data-v="${v.id}">Acheter</button><button class="btn btn-noir" type="button" data-aller="essai" data-v="${v.id}">Réserver mon essai</button><button class="btn btn-contour" type="button" data-aller="financement" data-v="${v.id}">Demander un financement</button></div>`;
   d.innerHTML=`<div class="detail-scene"><div class="annee-geante" aria-hidden="true">${v.annee}</div>${voitureSVG(v)}</div>
    <div class="detail-info">${badge(v)}<h1 style="font-size:clamp(30px,4vw,46px)">${esc(nomV(v))}</h1>
-     <div><span class="prix" style="font-size:34px">${usd(v.prix)}</span>${v.note?`<p class="muted" style="margin-top:4px">${esc(v.note)}</p>`:""}</div>
+     <div><span class="prix" style="font-size:34px">${v.prix_normal?`<s class="prix-barre">${usd(v.prix_normal)}</s>`:""}${usd(v.prix)}</span>${v.note?`<p class="muted" style="margin-top:4px">${esc(v.note)}</p>`:""}</div>
      <dl class="fiche">${fiche.map(([a,b])=>`<div><dt>${a}</dt><dd>${esc(b)}</dd></div>`).join("")}</dl>
      ${bloc}${btns}</div>`;
 }

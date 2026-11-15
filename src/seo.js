@@ -65,7 +65,7 @@ function jsonLd(modeleJson, { vue, chemin, titre, description, tarifs, vehicule 
 }
 
 /** Retourne le HTML complet de la page. `vehicule` n'est utilisé que pour la vue « vehicule ». */
-export function pageHtml(dossierPublic, vue, { tarifs, vehicule, chemin, noindex: forcer }) {
+export function pageHtml(dossierPublic, vue, { tarifs, vehicule, chemin, noindex: forcer, vitrine }) {
   let html = modele(dossierPublic);
   let [titre, description] = meta(vue === "vehicule" ? "vehicules" : vue, tarifs);
   if (vue === "vehicule") {
@@ -95,6 +95,8 @@ export function pageHtml(dossierPublic, vue, { tarifs, vehicule, chemin, noindex
   const re = /<script type="application\/ld\+json">([\s\S]*?)<\/script>/;
   const base = JSON.parse(html.match(re)[1]);
   html = html.replace(re, () => `<script type="application/ld+json">\n${jsonLd(base, { vue, chemin, titre, description, tarifs, vehicule })}\n</script>`);
+  // diapositives de la première page (données injectées : pas d'appel réseau supplémentaire)
+  html = html.replace("</head>", () => `<script>window.__VITRINE__=${JSON.stringify(vitrine || []).replace(/</g, "\\u003c")};</script>\n</head>`);
   // vue initiale visible dès le premier affichage (et pour les robots sans JavaScript)
   const cible = vue === "vehicule" ? "vehicule" : vue;
   html = html.replace(new RegExp(`<div class="vue" data-vue="${cible}">`), () => `<div class="vue active" data-vue="${cible}">`);

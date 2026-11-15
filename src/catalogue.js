@@ -17,6 +17,18 @@ export const SERVICES = {
     statuts: ["Demande reçue", "Vérification des documents", "Dossier en cours d'examen", "Décision finale de financement"] },
 };
 
+// Diapositives de la première page (images dans sources/photos/vitrine.json, chargées une seule fois en base)
+export const VITRINE_INITIALE = [
+  ["mercedes-gle-coupe", "Mercedes-Benz", "GLE Coupé", "GLE", "SUV coupé puissant à la signature sportive"],
+  ["range-rover-evoque", "Range Rover", "Evoque", "EVOQUE", "SUV compact au style affirmé"],
+  ["mg-hs", "MG", "HS", "HS", "SUV familial moderne et bien équipé"],
+  ["lexus-gx", "Lexus", "GX", "GX", "SUV robuste, confort et fiabilité"],
+  ["mercedes-glc-coupe", "Mercedes-Benz", "GLC Coupé", "GLC", "SUV coupé élégant au design affirmé"],
+  ["audi-q3", "Audi", "Q3 Sportback", "Q3", "SUV coupé, élégant et compact"],
+  ["audi-q8", "Audi", "Q8", "Q8", "Le grand SUV coupé haut de gamme"],
+  ["jetour-x70", "Jetour", "X70 Plus", "X70", "Spacieux, bien équipé, 7 places"],
+];
+
 export const PARAMETRES_DEFAUT = {
   taux: { taux_htg: 132, taux_date: "2026-11-12" },
   tarifs: { consultation: 50, recherche: 30, service_recherche: 150, essai: 30, vendre: 200, financement: 25 },

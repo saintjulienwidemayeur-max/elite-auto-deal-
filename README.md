@@ -51,7 +51,7 @@ Renseigner `BREVO_API_KEY` et `EMAIL_EXPEDITEUR` (adresse validée dans Brevo �
 - Les adresses du site sont en dur sur `https://eliteautodeal.com` : à modifier dans `sources/site.src.html`, `public/robots.txt`, `sitemap.xml` et `llms.txt` si le domaine change.
 
 ## Gestion des devis
-Dans l'administration, « Gestion des devis » permet de créer un devis (client, lignes, frais supplémentaires, total automatique), de le générer en PDF, de l'envoyer par email (PDF en pièce jointe, via Brevo) ou de le partager sur WhatsApp (lien PDF public non devinable). Optionnel : `DEVIS_VALIDITE_JOURS` ajoute une mention de validité dans le PDF.
+Dans l'administration, « Gestion des devis » permet de créer un devis (client, lignes, frais supplémentaires, total automatique), de le générer en PDF, de l'envoyer par email (PDF en pièce jointe, via Brevo) ou de le partager sur WhatsApp (lien PDF public non devinable). Optionnel : `DEVIS_VALIDITE_JOURS` (30 par défaut) fixe la validité d'un devis ; elle est modifiable devis par devis (date « Valable jusqu'au »).
 
 ## Tarifs
 Consultation et recherche/achat accompagné : 50 $ (accompagnement, analyse, préparation des documents, démarches administratives et suivi du client). Visite ou essai : 30 $. Vente d'un véhicule confié : 200 $. Dossier de financement : 25 $. Les bases existantes qui avaient encore 150 $ passent automatiquement à 50 $ au premier démarrage (une seule fois ; l'admin peut ensuite modifier les tarifs). La visite/essai passe de 50 $ à 30 $ de la même façon..
@@ -66,3 +66,11 @@ Chaque page a sa vraie adresse : `/`, `/vehicules`, `/vehicules/<id>`, `/precomm
 
 ## Anti-veille (Render gratuit)
 Le serveur appelle sa propre adresse publique (`/sante`) toutes les 5 minutes, et fait un `select 1` sur la base, pour éviter la mise en veille (arrêt après 15 min sans visite). Actif seulement si `PUBLIC_URL` (ou `RENDER_EXTERNAL_URL`) est en `https`. Variables : `KEEP_ALIVE=false` pour désactiver, `KEEP_ALIVE_URL`, `KEEP_ALIVE_MINUTES`. Limite : si le service est déjà endormi, il ne peut pas se réveiller seul : pour une garantie, utiliser un moniteur externe (UptimeRobot, cron-job.org) sur `/sante`, ou le plan Starter.
+
+## Devis par lien sécurisé (paiement en ligne)
+Un devis est une page du site : `/devis/<jeton>` (jeton aléatoire non devinable, un jeton = un seul devis, jamais indexée). Le client y voit le devis (référence `EAD-DEV-xxxx`, lignes, total, date d'expiration), peut le payer (MonCash, Natcash ou carte, `Payer maintenant`), télécharger le PDF ou l'imprimer. Le montant est celui enregistré sur le serveur et ne peut pas être changé par le client ; un devis expiré ou déjà payé ne peut plus être payé. Au premier paiement, un dossier « devis » est créé (suivi, reçu) et le devis passe à « Payé » quand Freda Pay Issuing confirme. L'envoi par email et par WhatsApp contient le lien de la page.
+Frais de recherche : 30 $ de frais de dossier à l'ouverture ; les 150 $ de frais de service (tarif `service_recherche`) sont ajoutés au devis quand le véhicule est trouvé (bouton « Ajouter les frais de service de recherche » dans Gestion des devis).
+
+## Vitrine du site et promos
+Admin → **Vitrine du site** : ajouter, modifier, réordonner (↑ ↓), masquer ou supprimer les diapositives de la première page (image PNG/WebP détourée, marque, modèle, filigrane, accroche, véhicule lié, badge Promo + texte). Elles sont stockées en base (table `vitrine`, images incluses) et chargées une seule fois depuis `sources/photos/vitrine.json` à la première installation. Admin → **Véhicules** : colonne **Prix promo** (vide = pas de promo) : le site affiche le prix barré et le client paie le prix promo. Une diapositive liée à un véhicule en promo affiche le badge « Promo » automatiquement ; elle est masquée si le véhicule est vendu.
+

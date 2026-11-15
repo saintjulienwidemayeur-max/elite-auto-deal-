@@ -1,6 +1,6 @@
 import pg from "pg";
 import { readFileSync } from "node:fs";
-import { PARAMETRES_DEFAUT, VEHICULES_INITIAUX, COLS_VEHICULE } from "./catalogue.js";
+import { PARAMETRES_DEFAUT, VEHICULES_INITIAUX, COLS_VEHICULE, VITRINE_INITIALE } from "./catalogue.js";
 
 pg.types.setTypeParser(1700, v => (v == null ? null : Number(v))); // numeric -> number
 pg.types.setTypeParser(20, v => (v == null ? null : Number(v)));   // bigint -> number
@@ -23,6 +23,15 @@ export async function migrer() {
   await q(readFileSync(new URL("./schema.sql", import.meta.url), "utf8"));
   for (const [cle, valeur] of Object.entries(PARAMETRES_DEFAUT))
     await q("insert into parametres(cle, valeur) values ($1,$2) on conflict (cle) do nothing", [cle, JSON.stringify(valeur)]);
+  // Vitrine : première installation = les diapositives d'origine (images lues dans sources/photos/vitrine.json)
+  if (!(await un("select 1 from vitrine limit 1"))) {
+    let images = {}; try { images = JSON.parse(readFileSync(new URL("../sources/photos/vitrine.json", import.meta.url), "utf8")); } catch { /* sans images : la vitrine reste vide */ }
+    let ordre = 0;
+    for (const [id, marque, modele, filigrane, accroche] of VITRINE_INITIALE) {
+      const m = /^data:([^;]+);base64,(.+)$/.exec(images[id] || ""); if (!m) continue;
+      await q("insert into vitrine(id, marque, modele, filigrane, accroche, ordre, image, image_type) values ($1,$2,$3,$4,$5,$6,$7,$8) on conflict do nothing", [id, marque, modele, filigrane, accroche, ordre++, Buffer.from(m[2], "base64"), m[1]]);
+    }
+  }
   // Nouveaux frais de service (50 $ au lieu de 150 $) : appliqués une seule fois aux bases existantes qui avaient encore l'ancien tarif
   if (!(await un("select 1 from parametres where cle='migration_tarifs_50'"))) {
     const t = await un("select valeur from parametres where cle='tarifs'");

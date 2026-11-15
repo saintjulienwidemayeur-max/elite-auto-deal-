@@ -171,3 +171,22 @@ alter table devis drop constraint if exists devis_statut_check;
 alter table devis add constraint devis_statut_check check (statut in ('brouillon','envoye','partage','paye'));
 alter table dossiers drop constraint if exists dossiers_service_check;
 alter table dossiers add constraint dossiers_service_check check (service in ('precommande','achat','consultation','recherche','essai','vendre','financement','devis'));
+
+-- Vitrine du site (diapositives de la première page) et prix promo des véhicules
+alter table vehicules add column if not exists prix_promo numeric(12,2);
+create table if not exists vitrine (
+  id text primary key,
+  marque text not null,
+  modele text not null,
+  filigrane text,
+  accroche text,
+  vehicule_id text references vehicules(id) on delete set null,
+  promo boolean not null default false,
+  promo_texte text,
+  ordre int not null default 0,
+  actif boolean not null default true,
+  image bytea,
+  image_type text,
+  cree_le timestamptz not null default now(),
+  maj_le timestamptz not null default now()
+);

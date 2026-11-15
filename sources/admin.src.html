@@ -423,6 +423,13 @@ body.booting .main,body.booting .tabbar,body.booting .nav{visibility:hidden}
 .dv-actions{display:flex;gap:10px;flex-wrap:wrap}
 .dv-actions .btn{flex:1 1 220px}
 @media (max-width:820px){.dv-grid{grid-template-columns:1fr}.dv-ligne{grid-template-columns:1fr 1fr;grid-template-areas:"d d" "q p" "t x"}.dv-ligne .f-d{grid-area:d}.dv-ligne .f-q{grid-area:q}.dv-ligne .f-p{grid-area:p}.dv-ligne .dv-lt{grid-area:t;text-align:left;padding-bottom:0}.dv-ligne .dv-x{grid-area:x;justify-self:end}}
+.vt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px}
+.vt-card{overflow:hidden}.vt-card.vt-off{opacity:.6}
+.vt-im{position:relative;aspect-ratio:16/10;background:linear-gradient(180deg,#F6F6F4,#E4E4E1);display:grid;place-items:center;overflow:hidden}
+.vt-im img{max-width:92%;max-height:90%;object-fit:contain}.vt-im .vt-n{position:absolute;top:10px;left:10px;background:var(--noir);color:#fff;font-size:12px;font-weight:700;border-radius:999px;padding:3px 10px}
+.vt-card .card-b{display:grid;gap:8px}.vt-chips{display:flex;gap:6px;flex-wrap:wrap}
+.vt-acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}.vt-acts .btn{min-height:36px;padding:0 10px;font-size:13px}
+.vt-prev{display:grid;place-items:center;aspect-ratio:16/10;border-radius:var(--r-m);background:linear-gradient(180deg,#F6F6F4,#E4E4E1);overflow:hidden}.vt-prev img{max-width:92%;max-height:92%;object-fit:contain}
 </style>
 </head>
 <body class="booting">
@@ -666,6 +673,7 @@ const ROUTES=[
  {id:'dossiers',l:'Dossiers',i:'folder',c:()=>S.dossiers.filter(d=>['paye','validation'].includes(d.st)).length},
  {id:'paiements',l:'Paiements',i:'card',c:()=>S.payments.filter(p=>p.st==='echoue').length},
  {id:'vehicules',l:'Véhicules',i:'car'},
+ {id:'vitrine',l:'Vitrine du site',i:'img'},
  {id:'financement',l:'Financement',i:'bank'},
  {id:'precommandes',l:'Précommandes',i:'ship',c:()=>S.pre.filter(p=>p.arr==='arrive'&&p.bal==='attente').length},
  {id:'clients',l:'Clients',i:'user',c:()=>(S.clients||[]).filter(c=>c.reinit).length},
@@ -770,10 +778,11 @@ V.vehicules=()=>{
   <div class="actions"><button class="btn btn-p" data-go="vehicules-add">${ic('plus')}Ajouter un véhicule</button></div></div>
   <div class="chips" role="group" aria-label="Répartition par statut">${counts.map(([s,n])=>`<span class="badge ${VST_C[s]}">${s} <span class="num">${n}</span></span>`).join('')}</div>
   <section class="card card-tbl"><div class="tbl-wrap">
-  ${list.length?`<table class="tbl cards"><thead><tr><th>Véhicule</th><th>Kilométrage</th><th class="r">Prix (USD)</th><th>Statut</th><th class="r">Actions</th></tr></thead><tbody>
+  ${list.length?`<table class="tbl cards"><thead><tr><th>Véhicule</th><th>Kilométrage</th><th class="r">Prix (USD)</th><th class="r">Prix promo</th><th>Statut</th><th class="r">Actions</th></tr></thead><tbody>
   ${list.map(v=>`<tr><td class="full"><div class="veh-cell"><span class="thumb">${thumbHtml(v)}</span><span><b>${esc(vname(v))}</b><span>${esc(v.c)}${v.note?' · '+esc(v.note):''}</span></span></div></td>
   <td data-l="Kilométrage" class="num">${v.mi==='—'?'—':v.mi+' mi'}</td>
   <td data-l="Prix (USD)" class="r"><label class="sr" for="p${v.id}">Prix ${esc(vname(v))}</label><input class="inline price num" id="p${v.id}" data-price="${v.id}" inputmode="numeric" value="${v.p}"></td>
+  <td data-l="Prix promo" class="r"><label class="sr" for="pp${v.id}">Prix promo ${esc(vname(v))}</label><input class="inline price num" id="pp${v.id}" data-promo="${v.id}" inputmode="numeric" value="${v.pp||''}" placeholder="—" title="Laissez vide pour retirer la promo"></td>
   <td data-l="Statut"><label class="sr" for="s${v.id}">Statut ${esc(vname(v))}</label><select class="inline" id="s${v.id}" data-status="${v.id}">${VST.map(s=>`<option ${s===v.st?'selected':''}>${s}</option>`).join('')}</select></td>
   <td class="r acts"><button class="btn btn-t btn-sm" data-photos="${v.id}">${ic('img')}Photos${(v.photos&&v.photos.length)?` (${v.photos.length})`:''}</button><button class="btn btn-t btn-sm" data-retire="${v.id}">Retirer du site</button></td></tr>`).join('')}
   </tbody></table>`:emptyQ()}
@@ -1077,7 +1086,7 @@ function mapPaiement(x){
 function splitModel(m,y){m=String(m||'');const t=String(y||'');return t&&m.endsWith(' '+t)?m.slice(0,-t.length-1):m}
 function mapVehicule(x){
   const c=String(x.couleur||'').toLowerCase();
-  return {id:x.id,mk:x.marque||'',md:splitModel(x.modele,x.annee),y:x.annee||'',c:c||'gris',hex:x.hex,mi:x.km?Math.round(x.km/1000)+'k':'—',p:x.prix||0,st:VST_IN[x.statut]||'Disponible',t:x.forme==='pickup'?'pick':x.forme==='berline'?'sedan':'suv',note:x.note||'',photos:Array.isArray(x.photos)?x.photos.map(p=>typeof p==='string'?{id:p,url:p}:p):[],_api:x};
+  return {id:x.id,mk:x.marque||'',md:splitModel(x.modele,x.annee),y:x.annee||'',c:c||'gris',hex:x.hex,mi:x.km?Math.round(x.km/1000)+'k':'—',p:x.prix||0,pp:x.prix_promo?+x.prix_promo:0,st:VST_IN[x.statut]||'Disponible',t:x.forme==='pickup'?'pick':x.forme==='berline'?'sedan':'suv',note:x.note||'',photos:Array.isArray(x.photos)?x.photos.map(p=>typeof p==='string'?{id:p,url:p}:p):[],_api:x};
 }
 function mapPre(x){
   const bal={non_du:'attente',a_envoyer:'attente',envoye:'envoye',paye:'paye'}[x.statut_solde]||'attente';
@@ -1452,6 +1461,72 @@ document.addEventListener('submit',async e=>{
   catch(x){err.textContent=x.message}
   finally{b.disabled=false}
 });
+/* ================= Vitrine du site (diapositives de la première page) ================= */
+const VT={list:[],edit:null};
+LOADERS.vitrine=async()=>{VT.list=await api('/api/admin/vitrine')||[]};
+NEEDS.vitrine=['vitrine','vehicules'];
+V.vitrine=()=>`<div class="head"><div><h1>Vitrine du site</h1><p>Les diapositives qui défilent en haut de la première page.</p></div></div>
+ <section class="card"><div class="card-b"><div class="empty"><b>Disponible une fois connecté au serveur</b>La gestion de la vitrine fonctionne avec le tableau de bord réel, sur le site en ligne.</div></div></section>`;
+function vtCarte(d,i,n){
+  const chips=[d.promo?`<span class="badge b-bad">Promo${d.promo_texte?' · '+esc(d.promo_texte):''}</span>`:'',d.actif?'<span class="badge b-ok">Visible</span>':'<span class="badge b-g">Masquée</span>',d.vehicule?`<span class="badge b-n">${esc(d.vehicule)}</span>`:'<span class="badge b-g">Modèle sur demande</span>'].join('');
+  const prix=d.prix!=null?`<div class="small"><b>${d.prix_normal?`<s class="muted">${fmt(d.prix_normal)}</s> `:''}${fmt(d.prix)}</b></div>`:'';
+  return `<article class="card vt-card ${d.actif?'':'vt-off'}"><div class="vt-im"><span class="vt-n">#${i+1}</span>${d.image?`<img src="${esc(d.image)}" alt="${esc(d.marque+' '+d.modele)}" loading="lazy">`:'<span class="small muted">Pas d\'image</span>'}</div>
+  <div class="card-b"><div><b>${esc(d.marque)} ${esc(d.modele)}</b><div class="small muted">${esc(d.accroche||'')}</div></div>${prix}<div class="vt-chips">${chips}</div>
+  <div class="vt-acts"><button class="btn btn-t" data-vt="up" data-id="${esc(d.id)}" ${i===0?'disabled':''} aria-label="Monter">↑</button><button class="btn btn-t" data-vt="down" data-id="${esc(d.id)}" ${i===n-1?'disabled':''} aria-label="Descendre">↓</button>
+  <button class="btn btn-t" data-vt="edit" data-id="${esc(d.id)}">Modifier</button><button class="btn btn-t" data-vt="toggle" data-id="${esc(d.id)}">${d.actif?'Masquer':'Afficher'}</button><button class="btn btn-t" data-vt="del" data-id="${esc(d.id)}" aria-label="Supprimer ${esc(d.marque+' '+d.modele)}">${ic('x')}</button></div></div></article>`;
+}
+VL.vitrine=()=>`<div class="head"><div><h1>Vitrine du site</h1><p>Les diapositives qui défilent en haut de la première page, dans cet ordre. Ajoutez-y vos véhicules en promo.</p></div>
+  <div class="actions"><button class="btn btn-p" type="button" data-vt="new">${ic('plus')}Ajouter une diapositive</button></div></div>
+  <div class="card" style="margin-bottom:16px"><div class="card-b small" style="display:flex;gap:10px;align-items:flex-start">${ic('alert','style="width:18px;height:18px;flex:none;margin-top:2px;color:var(--alerte)"')}<span><b>Pour mettre un véhicule en promo :</b> renseignez son <b>prix promo</b> dans la page <a href="#vehicules">Véhicules</a> (colonne « Prix promo »). Le site affiche alors le prix barré et le client paie le prix promo. Liez ensuite une diapositive à ce véhicule pour l'afficher ici avec le badge « Promo ».</span></div></div>
+  ${VT.list.length?`<div class="vt-grid">${VT.list.map((d,i)=>vtCarte(d,i,VT.list.length)).join('')}</div>`:`<div class="card"><div class="card-b"><div class="empty"><b>Aucune diapositive</b>Ajoutez-en une pour animer la première page.</div></div></div>`}`;
+function vtDrawer(d){
+  VT.edit=d||null;const v=S.vehicles||[];
+  openDrawer(drawerHead(d?'Modifier la diapositive':'Nouvelle diapositive',d?`${esc(d.marque)} ${esc(d.modele)}`:'Elle apparaît en haut de la première page.')+`
+  <form class="drawer-b form" id="vtForm" novalidate>
+   <div class="field"><span style="font-size:13.5px;font-weight:600">Image</span>
+    <div class="vt-prev" id="vtPrev">${d&&d.image?`<img src="${esc(d.image)}" alt="Image actuelle">`:'<span class="small muted">Aucune image</span>'}</div>
+    <label class="drop" for="vt-img">${ic('img','style="width:26px;height:26px;color:var(--g500)"')}<br><b>${d?'Changer l\'image':'Choisir une image'}</b><br><span class="small muted">PNG ou WebP à fond transparent (voiture détourée), 4 Mo maximum. Sans image, la photo principale du véhicule lié est utilisée.</span><input id="vt-img" type="file" accept="image/png,image/webp,image/jpeg" hidden></label></div>
+   <div class="two"><div class="field"><label for="vt-mk">Marque</label><input id="vt-mk" required value="${esc(d?d.marque:'')}" placeholder="Mercedes-Benz"></div><div class="field"><label for="vt-md">Modèle</label><input id="vt-md" required value="${esc(d?d.modele:'')}" placeholder="GLE Coupé"></div></div>
+   <div class="two"><div class="field"><label for="vt-fi">Grand texte en filigrane</label><input id="vt-fi" maxlength="12" value="${esc(d?d.filigrane:'')}" placeholder="GLE"><span class="hint">Court (12 caractères max.), affiché en grand derrière la voiture.</span></div>
+   <div class="field"><label for="vt-ac">Phrase d'accroche</label><input id="vt-ac" maxlength="120" value="${esc(d?d.accroche:'')}" placeholder="SUV coupé puissant"></div></div>
+   <div class="field"><label for="vt-ve">Véhicule lié (facultatif)</label><select id="vt-ve"><option value="">Aucun : modèle sur demande</option>${v.map(x=>`<option value="${esc(x.id)}" ${d&&d.vehicule_id===x.id?'selected':''}>${esc(vname(x))}${x.pp?' · PROMO '+fmt(x.pp):''}${x.st==='Vendu'?' · vendu (masquée sur le site)':''}</option>`).join('')}</select>
+    <span class="hint">Lié : la diapositive affiche son prix (prix barré si promo) et un bouton « Voir ce véhicule ». Non lié : bouton « Je veux ce modèle » (recherche).</span></div>
+   <label class="chk" style="display:flex;gap:10px;align-items:center"><input type="checkbox" id="vt-pr" ${d&&d.promo_manuel?'checked':''}> <span><b>Mettre en promo</b> (badge « Promo » rouge)</span></label>
+   <div class="field"><label for="vt-pt">Texte de la promo (facultatif)</label><input id="vt-pt" maxlength="60" value="${esc(d?d.promo_texte:'')}" placeholder="-10 % jusqu'au 31 décembre"></div>
+   <label class="chk" style="display:flex;gap:10px;align-items:center"><input type="checkbox" id="vt-ac2" ${!d||d.actif?'checked':''}> <span>Visible sur le site</span></label>
+   <div class="small" id="vtErr" role="alert" style="color:var(--rouge);min-height:18px"></div>
+  </form>
+  <div class="drawer-f"><button class="btn btn-t" data-close>Annuler</button><button class="btn btn-p" form="vtForm" type="submit" id="vtSave">${d?'Enregistrer':'Ajouter à la vitrine'}</button></div>`);
+  $('#vt-img').onchange=e=>{const f=e.target.files[0];if(!f)return;if(f.size>4*1024*1024){toastErr('Image trop lourde (4 Mo maximum).');e.target.value='';return}$('#vtPrev').innerHTML=`<img src="${URL.createObjectURL(f)}" alt="Aperçu">`};
+}
+async function vtEnvoyer(e){
+  e.preventDefault();const err=$('#vtErr');err.textContent='';
+  const mk=$('#vt-mk').value.trim(),md=$('#vt-md').value.trim();if(!mk||!md){err.textContent='Indiquez la marque et le modèle.';return}
+  const fd=new FormData();fd.append('marque',mk);fd.append('modele',md);fd.append('filigrane',$('#vt-fi').value.trim());fd.append('accroche',$('#vt-ac').value.trim());fd.append('vehicule_id',$('#vt-ve').value);
+  fd.append('promo',$('#vt-pr').checked);fd.append('promo_texte',$('#vt-pt').value.trim());fd.append('actif',$('#vt-ac2').checked);
+  const f=$('#vt-img').files[0];if(f)fd.append('image',f);
+  const b=$('#vtSave');b.disabled=true;
+  try{
+    const r=await fetch(VT.edit?'/api/admin/vitrine/'+encodeURIComponent(VT.edit.id):'/api/admin/vitrine',{method:VT.edit?'PATCH':'POST',headers:{Authorization:'Bearer '+TOKEN},body:fd});
+    const d=await r.json().catch(()=>null);if(r.status===401){logout(true);return}
+    if(!r.ok)throw new Error((d&&d.error&&d.error.message)||'Enregistrement impossible.');
+    toast(VT.edit?'Diapositive enregistrée':'Diapositive ajoutée');closeDrawer();await vtRafraichir();
+  }catch(x){err.textContent=x.message}finally{b.disabled=false}
+}
+async function vtRafraichir(){LV.loaded.vitrine=0;try{await load(['vitrine'],true)}catch(_){}if(current()==='vitrine')render()}
+document.addEventListener('submit',e=>{if(e.target.id==='vtForm')vtEnvoyer(e)});
+document.addEventListener('click',async e=>{
+  const b=e.target.closest('[data-vt]');if(!b||!$('#view').contains(b))return;
+  const k=b.dataset.vt,d=VT.list.find(x=>x.id===b.dataset.id);
+  if(k==='new')return vtDrawer(null);
+  if(k==='edit'&&d)return vtDrawer(d);
+  try{
+    if(k==='up'||k==='down'){VT.list=await api(`/api/admin/vitrine/${encodeURIComponent(b.dataset.id)}/deplacer`,{method:'POST',body:{sens:k==='up'?-1:1}});render();return}
+    if(k==='toggle'&&d){const fd=new FormData();fd.append('marque',d.marque);fd.append('modele',d.modele);fd.append('filigrane',d.filigrane||'');fd.append('accroche',d.accroche||'');fd.append('vehicule_id',d.vehicule_id||'');fd.append('promo',!!d.promo_manuel);fd.append('promo_texte',d.promo_texte||'');fd.append('actif',!d.actif);
+      const r=await fetch('/api/admin/vitrine/'+encodeURIComponent(d.id),{method:'PATCH',headers:{Authorization:'Bearer '+TOKEN},body:fd});const j=await r.json().catch(()=>null);if(!r.ok)throw new Error((j&&j.error&&j.error.message)||'Action impossible.');toast(d.actif?'Diapositive masquée':'Diapositive affichée');await vtRafraichir();return}
+    if(k==='del'&&d)return confirmBox('Supprimer cette diapositive ?',`${esc(d.marque+' '+d.modele)} ne sera plus sur la première page. Vous pouvez la masquer à la place pour la garder.`,'Supprimer',async()=>{try{await api('/api/admin/vitrine/'+encodeURIComponent(d.id),{method:'DELETE'});toast('Diapositive supprimée');await vtRafraichir()}catch(x){fail(x)}},true);
+  }catch(x){fail(x)}
+});
 function render(){baseRender()}
 function baseRender(){
   const id=current();renderNav();
@@ -1494,6 +1569,10 @@ $('#view').addEventListener('change',e=>{
   if(t.dataset.status){const v=veh(t.dataset.status);v.st=t.value;toast(`${vname(v)} : ${v.st}`);renderNav()}
   if(t.dataset.price&&LIVE){const v=veh(t.dataset.price);const n=+String(t.value).replace(/\D/g,'');if(!n){t.value=v.p;return}t.disabled=true;return api('/api/admin/vehicules/'+encodeURIComponent(v.id),{method:'PATCH',body:{prix:n}}).then(()=>{v.p=n;t.value=n;toast(`Prix mis à jour : ${fmt(n)}`)}).catch(e=>{t.value=v.p;fail(e)}).finally(()=>{t.disabled=false})}
   if(t.dataset.price){const v=veh(t.dataset.price);const n=+String(t.value).replace(/\D/g,'');if(n){v.p=n;t.value=n;toast(`Prix mis à jour : ${fmt(n)}`)}else t.value=v.p}
+  if(t.dataset.promo){const v=veh(t.dataset.promo);const n=+String(t.value).replace(/\D/g,'')||0;
+    if(n&&n>=v.p){toastErr('Le prix promo doit être inférieur au prix normal ('+fmt(v.p)+').');t.value=v.pp||'';return}
+    if(!LIVE){v.pp=n;t.value=n||'';toast(n?`Promo enregistrée : ${fmt(n)}`:'Promo retirée');return}
+    t.disabled=true;return api('/api/admin/vehicules/'+encodeURIComponent(v.id),{method:'PATCH',body:{prix_promo:n||null}}).then(()=>{v.pp=n;t.value=n||'';LV.loaded.vitrine=0;toast(n?`Promo enregistrée : ${fmt(n)} (au lieu de ${fmt(v.p)})`:'Promo retirée')}).catch(e=>{t.value=v.pp||'';fail(e)}).finally(()=>{t.disabled=false})}
   if(t.id==='rate'&&LIVE){const n=parseFloat(t.value.replace(',','.'));if(!(n>0)){t.value=S.rate;return}return saveParams({taux_htg:n,taux_date:new Date().toISOString().slice(0,10)},`Taux enregistré : 1 USD = ${n} HTG`).then(ok=>{if(ok)render();else t.value=S.rate})}
   if(t.id==='rate'){const n=parseFloat(t.value.replace(',','.'));if(n>0){S.rate=n;toast(`Taux enregistré : 1 USD = ${n} HTG`);render()}}
 });

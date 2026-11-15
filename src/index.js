@@ -151,7 +151,10 @@ async function lancerPaiement({ dossier, type, methode, montantUsd, email }) {
 }
 
 /* ---------- Public ---------- */
-const VUE_V = `select ${COLS_VEHICULE.join(",")} from vehicules`;
+// Public : « prix » = prix promo s'il existe (c'est lui qui est payé), « prix_normal » = prix barré. Admin : prix réel + prix_promo.
+const VUE_V = `select ${COLS_VEHICULE.filter(c => c !== "prix").join(",")}, coalesce(prix_promo, prix) as prix, case when prix_promo is not null then prix end as prix_normal from vehicules`;
+const COLS_ADMIN = `${COLS_VEHICULE.join(",")}, prix_promo`;
+const VUE_V_ADMIN = `select ${COLS_ADMIN} from vehicules`;
 async function avecPhotos(vs, admin = false) {
   const liste = Array.isArray(vs) ? vs : [vs];
   if (!liste.length || !liste[0]) return vs;
@@ -651,7 +654,7 @@ app.get("/api/admin/dossiers/:ref", enveloppe(async (req, res) => {
     client_compte: d.client_id ? await un("select id, nom from clients where id=$1", [d.client_id]) : null,
     paiements: await tous("select id, type, methode, montant, devise, montant_usd, statut, freda_id, cree_le, confirme_le, echec_raison from paiements where ref=$1 order by id", [d.ref]),
     journal: await tous("select quand, texte, par, type from journal where ref=$1 order by quand desc", [d.ref]),
-    vehicule: d.vehicule_id ? await un(`${VUE_V} where id=$1`, [d.vehicule_id]) : null,
+    vehicule: d.vehicule_id ? await un(`${VUE_V_ADMIN} where id=$1`, [d.vehicule_id]) : null,
     solde: d.service === "precommande" ? { prix_usd: d.prix_vehicule_usd, paye_usd: d.montant_usd, solde_usd: arrondi2(d.prix_vehicule_usd - d.montant_usd), statut: d.statut_solde, arrive: d.arrive } : null,
   });
 }));
@@ -691,16 +694,18 @@ const nettoyerV = b => {
   for (const k of COLS_VEHICULE) if (k in (b || {})) o[k] = b[k] === "" ? null : b[k];
   if (o.statut && !["disponible", "transit", "precommande", "vendu", "indisponible"].includes(o.statut)) throw err(400, "STATUT", "Statut invalide.");
   if (o.forme && !["suv", "berline", "pickup"].includes(o.forme)) throw err(400, "FORME", "Type de carrosserie invalide.");
-  for (const k of ["prix", "km", "annee", "places"]) if (o[k] != null && !(Number(o[k]) >= 0)) throw err(400, "NOMBRE", `Valeur invalide : ${k}.`);
+  if (b && "prix_promo" in b) o.prix_promo = b.prix_promo === "" || b.prix_promo == null || Number(b.prix_promo) === 0 ? null : b.prix_promo;
+  for (const k of ["prix", "prix_promo", "km", "annee", "places"]) if (o[k] != null && !(Number(o[k]) >= 0)) throw err(400, "NOMBRE", `Valeur invalide : ${k}.`);
+  if (o.prix_promo != null && o.prix != null && !(Number(o.prix_promo) < Number(o.prix))) throw err(400, "PROMO", "Le prix promo doit être inférieur au prix normal.");
   return o;
 };
-app.get("/api/admin/vehicules", enveloppe(async (_req, res) => res.json(await avecPhotos(await tous(`${VUE_V} where not retire order by maj_le desc`), true))));
+app.get("/api/admin/vehicules", enveloppe(async (_req, res) => res.json(await avecPhotos(await tous(`${VUE_V_ADMIN} where not retire order by maj_le desc`), true))));
 app.post("/api/admin/vehicules", enveloppe(async (req, res) => {
   const o = nettoyerV(req.body);
   if (!o.marque || !o.modele) throw err(400, "CHAMPS", "Marque et modèle sont obligatoires.");
   o.id = (String(o.id || `${o.marque}-${o.modele}`).toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40)) + "-" + crypto.randomInt(100, 999);
   const k = Object.keys(o);
-  const v = await un(`insert into vehicules(${k.join(",")}) values (${k.map((_, i) => "$" + (i + 1)).join(",")}) returning ${COLS_VEHICULE.join(",")}`, Object.values(o));
+  const v = await un(`insert into vehicules(${k.join(",")}) values (${k.map((_, i) => "$" + (i + 1)).join(",")}) returning ${COLS_ADMIN}`, Object.values(o));
   await journaliser(null, `Véhicule ajouté : ${v.marque} ${v.modele}`, "vehicule", "administrateur");
   res.status(201).json(await avecPhotos(v, true));
 }));
@@ -708,7 +713,11 @@ app.patch("/api/admin/vehicules/:id", enveloppe(async (req, res) => {
   const o = nettoyerV(req.body); delete o.id;
   const k = Object.keys(o);
   if (!k.length) throw err(400, "VIDE", "Rien à modifier.");
-  const v = await un(`update vehicules set ${k.map((c, i) => `${c}=$${i + 2}`).join(",")}, maj_le=now() where id=$1 returning ${COLS_VEHICULE.join(",")}`, [req.params.id, ...Object.values(o)]);
+  if (o.prix_promo != null && o.prix == null) { // le prix promo doit rester sous le prix normal enregistré
+    const cur = await un("select prix from vehicules where id=$1", [req.params.id]);
+    if (cur && cur.prix != null && !(Number(o.prix_promo) < Number(cur.prix))) throw err(400, "PROMO", "Le prix promo doit être inférieur au prix normal.");
+  }
+  const v = await un(`update vehicules set ${k.map((c, i) => `${c}=$${i + 2}`).join(",")}, maj_le=now() where id=$1 returning ${COLS_ADMIN}`, [req.params.id, ...Object.values(o)]);
   if (!v) throw err(404, "INTROUVABLE", "Véhicule introuvable.");
   await journaliser(null, `Véhicule modifié : ${v.marque} ${v.modele} (${k.join(", ")})`, "vehicule", "administrateur");
   res.json(await avecPhotos(v, true));
@@ -725,7 +734,7 @@ const uploadPhotos = multer({
   dest: os.tmpdir(), limits: { fileSize: 10 * 1024 * 1024, files: 12 },
   fileFilter: (_req, f, cb) => cb(/^image\/(jpeg|png|webp)$/.test(f.mimetype) ? null : err(400, "FICHIER", `Image non acceptée : ${f.originalname}. JPEG, PNG ou WebP uniquement.`), true),
 });
-const vehiculeAdmin = async id => { const v = await un(`${VUE_V} where id=$1`, [id]); if (!v) throw err(404, "INTROUVABLE", "Véhicule introuvable."); return avecPhotos(v, true); };
+const vehiculeAdmin = async id => { const v = await un(`${VUE_V_ADMIN} where id=$1`, [id]); if (!v) throw err(404, "INTROUVABLE", "Véhicule introuvable."); return avecPhotos(v, true); };
 app.post("/api/admin/vehicules/:id/photos", uploadPhotos.array("photos", 12), enveloppe(async (req, res) => {
   const fichiers = req.files || [];
   try {
@@ -803,6 +812,74 @@ app.post("/api/admin/devis/:id/whatsapp", enveloppe(async (req, res) => {
   const n = await un(`update devis set statut=case when statut='envoye' then statut else 'partage' end, maj_le=now() where id=$1 returning ${VUE_DEVIS}`, [d.id]);
   await journaliser(null, `Devis ${d.numero} partagé par WhatsApp (${d.client_nom})`, "devis", "administrateur");
   res.json({ devis: n, lien_devis: lienDevis(d), lien_pdf: lienPdf(d), message, lien_whatsapp: `https://wa.me/${tel}?text=${encodeURIComponent(message)}` });
+}));
+
+/* ---------- Vitrine du site (diapositives de la première page) ---------- */
+const imageVitrine = (id, v) => `/api/vitrine/${encodeURIComponent(id)}/image?v=${v}`;
+async function lireVitrine(admin = false) {
+  const rows = await tous(`select s.id, s.marque, s.modele, s.filigrane, s.accroche, s.vehicule_id, s.promo, s.promo_texte, s.ordre, s.actif, (s.image is not null) as a_image,
+      extract(epoch from s.maj_le)::bigint as v, ve.prix as v_prix, ve.prix_promo as v_promo, ve.statut as v_statut, ve.retire as v_retire, ve.marque as v_marque, ve.modele as v_modele,
+      (select id from photos_vehicules where vehicule_id=s.vehicule_id order by ordre, id limit 1) as photo_id
+    from vitrine s left join vehicules ve on ve.id=s.vehicule_id
+    ${admin ? "" : "where s.actif and (s.vehicule_id is null or (not ve.retire and ve.statut <> 'vendu'))"} order by s.ordre, s.cree_le`);
+  return rows.map(r => {
+    const promoVeh = r.v_promo != null;
+    const base = { id: r.id, marque: r.marque, modele: r.modele, filigrane: r.filigrane || "", accroche: r.accroche || "", vehicule_id: r.vehicule_id, promo: !!r.promo || promoVeh, promo_texte: r.promo_texte || "",
+      prix: r.vehicule_id && r.v_prix != null ? Number(promoVeh ? r.v_promo : r.v_prix) : null, prix_normal: promoVeh ? Number(r.v_prix) : null,
+      image: r.a_image ? imageVitrine(r.id, r.v) : r.photo_id ? `/api/photos/${r.photo_id}` : null, photo: !r.a_image && !!r.photo_id };
+    return admin ? { ...base, actif: r.actif, ordre: r.ordre, promo_manuel: !!r.promo, vehicule: r.vehicule_id ? `${r.v_marque || ""} ${r.v_modele || ""}`.trim() : null, a_image: r.a_image, statut_veh: r.v_statut } : base;
+  }).filter(x => admin || x.image);
+}
+app.get("/api/vitrine", enveloppe(async (_req, res) => res.set("Cache-Control", "public, max-age=60").json(await lireVitrine())));
+app.get("/api/vitrine/:id/image", enveloppe(async (req, res) => {
+  const r = await un("select image, image_type from vitrine where id=$1 and image is not null", [String(req.params.id)]);
+  if (!r) throw err(404, "INTROUVABLE", "Image introuvable.");
+  res.set({ "Content-Type": r.image_type || "image/webp", "Cache-Control": "public, max-age=31536000, immutable" }).send(r.image);
+}));
+const uploadVitrine = multer({ storage: multer.memoryStorage(), limits: { fileSize: 4 * 1024 * 1024, files: 1 },
+  fileFilter: (_req, f, cb) => cb(/^image\/(png|webp|jpeg)$/.test(f.mimetype) ? null : err(400, "FICHIER", "Image non acceptée : PNG, WebP ou JPEG uniquement."), true) });
+const champsVitrine = b => {
+  const t = (k, n) => String(b[k] ?? "").trim().slice(0, n);
+  const o = { marque: t("marque", 60), modele: t("modele", 80), filigrane: t("filigrane", 12), accroche: t("accroche", 120), promo_texte: t("promo_texte", 60), vehicule_id: t("vehicule_id", 80) || null,
+    promo: b.promo === true || b.promo === "true" || b.promo === "1" || b.promo === "on", actif: !(b.actif === false || b.actif === "false" || b.actif === "0") };
+  if (!o.marque || !o.modele) throw err(400, "CHAMPS", "Indiquez la marque et le modèle.");
+  return o;
+};
+app.get("/api/admin/vitrine", enveloppe(async (_req, res) => res.json(await lireVitrine(true))));
+app.post("/api/admin/vitrine", uploadVitrine.single("image"), enveloppe(async (req, res) => {
+  const o = champsVitrine(req.body || {});
+  if (!req.file && !o.vehicule_id) throw err(400, "IMAGE", "Ajoutez une image (de préférence détourée, fond transparent) ou liez la diapositive à un véhicule qui a des photos.");
+  if (o.vehicule_id && !(await un("select 1 from vehicules where id=$1 and not retire", [o.vehicule_id]))) throw err(400, "VEHICULE", "Véhicule introuvable.");
+  const id = (`${o.marque}-${o.modele}`).toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) + "-" + crypto.randomInt(100, 999);
+  const { m } = await un("select coalesce(max(ordre), -1) + 1 as m from vitrine");
+  await q("insert into vitrine(id, marque, modele, filigrane, accroche, vehicule_id, promo, promo_texte, ordre, actif, image, image_type) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)",
+    [id, o.marque, o.modele, o.filigrane, o.accroche, o.vehicule_id, o.promo, o.promo_texte, m, o.actif, req.file?.buffer || null, req.file?.mimetype || null]);
+  await journaliser(null, `Vitrine : diapositive ajoutée (${o.marque} ${o.modele}${o.promo ? ", promo" : ""})`, "parametres", "administrateur");
+  res.status(201).json((await lireVitrine(true)).find(x => x.id === id));
+}));
+app.patch("/api/admin/vitrine/:id", uploadVitrine.single("image"), enveloppe(async (req, res) => {
+  const ex = await un("select id, image is not null as a_image from vitrine where id=$1", [String(req.params.id)]);
+  if (!ex) throw err(404, "INTROUVABLE", "Diapositive introuvable.");
+  const o = champsVitrine({ actif: true, ...(req.body || {}) });
+  if (o.vehicule_id && !(await un("select 1 from vehicules where id=$1 and not retire", [o.vehicule_id]))) throw err(400, "VEHICULE", "Véhicule introuvable.");
+  if (!req.file && !ex.a_image && !o.vehicule_id) throw err(400, "IMAGE", "Ajoutez une image ou liez un véhicule qui a des photos.");
+  await q(`update vitrine set marque=$2, modele=$3, filigrane=$4, accroche=$5, vehicule_id=$6, promo=$7, promo_texte=$8, actif=$9, maj_le=now()${req.file ? ", image=$10, image_type=$11" : ""} where id=$1`,
+    [ex.id, o.marque, o.modele, o.filigrane, o.accroche, o.vehicule_id, o.promo, o.promo_texte, o.actif, ...(req.file ? [req.file.buffer, req.file.mimetype] : [])]);
+  res.json((await lireVitrine(true)).find(x => x.id === ex.id));
+}));
+app.post("/api/admin/vitrine/:id/deplacer", enveloppe(async (req, res) => { // sens = -1 (vers le haut) ou 1 (vers le bas)
+  const sens = Number(req.body?.sens) < 0 ? -1 : 1;
+  const liste = await tous("select id from vitrine order by ordre, cree_le"); const i = liste.findIndex(x => x.id === req.params.id);
+  if (i < 0) throw err(404, "INTROUVABLE", "Diapositive introuvable.");
+  const j = i + sens; if (j >= 0 && j < liste.length) [liste[i], liste[j]] = [liste[j], liste[i]];
+  for (const [n, x] of liste.entries()) await q("update vitrine set ordre=$2 where id=$1", [x.id, n]);
+  res.json(await lireVitrine(true));
+}));
+app.delete("/api/admin/vitrine/:id", enveloppe(async (req, res) => {
+  const r = await un("delete from vitrine where id=$1 returning marque, modele", [String(req.params.id)]);
+  if (!r) throw err(404, "INTROUVABLE", "Diapositive introuvable.");
+  await journaliser(null, `Vitrine : diapositive supprimée (${r.marque} ${r.modele})`, "parametres", "administrateur");
+  res.json({ ok: true });
 }));
 
 /* Clients */
@@ -892,7 +969,8 @@ app.get(["/admin", "/admin/"], (_req, res) => res.sendFile(path.join(DOSSIER_PUB
 /* ---------- Vraies URL par page (SEO) ---------- */
 const envoyerPage = async (res, vue, chemin, { vehicule, statut = 200, noindex } = {}) => {
   const { tarifs } = await parametres();
-  res.status(statut).set({ "Content-Type": "text/html; charset=utf-8", "Cache-Control": "public, max-age=0, must-revalidate" }).send(pageHtml(DOSSIER_PUBLIC, vue, { tarifs, vehicule, chemin, noindex }));
+  const vitrine = await lireVitrine().catch(() => []);
+  res.status(statut).set({ "Content-Type": "text/html; charset=utf-8", "Cache-Control": "public, max-age=0, must-revalidate" }).send(pageHtml(DOSSIER_PUBLIC, vue, { tarifs, vehicule, chemin, noindex, vitrine }));
 };
 for (const [vue, chemin] of Object.entries(CHEMINS)) app.get(chemin, enveloppe(async (_req, res) => envoyerPage(res, vue, chemin)));
 app.get("/vehicules/:id", enveloppe(async (req, res) => {
