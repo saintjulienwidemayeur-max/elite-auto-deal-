@@ -1,5 +1,5 @@
 // Envoi d'emails transactionnels via Brevo (https://developers.brevo.com/reference/sendtransacemail)
-// Sans BREVO_API_KEY, rien n'est envoyé : l'application continue de fonctionner (le code est seulement journalisé hors production).
+// Sans BREVO_API_KEY, rien n'est envoyé : l'application continue de fonctionner (un avertissement est seulement journalisé).
 const API = (process.env.BREVO_API_URL || "https://api.brevo.com/v3/smtp/email");
 const expediteur = () => ({ name: process.env.EMAIL_EXPEDITEUR_NOM || "Elite Auto Deal", email: process.env.EMAIL_EXPEDITEUR || "" });
 export const emailConfigure = () => !!process.env.BREVO_API_KEY && !!process.env.EMAIL_EXPEDITEUR;

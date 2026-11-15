@@ -81,10 +81,13 @@ Admin :
 - Le détail admin d'un dossier ajoute `client_compte: { id, nom } | null`.
 
 ## Devis (administrateur, en-tête `Authorization: Bearer <jeton admin>`)
-- GET /api/admin/devis → liste (200 derniers). POST /api/admin/devis `{ client_nom, client_email?, client_tel?, lignes: [{ description, quantite, prix_unitaire }], frais_supplementaires? }` → 201 devis `{ id, numero: "DV-2026-0001", jeton, total_usd, statut, ... }`. Le total est toujours recalculé par le serveur.
-- PATCH /api/admin/devis/:id (mêmes champs) · DELETE /api/admin/devis/:id
+- GET /api/admin/devis → liste (200 derniers). POST /api/admin/devis `{ client_nom, client_email?, client_tel?, lignes: [{ description, quantite, prix_unitaire }], frais_supplementaires?, expire_le? (AAAA-MM-JJ, 30 jours par défaut) }` → 201 devis `{ id, numero: "EAD-DEV-0001", jeton, total_usd, statut, expire_le, ... }`. Le total est toujours recalculé par le serveur.
+- PATCH /api/admin/devis/:id (mêmes champs ; refusé si le devis est déjà payé) · DELETE /api/admin/devis/:id
 - GET /api/admin/devis/:id/pdf → PDF (A4)
-- POST /api/admin/devis/:id/email → envoie le PDF en pièce jointe via Brevo (`client_email` requis) ; statut `envoye`
-- POST /api/admin/devis/:id/whatsapp → `{ lien_whatsapp, lien_pdf, message }` ; statut `partage`
-- GET /devis/:jeton.pdf (public, jeton non devinable, `noindex`) : lien partagé par WhatsApp
+- POST /api/admin/devis/:id/email → envoie par Brevo un email avec le lien du devis (`client_email` requis) ; statut `envoye`
+- POST /api/admin/devis/:id/whatsapp → `{ lien_whatsapp, lien_devis, lien_pdf, message }` ; statut `partage`
 
+### Devis (client, sans compte)
+- Page : `/devis/<jeton>` (jeton non devinable, un jeton = un seul devis, `noindex`). PDF : `/devis/<jeton>.pdf`.
+- GET /api/devis/:jeton → `{ numero, client_nom, lignes, frais_supplementaires, total_usd, cree_le, expire_le, statut: "actif"|"paye"|"expire", ref, paiement, methodes, taux_htg, ... }` (sans email ni téléphone).
+- POST /api/devis/:jeton/payer `{ methode: "moncash"|"natcash"|"carte", client_email? }` → `{ ref, checkout_url }`. Le montant est celui du devis ; réponses 409 (déjà payé) et 410 (expiré).

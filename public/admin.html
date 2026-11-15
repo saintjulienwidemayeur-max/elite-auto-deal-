@@ -831,7 +831,7 @@ function photosDrawer(id){
     if(fs.length>12){toastErr('12 photos maximum par envoi : les 12 premières sont envoyées.');fs=fs.slice(0,12)}
     e.target.value='';if(!fs.length)return;
     if(!LIVE){fs.forEach((f,i)=>v.photos.push({id:'local'+Date.now()+i,url:URL.createObjectURL(f)}));v.img=v.photos[0].url;paint();done();return toast(`${fs.length} photo(s) ajoutée(s) (démo, non enregistrées)`)}
-    const bar=$('#phBar'),msg=$('#phMsg'),inp=$('#ph-in');bar.hidden=false;inp.disabled=true;msg.textContent=`Envoi de ${fs.length} photo(s)...`;
+    const bar=$('#phBar'),msg=$('#phMsg'),inp=$('#ph-in');bar.hidden=false;inp.disabled=true;msg.textContent=`Envoi de ${fs.length} photo(s)…`;
     uploadPhotos(v.id,fs,p=>{bar.firstElementChild.style.width=p+'%';msg.textContent=`Envoi en cours : ${p} %`})
       .then(d=>{applyVeh(v,d);paint();done();msg.textContent='';toast(`${fs.length} photo(s) ajoutée(s)`)})
       .catch(err=>{msg.textContent='';fail(err)}).finally(()=>{bar.hidden=true;bar.firstElementChild.style.width='0';inp.disabled=false});

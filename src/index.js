@@ -494,7 +494,7 @@ app.post("/api/compte/mot-de-passe", limiteur(10, 15 * 60e3), enveloppe(async (r
 app.post("/api/compte/rattacher", limiteur(10, 15 * 60e3), enveloppe(async (req, res) => {
   const ref = String(req.body?.ref || "").trim().toUpperCase();
   const d = await un("select * from dossiers where ref=$1", [ref]);
-  if (!d || telNorm(d.client_tel) !== telNorm(req.body?.tel)) throw err(404, "INTROUVABLE", "Aucun dossier ne correspond à cette référence et ce téléphone.");
+  if (!d || telNorm(d.client_tel) !== telNorm(req.body?.tel)) throw err(404, "INTROUVABLE", "Aucun dossier ne correspond à cette référence et à ce téléphone.");
   if (d.client_id && d.client_id !== req.client.id) throw err(409, "AUTRE_COMPTE", "Ce dossier est déjà rattaché à un autre compte. Contactez-nous sur WhatsApp.");
   await q("update dossiers set client_id=$2 where ref=$1", [ref, req.client.id]);
   await journaliser(ref, "Dossier rattaché à l'espace client", "dossier", "client");

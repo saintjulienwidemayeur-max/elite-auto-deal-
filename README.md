@@ -3,8 +3,6 @@
 ## Contenu du dossier
 - `src/` serveur Node.js (API, paiements, webhooks, espace client, admin) ; `public/` site et tableau de bord prêts à servir
 - `sources/` fichiers sources du site et de l'admin ; `python3 sources/build.py` reconstruit `public/`
-- `identite/` logos SVG, couleurs et typographies (`tokens.json`), charte graphique, photos de la vitrine sans fond
-- `captures/` captures d'écran mobile et PC
 - `test/` tests automatiques (`npm test`) et faux Freda Pay pour les essais locaux
 - `API.md` contrat complet de l'API ; `render.yaml` déploiement Render ; `.env.example` variables à renseigner
 
@@ -15,9 +13,9 @@ Un seul service Node.js sert :
 ## Paiement
 1. Le client remplit un formulaire. Le serveur calcule le montant (jamais le navigateur) et crée le dossier `EAD-AAAA-NNNNN`.
 2. `POST /v1/payments` chez Freda Pay Issuing :
-   MonCash/Natcash en HTG (`method: all`, montant = USD × taux affiché) ou carte en USD (`method: carte`, `return_url`).
+   MonCash ou Natcash en HTG (`method: moncash` ou `method: natcash`, au choix du client ; montant = USD × taux affiché) ou carte en USD (`method: carte`, `return_url`).
    La référence envoyée (`EAD-…-P1`, `-P2` pour une relance, `-S1` pour le solde) rend l'opération idempotente.
-3. Le client est redirigé vers `checkout_url`, puis revient sur `/#retour`.
+3. Le client est redirigé vers `checkout_url`, puis revient sur `/retour-paiement`.
 4. Le dossier n'est marqué payé que si Freda Pay Issuing le confirme :
    webhook `payment.succeeded` signé (HMAC-SHA256, en-tête `X-Freda-Signature`, doublons ignorés) ou `GET /v1/payments/:id`.
 5. Précommande : 90 % au départ. Le véhicule passe « vendu ». À l'arrivée, l'admin clique « Envoyer le lien de solde » (10 %).
@@ -26,7 +24,7 @@ Un seul service Node.js sert :
 - Inscription par téléphone (et email facultatif) + mot de passe (scrypt). Session : cookie httpOnly signé, 30 jours.
 - Le client voit ses dossiers, l'avancement, ses paiements et reçus, envoie des documents, paie le solde d'une précommande à l'arrivée du véhicule.
 - Dossier créé avant l'inscription : « Ajouter un dossier existant » avec la référence et le même téléphone.
-- Mot de passe oublié : l'admin reçoit une alerte et envoie un lien de 24 h sur WhatsApp depuis la page Clients (pas besoin de service d'email).
+- Mot de passe oublié : un code à 6 chiffres est envoyé par email (voir « Emails (Brevo) ») ; sans email enregistré, l'admin reçoit une alerte et envoie un lien de 24 h sur WhatsApp depuis la page Clients.
 
 ## Mise en ligne (Render)
 1. Pousser ce dossier sur GitHub, puis créer le Blueprint depuis `render.yaml` (service web ; la base de données est sur Supabase, renseigner `DATABASE_URL`).
@@ -51,10 +49,10 @@ Renseigner `BREVO_API_KEY` et `EMAIL_EXPEDITEUR` (adresse validée dans Brevo �
 - Les adresses du site sont en dur sur `https://eliteautodeal.com` : à modifier dans `sources/site.src.html`, `public/robots.txt`, `sitemap.xml` et `llms.txt` si le domaine change.
 
 ## Gestion des devis
-Dans l'administration, « Gestion des devis » permet de créer un devis (client, lignes, frais supplémentaires, total automatique), de le générer en PDF, de l'envoyer par email (PDF en pièce jointe, via Brevo) ou de le partager sur WhatsApp (lien PDF public non devinable). Optionnel : `DEVIS_VALIDITE_JOURS` (30 par défaut) fixe la validité d'un devis ; elle est modifiable devis par devis (date « Valable jusqu'au »).
+Dans l'administration, « Gestion des devis » permet de créer un devis (client, lignes, frais supplémentaires, total automatique), de le générer en PDF, de l'envoyer par email (via Brevo) ou de le partager sur WhatsApp, avec un lien sécurisé non devinable vers la page du devis (voir « Devis par lien sécurisé »). Optionnel : `DEVIS_VALIDITE_JOURS` (30 par défaut) fixe la validité d'un devis ; elle est modifiable devis par devis (date « Valable jusqu'au »).
 
 ## Tarifs
-Consultation et recherche/achat accompagné : 50 $ (accompagnement, analyse, préparation des documents, démarches administratives et suivi du client). Visite ou essai : 30 $. Vente d'un véhicule confié : 200 $. Dossier de financement : 25 $. Les bases existantes qui avaient encore 150 $ passent automatiquement à 50 $ au premier démarrage (une seule fois ; l'admin peut ensuite modifier les tarifs). La visite/essai passe de 50 $ à 30 $ de la même façon..
+Consultation et recherche/achat accompagné : 50 $ (accompagnement, analyse, préparation des documents, démarches administratives et suivi du client). Visite ou essai : 30 $. Vente d'un véhicule confié : 200 $. Dossier de financement : 25 $. Les bases existantes qui avaient encore 150 $ passent automatiquement à 50 $ au premier démarrage (une seule fois ; l'administrateur peut ensuite modifier les tarifs). La visite ou l'essai passe de 50 $ à 30 $ de la même façon.
 
 ## Code d'accès administrateur
 Au départ, le code d'accès est la variable `ADMIN_PASSWORD`. Depuis l'administration (Paramètres du site → Code d'accès administrateur), il peut être modifié : le nouveau code est stocké haché en base (table `parametres`, clé `admin_acces`) et remplace `ADMIN_PASSWORD`. Changer le code déconnecte les autres appareils.
