@@ -28,4 +28,9 @@ await t("recherche : nouveau titre et accroche, une seule option « Type de dema
   assert.equal((r.match(/name="type"/g) || []).length, 1); assert.ok(!/inspecter un véhicule déjà en Haïti/.test(r));
   assert.match(r, /Notre équipe effectue les recherches nécessaires afin de trouver le véhicule qui correspond à vos besoins et à votre budget\./); assert.match(r, /Frais de service : <b data-tarif="service_recherche">150 \$<\/b> US\./); assert.match(r, /Le paiement du véhicule s'effectue uniquement après la confirmation de votre dossier\./);
 });
+await t("accueil : nouveau texte de l'encadré des frais de service, « Financement disponible » prévu pour les véhicules disponibles", async () => {
+  const h = await (await fetch(B + "/")).text();
+  assert.match(h, /<b>Les frais de service couvrent l'accompagnement, l'analyse, la préparation des documents, les démarches administratives et le suivi du client\.<\/b> Ils ne sont pas le prix du véhicule : ils ne constituent ni un acompte de réservation ni des frais de financement\. Le dossier de financement coûte 25 \$ \(ou l'équivalent en gourdes\)\. <a/);
+  assert.ok(!/de 50 \$ couvrent/.test(h) && !/et ne garantit pas l'approbation\. <a href="\/conditions">Lire/.test(h)); assert.match(h, /Financement disponible/);
+});
 console.log(`${ok} scénarios contenu OK`);

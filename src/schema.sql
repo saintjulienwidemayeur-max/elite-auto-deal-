@@ -190,3 +190,16 @@ create table if not exists vitrine (
   cree_le timestamptz not null default now(),
   maj_le timestamptz not null default now()
 );
+
+-- Vidéos des véhicules (tous formats : vertical, horizontal, carré)
+create table if not exists videos_vehicules (
+  id bigserial primary key,
+  vehicule_id text not null references vehicules(id) on delete cascade,
+  stockage text not null,
+  chemin text not null,
+  type text,
+  taille bigint,
+  ordre int not null default 0,
+  cree_le timestamptz not null default now()
+);
+create index if not exists videos_vehicules_v_idx on videos_vehicules(vehicule_id, ordre, id);

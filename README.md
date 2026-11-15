@@ -78,3 +78,11 @@ Admin → **Vitrine du site** : ajouter, modifier, réordonner (↑ ↓), masque
 
 ## Tarifs affichés sur le site
 Tous les prix affichés (pages, menu, FAQ, conditions, JSON-LD, `llms.txt`, scripts) viennent des tarifs de l'administration (Paramètres du site → Tarifs des services). Les sources contiennent des repères `{{T:cle}}` (« 50 $ ») et `{{N:cle}}` (« 50 ») que le serveur remplace à chaque page (`src/seo.js`, `remplacerTarifs`) ; `public/index.html` n'est donc jamais servi tel quel. Pour ajouter un tarif affiché, utiliser un repère plutôt qu'un montant écrit en dur.
+
+## Photos et vidéos des véhicules
+- **Photos : 4:5 portrait, 1080 × 1350 px** (idéal Instagram et Facebook). Toute photo envoyée depuis l'administration (Véhicules → « Photos et vidéos ») est ramenée à ce format et enregistrée en WebP (`sharp`, `src/medias.js`) : une photo déjà en 4:5 est simplement redimensionnée ; une autre est posée entière au centre sur un fond flou de la même photo (ni déformée, ni coupée). Les cartes et la fiche du véhicule s'affichent en 4:5.
+- **Vidéos : format libre** (verticale, horizontale, carrée), MP4, WebM ou MOV, 50 Mo maximum. Elles apparaissent dans la galerie de la fiche avec les photos et s'adaptent à leur espace (`object-fit: contain`) sans déformation ni coupe. La lecture par morceaux (requêtes `Range`) est gérée, y compris sur iPhone. Table `videos_vehicules`.
+- La mention « Financement disponible » reste affichée sur les véhicules disponibles (champ « Conditions affichées », rempli d'office pour un nouveau véhicule).
+
+## Mises à jour immédiates
+Rien de ce qui vient de l'administration n'est gardé en cache : pages HTML (`max-age=0, must-revalidate`), `/api/*` (`no-cache`), `llms.txt`. Le site ouvert se rafraîchit seul toutes les 30 secondes, au retour sur l'onglet et au focus (véhicules, prix promo, photos, vidéos, vitrine), sans recharger la page. Les tarifs sont servis dans le HTML à chaque chargement.

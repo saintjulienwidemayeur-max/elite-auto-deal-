@@ -784,14 +784,15 @@ V.vehicules=()=>{
   <td data-l="Prix (USD)" class="r"><label class="sr" for="p${v.id}">Prix ${esc(vname(v))}</label><input class="inline price num" id="p${v.id}" data-price="${v.id}" inputmode="numeric" value="${v.p}"></td>
   <td data-l="Prix promo" class="r"><label class="sr" for="pp${v.id}">Prix promo ${esc(vname(v))}</label><input class="inline price num" id="pp${v.id}" data-promo="${v.id}" inputmode="numeric" value="${v.pp||''}" placeholder="—" title="Laissez vide pour retirer la promo"></td>
   <td data-l="Statut"><label class="sr" for="s${v.id}">Statut ${esc(vname(v))}</label><select class="inline" id="s${v.id}" data-status="${v.id}">${VST.map(s=>`<option ${s===v.st?'selected':''}>${s}</option>`).join('')}</select></td>
-  <td class="r acts"><button class="btn btn-t btn-sm" data-photos="${v.id}">${ic('img')}Photos${(v.photos&&v.photos.length)?` (${v.photos.length})`:''}</button><button class="btn btn-t btn-sm" data-retire="${v.id}">Retirer du site</button></td></tr>`).join('')}
+  <td class="r acts"><button class="btn btn-t btn-sm" data-photos="${v.id}">${ic('img')}Photos et vidéos${((v.photos&&v.photos.length)||(v.videos&&v.videos.length))?` (${(v.photos||[]).length}+${(v.videos||[]).length})`:''}</button><button class="btn btn-t btn-sm" data-retire="${v.id}">Retirer du site</button></td></tr>`).join('')}
   </tbody></table>`:emptyQ()}
   </div></section>`;
 };
 function vehByLabel(l){l=String(l||'').toLowerCase();return S.vehicles.find(v=>vname(v).toLowerCase()===l||(`${v.mk} ${v.md}`).toLowerCase()===l||(v._api&&`${v._api.marque} ${v._api.modele}`.toLowerCase()===l))||null}
-function uploadPhotos(id,files,onp){
-  return new Promise((res,rej)=>{const fd=new FormData();files.forEach(f=>fd.append('photos',f));
-    const x=new XMLHttpRequest();x.open('POST','/api/admin/vehicules/'+encodeURIComponent(id)+'/photos');
+function uploadPhotos(id,files,onp){return uploadMedias(id,'photos',files,onp)}
+function uploadMedias(id,champ,files,onp){
+  return new Promise((res,rej)=>{const fd=new FormData();files.forEach(f=>fd.append(champ,f));
+    const x=new XMLHttpRequest();x.open('POST','/api/admin/vehicules/'+encodeURIComponent(id)+'/'+champ);
     if(TOKEN)x.setRequestHeader('Authorization','Bearer '+TOKEN);
     x.upload.onprogress=e=>{if(e.lengthComputable&&onp)onp(Math.round(e.loaded/e.total*100))};
     x.onload=()=>{let d=null;try{d=JSON.parse(x.responseText)}catch(_){}
@@ -805,11 +806,17 @@ function photosDrawer(id){
   const body=()=>v.photos.length?`<div class="photos-grid">${v.photos.map((p,i)=>`<div class="photo-it"><div class="im"><img src="${esc(p.url)}" alt="Photo ${i+1} de ${esc(vname(v))}">${i===0?'<span class="pmain">Principale</span>':''}</div>
       <div class="pa">${i?`<button class="btn btn-t btn-sm" data-pmain="${esc(String(p.id))}">Mettre en principale</button>`:''}<button class="btn btn-t btn-sm" data-pdel="${esc(String(p.id))}">${ic('x')}Supprimer</button></div></div>`).join('')}</div>`
     :`<div class="photos-empty"><b style="display:block;color:var(--g700);margin-bottom:4px">Aucune photo pour ce véhicule</b>Le site affiche un emplacement neutre tant qu'aucune photo n'est ajoutée.</div>`;
-  const paint=()=>{$('#phBody').innerHTML=body();bindItems()};
-  openDrawer(drawerHead('Photos du véhicule',vname(v))+`<div class="drawer-b">
-    <label class="drop" for="ph-in" style="display:block;position:relative;margin-bottom:14px;cursor:pointer">${ic('img','style="width:26px;height:26px;color:var(--g500)"')}<br><b>Ajouter des photos</b><br><span class="small muted">JPG, PNG ou WebP, 12 par envoi, 10 Mo maximum chacune</span><input id="ph-in" type="file" accept="image/jpeg,image/png,image/webp" multiple style="position:absolute;width:1px;height:1px;opacity:0"></label>
+  v.videos=v.videos||[];
+  const videosBody=()=>v.videos.length?`<div class="photos-grid">${v.videos.map((x,i)=>`<div class="photo-it"><div class="im" style="background:#0B0B0C"><video src="${esc(typeof x==='string'?x:x.url)}" controls preload="metadata" playsinline style="width:100%;height:100%;object-fit:contain"></video></div><div class="pa"><button class="btn btn-t btn-sm" data-vdel="${esc(String(typeof x==='string'?x:x.id))}">${ic('x')}Supprimer</button></div></div>`).join('')}</div>`:`<div class="photos-empty"><b style="display:block;color:var(--g700);margin-bottom:4px">Aucune vidéo pour ce véhicule</b>Les vidéos apparaissent avec les photos sur la fiche du véhicule.</div>`;
+  const paint=()=>{$('#phBody').innerHTML=body();$('#vdBody').innerHTML=videosBody();bindItems()};
+  openDrawer(drawerHead('Photos et vidéos du véhicule',vname(v))+`<div class="drawer-b">
+    <label class="drop" for="ph-in" style="display:block;position:relative;margin-bottom:14px;cursor:pointer">${ic('img','style="width:26px;height:26px;color:var(--g500)"')}<br><b>Ajouter des photos</b><br><span class="small muted">JPG, PNG ou WebP, 12 par envoi, 10 Mo maximum chacune. <b>Format conseillé : 1080 × 1350 px (4:5, portrait)</b> : idéal pour Instagram et Facebook. Toute photo est ajustée à ce format automatiquement, sans déformation et sans rien couper.</span><input id="ph-in" type="file" accept="image/jpeg,image/png,image/webp" multiple style="position:absolute;width:1px;height:1px;opacity:0"></label>
     <div class="upbar" id="phBar" hidden><span></span></div><p class="small muted" id="phMsg" style="margin:6px 0 12px"></p>
-    <div id="phBody">${body()}</div></div>
+    <div id="phBody">${body()}</div>
+    <h3 style="margin:22px 0 8px;font-size:16px">Vidéos</h3>
+    <label class="drop" for="vd-in" style="display:block;position:relative;margin-bottom:14px;cursor:pointer">${ic('file','style="width:26px;height:26px;color:var(--g500)"')}<br><b>Ajouter des vidéos</b><br><span class="small muted">MP4, WebM ou MOV, 50 Mo maximum chacune. <b>Format libre</b> : verticale, horizontale ou carrée. Le site l'affiche en entier dans son espace, sans la déformer ni la couper.</span><input id="vd-in" type="file" accept="video/mp4,video/webm,video/quicktime" multiple hidden></label>
+    <div class="upbar" id="vdBar" hidden><span></span></div><p class="small muted" id="vdMsg" style="margin:6px 0 12px"></p>
+    <div id="vdBody">${videosBody()}</div></div>
     <div class="drawer-f"><button class="btn btn-p" data-close>Terminé</button></div>`);
   const done=()=>{if(location.hash.replace('#','')==='vehicules')render()};
   function bindItems(){
@@ -824,6 +831,21 @@ function photosDrawer(id){
         return api('/api/admin/vehicules/'+encodeURIComponent(v.id)+'/photos/'+encodeURIComponent(pid),{method:'DELETE'}).then(d=>{applyVeh(v,d);photosDrawer(v.id);done();toast('Photo supprimée')}).catch(fail)},true)});
   }
   bindItems();
+  $('#vdBody').addEventListener('click',e=>{const b=e.target.closest('[data-vdel]');if(!b)return;const vid=b.dataset.vdel;
+    confirmBox('Supprimer cette vidéo ?','La vidéo sera retirée du site public. Cette action est définitive.','Supprimer',()=>{
+      if(!LIVE){v.videos=v.videos.filter(x=>String(typeof x==='string'?x:x.id)!==vid);paint();return toast('Vidéo supprimée')}
+      return api('/api/admin/vehicules/'+encodeURIComponent(v.id)+'/videos/'+encodeURIComponent(vid),{method:'DELETE'}).then(d=>{applyVeh(v,d);paint();done();toast('Vidéo supprimée')}).catch(fail)},true)});
+  $('#vd-in').onchange=e=>{
+    let fs=[...e.target.files].filter(f=>/^video\/(mp4|webm|quicktime|x-m4v)$/.test(f.type));
+    if(fs.length<e.target.files.length)toastErr('Seules les vidéos MP4, WebM ou MOV sont acceptées.');
+    const trop=fs.filter(f=>f.size>50*1024*1024);if(trop.length){toastErr(`${trop.length} vidéo(s) dépassent 50 Mo et ont été ignorées. Réduisez-les ou compressez-les.`);fs=fs.filter(f=>f.size<=50*1024*1024)}
+    e.target.value='';if(!fs.length)return;
+    if(!LIVE){fs.forEach((f,i)=>v.videos.push({id:'local'+Date.now()+i,url:URL.createObjectURL(f)}));paint();return toast(`${fs.length} vidéo(s) ajoutée(s) (démo, non enregistrées)`)}
+    const bar=$('#vdBar'),msg=$('#vdMsg'),inp=$('#vd-in');bar.hidden=false;inp.disabled=true;msg.textContent=`Envoi de ${fs.length} vidéo(s)…`;
+    uploadMedias(v.id,'videos',fs,p=>{bar.firstElementChild.style.width=p+'%';msg.textContent=`Envoi en cours : ${p} %`})
+      .then(d=>{applyVeh(v,d);paint();done();msg.textContent='';toast(`${fs.length} vidéo(s) ajoutée(s)`)})
+      .catch(err=>{msg.textContent='';fail(err)}).finally(()=>{bar.hidden=true;bar.firstElementChild.style.width='0';inp.disabled=false});
+  };
   $('#ph-in').onchange=e=>{
     let fs=[...e.target.files].filter(f=>/^image\/(jpeg|png|webp)$/.test(f.type));
     if(fs.length<e.target.files.length)toastErr('Seules les photos JPG, PNG ou WebP sont acceptées.');
@@ -848,9 +870,9 @@ function addVehicleDrawer(){
     <div class="field"><label for="f-st">Statut</label><select id="f-st">${VST.slice(0,3).map(s=>`<option>${s}</option>`).join('')}</select></div></div>
     <div class="two"><div class="field"><label for="f-c">Couleur</label><select id="f-c">${Object.keys(COLORS).map(c=>`<option>${c}</option>`).join('')}</select></div>
     <div class="field"><label for="f-t">Carrosserie</label><select id="f-t"><option value="suv">SUV</option><option value="sedan">Berline</option><option value="pick">Pick-up</option></select></div></div>
-    <div class="field"><label for="f-n">Conditions affichées</label><input id="f-n" placeholder="Ex. tout compris : transport + dédouanement"><span class="hint">Pour une précommande : délai estimé, solde de 10 % à l'arrivée, conditions d'annulation.</span></div>
+    <div class="field"><label for="f-n">Conditions affichées</label><input id="f-n" value="Financement disponible" placeholder="Ex. tout compris : transport + dédouanement"><span class="hint">Pour une précommande : délai estimé, solde de 10 % à l'arrivée, conditions d'annulation.</span></div>
     <div class="field"><span style="font-size:13.5px;font-weight:600">Photos du véhicule</span>
-      <label class="drop" for="f-media">${ic('img','style="width:26px;height:26px;color:var(--g500)"')}<br><b>Choisir des photos</b><br><span class="small muted">JPG, PNG ou WebP, 12 photos maximum. La première devient la photo principale.</span><input id="f-media" type="file" accept="image/jpeg,image/png,image/webp" multiple></label>
+      <label class="drop" for="f-media">${ic('img','style="width:26px;height:26px;color:var(--g500)"')}<br><b>Choisir des photos</b><br><span class="small muted">JPG, PNG ou WebP, 12 photos maximum. La première devient la photo principale. <b>Format conseillé : 1080 × 1350 px (4:5)</b> ; toute photo est ajustée à ce format sans déformation. Les vidéos s'ajoutent ensuite avec le bouton « Photos et vidéos ».</span><input id="f-media" type="file" accept="image/jpeg,image/png,image/webp" multiple></label>
       <div class="previews" id="previews"></div><div class="upbar" id="addBar" hidden><span></span></div></div>
   </form>
   <div class="drawer-f"><button class="btn btn-t" data-close>Annuler</button><button class="btn btn-p" form="addForm" type="submit">Publier le véhicule</button></div>`);
@@ -1086,7 +1108,7 @@ function mapPaiement(x){
 function splitModel(m,y){m=String(m||'');const t=String(y||'');return t&&m.endsWith(' '+t)?m.slice(0,-t.length-1):m}
 function mapVehicule(x){
   const c=String(x.couleur||'').toLowerCase();
-  return {id:x.id,mk:x.marque||'',md:splitModel(x.modele,x.annee),y:x.annee||'',c:c||'gris',hex:x.hex,mi:x.km?Math.round(x.km/1000)+'k':'—',p:x.prix||0,pp:x.prix_promo?+x.prix_promo:0,st:VST_IN[x.statut]||'Disponible',t:x.forme==='pickup'?'pick':x.forme==='berline'?'sedan':'suv',note:x.note||'',photos:Array.isArray(x.photos)?x.photos.map(p=>typeof p==='string'?{id:p,url:p}:p):[],_api:x};
+  return {id:x.id,mk:x.marque||'',md:splitModel(x.modele,x.annee),y:x.annee||'',c:c||'gris',hex:x.hex,mi:x.km?Math.round(x.km/1000)+'k':'—',p:x.prix||0,pp:x.prix_promo?+x.prix_promo:0,st:VST_IN[x.statut]||'Disponible',t:x.forme==='pickup'?'pick':x.forme==='berline'?'sedan':'suv',note:x.note||'',photos:Array.isArray(x.photos)?x.photos.map(p=>typeof p==='string'?{id:p,url:p}:p):[],videos:Array.isArray(x.videos)?x.videos:[],_api:x};
 }
 function mapPre(x){
   const bal={non_du:'attente',a_envoyer:'attente',envoye:'envoye',paye:'paye'}[x.statut_solde]||'attente';

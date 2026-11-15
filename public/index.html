@@ -435,7 +435,7 @@ section{padding:clamp(56px,8vw,104px) 0}
 /* Cartes véhicules */
 .grille-v{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:clamp(14px,2vw,22px)}
 .vcarte{display:flex;flex-direction:column;border-radius:var(--r-m);background:#fff;border:1px solid var(--gris-100);overflow:hidden}
-.vcarte-media{position:relative;display:block;width:100%;border:0;padding:0;cursor:pointer;background:linear-gradient(180deg,var(--gris-50),var(--gris-100));aspect-ratio:16/10;overflow:hidden}
+.vcarte-media{position:relative;display:block;width:100%;border:0;padding:0;cursor:pointer;background:linear-gradient(180deg,var(--gris-50),var(--gris-100));aspect-ratio:4/5;overflow:hidden}
 .vcarte-media .annee{position:absolute;inset:auto 0 32%;text-align:center;font-family:var(--f-titre);font-weight:900;font-size:clamp(70px,9vw,108px);letter-spacing:-.05em;line-height:1;color:rgba(11,11,12,.06)}
 .vcarte-media svg.voiture{position:absolute;left:5%;width:90%;bottom:2%}
 .vcarte-media .badge{position:absolute;top:12px;left:12px}
@@ -615,7 +615,7 @@ html.mode-reel [data-seulement-demo]{display:none!important}
 /* Détail véhicule */
 .detail{display:grid;gap:clamp(20px,3vw,40px);padding-bottom:clamp(40px,6vw,80px)}
 @media (min-width:980px){.detail{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);align-items:start}}
-.detail-scene{position:relative;border-radius:var(--r-l);background:linear-gradient(180deg,var(--gris-50),var(--gris-100) 70%,#E4E4E1);aspect-ratio:4/3;overflow:hidden;display:grid;place-items:end center}
+.detail-scene{position:relative;border-radius:var(--r-l);background:linear-gradient(180deg,var(--gris-50),var(--gris-100) 70%,#E4E4E1);aspect-ratio:4/5;max-height:min(80vh,780px);width:100%;overflow:hidden;display:grid;place-items:end center}
 .detail-scene .annee-geante{font-size:clamp(110px,20vw,260px)}
 .detail-scene svg.voiture{position:relative;z-index:2;width:92%;margin-bottom:4%}
 .detail-info{display:grid;gap:18px}
@@ -680,6 +680,7 @@ img.voiture.photo{display:block;width:100%;height:100%;object-fit:cover;border-r
 .voiture.vide svg{width:min(46%,220px);aspect-ratio:680/118;color:var(--gris-300)}
 .voiture.vide span{font-size:12.5px;font-weight:600;color:var(--gris-500);letter-spacing:.01em}
 .vcarte-media img.voiture.photo,.vcarte-media .voiture.vide{position:absolute;inset:0;width:100%;height:100%}
+.vcarte-media img.voiture.photo{object-fit:contain}
 .vcarte-media:has(.voiture.photo) .annee,.vcarte-media:has(.voiture.vide) .annee{display:none}
 .detail-scene img.voiture.photo,.detail-scene .voiture.vide{position:absolute;inset:0;z-index:2;margin:0;width:100%;height:100%}
 .detail-scene:has(.voiture.photo) .annee-geante,.detail-scene:has(.voiture.vide) .annee-geante{display:none}
@@ -826,6 +827,14 @@ input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:
 .prix-barre{font-family:var(--f-corps);font-weight:500;font-size:.62em;color:var(--gris-500);margin-right:6px}
 .heros-vehicule .heros-prix{font-size:15px;color:var(--noir)}.heros-vehicule .heros-prix s{color:var(--gris-500);margin-right:6px}.heros-vehicule .heros-prix b{font-size:20px;font-family:var(--f-titre)}
 .vitrine-img.vitrine-photo{aspect-ratio:16/10;object-fit:cover;border-radius:var(--r-l);filter:none;-webkit-box-reflect:unset;box-shadow:0 24px 50px rgba(11,11,12,.18)}
+.detail-scene img.voiture.photo{object-fit:contain}
+.gal-video{position:absolute;inset:0;z-index:3;width:100%;height:100%;object-fit:contain;background:#0B0B0C;border-radius:inherit}
+.galerie{min-width:0}.gal-mini{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.gal-it{position:relative;width:64px;height:64px;border-radius:10px;border:2px solid transparent;overflow:hidden;padding:0;background:var(--gris-100);cursor:pointer}
+.gal-it[aria-current="true"]{border-color:var(--rouge)}.gal-it img{width:100%;height:100%;object-fit:cover;display:block}
+.gal-it .gal-play{position:absolute;inset:0;display:grid;place-items:center;background:#0B0B0C;color:#fff;font-size:20px}
+.fin-dispo{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--succes);background:var(--succes-50,#E7F4EC);border-radius:999px;padding:4px 10px;margin-top:6px;text-decoration:none}
+.fin-dispo::before{content:"✓";font-weight:800}
 </style>
 </head>
 <body>
@@ -973,7 +982,7 @@ input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:
       </div>
       <div class="encadre">
         <svg aria-hidden="true"><use href="#i-info"/></svg>
-        <p><b>Les frais de service de {{T:consultation}} couvrent l'accompagnement, l'analyse, la préparation des documents, les démarches administratives et le suivi du client.</b> Ils ne sont pas le prix du véhicule : ils ne constituent ni un acompte de réservation ni des frais de financement. Le dossier de financement coûte {{T:financement}} (ou l'équivalent en gourdes) et ne garantit pas l'approbation. <a href="/conditions">Lire les conditions</a></p>
+        <p><b>Les frais de service couvrent l'accompagnement, l'analyse, la préparation des documents, les démarches administratives et le suivi du client.</b> Ils ne sont pas le prix du véhicule : ils ne constituent ni un acompte de réservation ni des frais de financement. Le dossier de financement coûte {{T:financement}} (ou l'équivalent en gourdes). <a href="/conditions">Lire les conditions</a></p>
       </div>
     </div>
   </section>
@@ -1564,6 +1573,15 @@ const precommandable = v => v.statut==="precommande"||v.statut==="transit";
 /* ---------- Illustration voiture ---------- */
 let uid=0;
 function mix(hex,t,to){const c=parseInt(hex.slice(1),16),r=c>>16,g=c>>8&255,b=c&255,T=to==="w"?255:0;const f=x=>Math.round(x+(T-x)*t);return "#"+[f(r),f(g),f(b)].map(x=>x.toString(16).padStart(2,"0")).join("");}
+/* Photos (4:5) et vidéos (tous formats) d'un véhicule */
+const mediasV=v=>[...(v.photos||[]).map(url=>({t:"p",url})),...(v.videos||[]).map(url=>({t:"v",url}))];
+const mediaHTML=(v,m)=>m.t==="v"?`<video class="gal-video" src="${esc(m.url)}" controls playsinline preload="metadata" aria-label="Vidéo : ${esc(nomV(v))}"></video>`:`<img class="voiture photo" src="${esc(m.url)}" alt="${esc(nomV(v))}, ${esc((v.couleur||"").toLowerCase())}" decoding="async">`;
+document.addEventListener("click",e=>{
+  const b=e.target.closest("[data-gal]");if(!b)return;
+  const v=parId(etat.v);if(!v)return;const med=mediasV(v),m=med[+b.dataset.gal],vue=document.getElementById("gal-vue");if(!m||!vue)return;
+  const an=vue.querySelector(".annee-geante");vue.innerHTML=(an?an.outerHTML:"")+mediaHTML(v,m);
+  document.querySelectorAll("[data-gal]").forEach(x=>x.setAttribute("aria-current",String(x===b)));
+});
 function voitureSVG(v,cls){
   const ph=v.photo||(v.photos&&v.photos[0]);
   if(ph)return `<img class="voiture photo ${cls||""}" src="${esc(ph)}" alt="${esc(nomV(v))}, ${esc((v.couleur||"").toLowerCase())}" loading="lazy" decoding="async">`;
@@ -1587,7 +1605,7 @@ function carte(v){
      <h3>${esc(v.marque)} ${esc(v.modele.replace(/\s\d{4}$/,""))}<small>${esc(v.couleur)}, ${v.places} places, ${esc(v.trans.toLowerCase())}</small></h3>
      <ul class="specs">${specs.map(s=>`<li>${esc(s)}</li>`).join("")}</ul>
      <div class="vcarte-pied">
-       <div class="prix-ligne"><span class="prix">${v.prix_normal?`<s class="prix-barre">${usd(v.prix_normal)}</s>`:""}${usd(v.prix)}</span>${precommandable(v)&&v.prix?`<span class="prix-note">90 % : ${usd(v.prix*.9)}</span>`:(v.note?`<span class="prix-note">${esc(v.note)}</span>`:"")}</div>
+       <div class="prix-ligne"><span class="prix">${v.prix_normal?`<s class="prix-barre">${usd(v.prix_normal)}</s>`:""}${usd(v.prix)}</span>${v.statut==="disponible"&&!/financement/i.test(v.note||"")?`<span class="fin-dispo">Financement disponible</span>`:""}${precommandable(v)&&v.prix?`<span class="prix-note">90 % : ${usd(v.prix*.9)}</span>`:(v.note?`<span class="prix-note">${esc(v.note)}</span>`:"")}</div>
        <div class="vcarte-btns">${boutonsV(v)}</div>
      </div>
    </div></article>`;
@@ -1686,9 +1704,10 @@ function rendreDetail(){
   if(v.statut==="vendu"||v.statut==="indisponible") btns=`<div class="encadre" style="margin:0"><svg aria-hidden="true"><use href="#i-info"/></svg><p>Ce véhicule n'est plus disponible. Nous pouvons en rechercher un similaire.</p></div><a class="btn btn-rouge" href="/recherche-vehicule">Trouver un véhicule similaire</a>`;
   else if(precommandable(v)) btns=`<div class="detail-btns"><button class="btn btn-rouge" type="button" data-aller="precommande" data-v="${v.id}">Précommander ce véhicule</button><button class="btn btn-contour" type="button" data-aller="financement" data-v="${v.id}">Demander un financement</button></div>`;
   else btns=`<div class="detail-btns"><button class="btn btn-rouge" type="button" data-aller="achat" data-v="${v.id}">Acheter</button><button class="btn btn-noir" type="button" data-aller="essai" data-v="${v.id}">Réserver mon essai</button><button class="btn btn-contour" type="button" data-aller="financement" data-v="${v.id}">Demander un financement</button></div>`;
-  d.innerHTML=`<div class="detail-scene"><div class="annee-geante" aria-hidden="true">${v.annee}</div>${voitureSVG(v)}</div>
+  const med=mediasV(v);
+  d.innerHTML=`<div class="galerie"><div class="detail-scene" id="gal-vue"><div class="annee-geante" aria-hidden="true">${v.annee}</div>${med.length?mediaHTML(v,med[0]):voitureSVG(v)}</div>${med.length>1?`<div class="gal-mini" role="group" aria-label="Photos et vidéos">${med.map((m,i)=>`<button class="gal-it" type="button" data-gal="${i}" aria-current="${i===0}" aria-label="${m.t==="v"?"Vidéo":"Photo"} ${i+1}">${m.t==="v"?`<span class="gal-play" aria-hidden="true">▶</span>`:`<img src="${esc(m.url)}" alt="" loading="lazy">`}</button>`).join("")}</div>`:""}</div>
    <div class="detail-info">${badge(v)}<h1 style="font-size:clamp(30px,4vw,46px)">${esc(nomV(v))}</h1>
-     <div><span class="prix" style="font-size:34px">${v.prix_normal?`<s class="prix-barre">${usd(v.prix_normal)}</s>`:""}${usd(v.prix)}</span>${v.note?`<p class="muted" style="margin-top:4px">${esc(v.note)}</p>`:""}</div>
+     <div><span class="prix" style="font-size:34px">${v.prix_normal?`<s class="prix-barre">${usd(v.prix_normal)}</s>`:""}${usd(v.prix)}</span>${v.statut==="disponible"&&!/financement/i.test(v.note||"")?`<div><a class="fin-dispo" href="/financement">Financement disponible</a></div>`:""}${v.note?`<p class="muted" style="margin-top:4px">${esc(v.note)}</p>`:""}</div>
      <dl class="fiche">${fiche.map(([a,b])=>`<div><dt>${a}</dt><dd>${esc(b)}</dd></div>`).join("")}</dl>
      ${bloc}${btns}</div>`;
 }
@@ -2666,6 +2685,21 @@ document.addEventListener("change",e=>{if(e.target&&e.target.id==="cpt-fichiers"
 chargerCompte();
 
 /* Démarrage : détection du serveur */
+/* Rafraîchissement automatique : ce qui est modifié dans l'administration (véhicules, photos, vidéos, prix promo, vitrine) apparaît sans recharger la page */
+const DERNIER={v:"",vit:JSON.stringify(typeof VITRINE!=="undefined"?VITRINE:[])};
+async function rafraichirDonnees(){
+  if(!MODE_REEL||document.hidden)return;
+  try{
+    const[l,vit]=await Promise.all([api("/api/vehicules"),api("/api/vitrine")]);
+    if(Array.isArray(l)){const js=JSON.stringify(l);if(DERNIER.v&&js!==DERNIER.v){const avant=etat.v&&JSON.stringify(parId(etat.v)||null);V.length=0;l.forEach(v=>V.push(v));rerendre();
+      if(vueCourante()==="vehicule"&&JSON.stringify(parId(etat.v)||null)!==avant)rendreDetail();}DERNIER.v=js;}
+    if(Array.isArray(vit)){const js=JSON.stringify(vit);if(js!==DERNIER.vit){DERNIER.vit=js;VITRINE=vit;clearInterval(H.t);
+      if(VITRINE.length){herosPoints();herosAfficher(Math.min(H.i,VITRINE.length-1),false);herosAuto();}else{elV.innerHTML="";elI.innerHTML="";elP.innerHTML="";}}}
+  }catch(_){}
+}
+setInterval(rafraichirDonnees,30000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)rafraichirDonnees();});
+window.addEventListener("focus",rafraichirDonnees);
 function rerendre(){
   VEDETTES=V.filter(v=>v.vedette).map(v=>v.id);
   if(!VEDETTES.length)VEDETTES=V.filter(v=>v.statut!=="vendu").slice(0,4).map(v=>v.id);
@@ -2697,7 +2731,7 @@ async function demarrer(){
   if(q){try{localStorage.setItem("ead-derniere-ref",q.trim().toUpperCase());}catch(_){}if(vueCourante()==="accueil")allerChemin(CHEMINS.retour+location.search,true);}
   const ri=new URLSearchParams(location.search).get("reinit");if(ri){CPT.reinit=ri;if(vueCourante()!=="compte")allerChemin(CHEMINS.compte+location.search,true);}
   CPT.pret=false;CPT.client=null;
-  await Promise.all([(async()=>{try{const l=await api("/api/vehicules");if(Array.isArray(l)){V.length=0;l.forEach(v=>V.push(v));rerendre();}}catch(_){}})(),chargerCompte()]);
+  await Promise.all([(async()=>{try{const l=await api("/api/vehicules");if(Array.isArray(l)){DERNIER.v=JSON.stringify(l);V.length=0;l.forEach(v=>V.push(v));rerendre();}}catch(_){}})(),chargerCompte()]);
   route();
 }
 

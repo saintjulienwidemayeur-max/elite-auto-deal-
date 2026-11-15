@@ -10,7 +10,8 @@ import { unlink } from "node:fs/promises";
 import { q, un, tous, migrer, parametres, journaliser, transaction } from "./db.js";
 import { SERVICES, COLS_VEHICULE } from "./catalogue.js";
 import { creerPaiement, lirePaiement, signatureValide, modeFreda, fredaConfiguree, ErreurFreda } from "./freda.js";
-import { enregistrer, servir, servirPublic, supprimer } from "./stockage.js";
+import { enregistrer, servir, servirPublic, servirPublicRange, supprimer } from "./stockage.js";
+import { photo45 } from "./medias.js";
 import { envoyerEmail, emailConfigure, emailBienvenue, emailCode, emailDevis } from "./email.js";
 import { validerDevis, genererPdf, montant as montantDevis } from "./devis.js";
 import { pageHtml, sitemapXml, CHEMINS, remplacerTarifs } from "./seo.js";
@@ -75,6 +76,8 @@ app.use(helmet({
 }));
 // L'administration, l'API et les webhooks ne doivent jamais être indexés (moteurs de recherche et IA)
 app.use(["/admin", "/admin.html", "/api", "/webhooks", "/sante", "/devis"], (_req, res, next) => { res.set("X-Robots-Tag", "noindex, nofollow, noarchive"); next(); });
+// Toute modification faite dans l'administration doit apparaître tout de suite : aucune réponse JSON de l'API n'est mise en cache
+app.use("/api", (_req, res, next) => { res.set("Cache-Control", "no-cache"); next(); });
 app.use(express.json({ limit: "200kb" }));
 
 /* ---------- Changement de statut d'un paiement (webhook ou vérification) ---------- */
@@ -162,10 +165,11 @@ async function avecPhotos(vs, admin = false) {
   const liste = Array.isArray(vs) ? vs : [vs];
   if (!liste.length || !liste[0]) return vs;
   const ph = await tous("select id, vehicule_id from photos_vehicules where vehicule_id = any($1) order by ordre, id", [liste.map(v => v.id)]);
+  const vd = await tous("select id, vehicule_id from videos_vehicules where vehicule_id = any($1) order by ordre, id", [liste.map(v => v.id)]);
   for (const v of liste) {
-    const p = ph.filter(x => x.vehicule_id === v.id);
-    if (admin) v.photos = p.map(x => ({ id: x.id, url: `/api/photos/${x.id}` }));
-    else { v.photos = p.map(x => `/api/photos/${x.id}`); v.photo = v.photos[0] || null; }
+    const p = ph.filter(x => x.vehicule_id === v.id), d = vd.filter(x => x.vehicule_id === v.id);
+    if (admin) { v.photos = p.map(x => ({ id: x.id, url: `/api/photos/${x.id}` })); v.videos = d.map(x => ({ id: x.id, url: `/api/videos/${x.id}` })); }
+    else { v.photos = p.map(x => `/api/photos/${x.id}`); v.photo = v.photos[0] || null; v.videos = d.map(x => `/api/videos/${x.id}`); }
   }
   return vs;
 }
@@ -177,7 +181,7 @@ app.get("/api/config", enveloppe(async (_req, res) => {
 }));
 
 app.get("/api/vehicules", enveloppe(async (_req, res) => {
-  res.set("Cache-Control", "public, max-age=30");
+  res.set("Cache-Control", "no-cache"); // véhicules : toujours à jour (les changements de l'administration apparaissent tout de suite)
   res.json(await avecPhotos(await tous(`${VUE_V} where not retire order by vedette desc, (statut='vendu'), maj_le desc`)));
 }));
 
@@ -750,8 +754,9 @@ app.post("/api/admin/vehicules/:id/photos", uploadPhotos.array("photos", 12), en
     if (!fichiers.length) throw err(400, "VIDE", "Ajoutez au moins une photo.");
     let { m } = await un("select coalesce(max(ordre), -1)::int m from photos_vehicules where vehicule_id=$1", [v.id]);
     for (const f of fichiers) {
-      const s = await enregistrer(f.path, `vehicules/${v.id}`, f.originalname, f.mimetype);
-      await q("insert into photos_vehicules(vehicule_id, stockage, chemin, type, taille, ordre) values ($1,$2,$3,$4,$5,$6)", [v.id, s.stockage, s.chemin, f.mimetype, f.size, ++m]);
+      let n; try { n = await photo45(f.path); } catch { throw err(400, "IMAGE", `Image illisible : ${f.originalname}.`); } // photo ramenée en 4:5, 1080 x 1350
+      const s = await enregistrer(n.chemin, `vehicules/${v.id}`, f.originalname.replace(/\.[^.]+$/, "") + ".webp", n.type);
+      await q("insert into photos_vehicules(vehicule_id, stockage, chemin, type, taille, ordre) values ($1,$2,$3,$4,$5,$6)", [v.id, s.stockage, s.chemin, n.type, n.taille, ++m]);
     }
     await q("update vehicules set maj_le=now() where id=$1", [v.id]);
     await journaliser(null, `${fichiers.length} photo(s) ajoutée(s) : ${v.marque} ${v.modele}`, "vehicule", "administrateur");
@@ -768,6 +773,37 @@ app.post("/api/admin/vehicules/:id/photos/:pid/principale", enveloppe(async (req
   const f = await un("update photos_vehicules set ordre=(select coalesce(min(ordre),0)-1 from photos_vehicules where vehicule_id=$2) where id=$1 and vehicule_id=$2 returning id", [Number(req.params.pid) || 0, req.params.id]);
   if (!f) throw err(404, "INTROUVABLE", "Photo introuvable.");
   res.json(await vehiculeAdmin(req.params.id));
+}));
+
+/* Vidéos des véhicules (tous formats acceptés) */
+const uploadVideos = multer({ dest: os.tmpdir(), limits: { fileSize: 50 * 1024 * 1024, files: 4 },
+  fileFilter: (_req, f, cb) => cb(/^video\/(mp4|webm|quicktime|x-m4v)$/.test(f.mimetype) ? null : err(400, "FICHIER", `Vidéo non acceptée : ${f.originalname}. MP4, WebM ou MOV uniquement.`), true) });
+app.post("/api/admin/vehicules/:id/videos", uploadVideos.array("videos", 4), enveloppe(async (req, res) => {
+  const fichiers = req.files || [];
+  try {
+    const v = await un("select id, marque, modele from vehicules where id=$1", [req.params.id]);
+    if (!v) throw err(404, "INTROUVABLE", "Véhicule introuvable.");
+    if (!fichiers.length) throw err(400, "VIDE", "Ajoutez au moins une vidéo.");
+    let { m } = await un("select coalesce(max(ordre), -1)::int m from videos_vehicules where vehicule_id=$1", [v.id]);
+    for (const f of fichiers) {
+      const s = await enregistrer(f.path, `vehicules/${v.id}`, f.originalname, f.mimetype);
+      await q("insert into videos_vehicules(vehicule_id, stockage, chemin, type, taille, ordre) values ($1,$2,$3,$4,$5,$6)", [v.id, s.stockage, s.chemin, f.mimetype, f.size, ++m]);
+    }
+    await q("update vehicules set maj_le=now() where id=$1", [v.id]);
+    await journaliser(null, `${fichiers.length} vidéo(s) ajoutée(s) : ${v.marque} ${v.modele}`, "vehicule", "administrateur");
+    res.status(201).json(await vehiculeAdmin(v.id));
+  } finally { for (const f of fichiers) unlink(f.path).catch(() => {}); }
+}));
+app.delete("/api/admin/vehicules/:id/videos/:vid", enveloppe(async (req, res) => {
+  const f = await un("delete from videos_vehicules where id=$1 and vehicule_id=$2 returning *", [Number(req.params.vid) || 0, req.params.id]);
+  if (!f) throw err(404, "INTROUVABLE", "Vidéo introuvable.");
+  await supprimer(f); await q("update vehicules set maj_le=now() where id=$1", [req.params.id]);
+  res.json(await vehiculeAdmin(req.params.id));
+}));
+app.get("/api/videos/:id", enveloppe(async (req, res) => {
+  const f = await un("select * from videos_vehicules where id=$1", [Number(req.params.id) || 0]);
+  if (!f) return res.status(404).end();
+  await servirPublicRange(f, req, res);
 }));
 
 /* Devis (espace administrateur : Gestion des devis) */
@@ -837,7 +873,7 @@ async function lireVitrine(admin = false) {
     return admin ? { ...base, actif: r.actif, ordre: r.ordre, promo_manuel: !!r.promo, vehicule: r.vehicule_id ? `${r.v_marque || ""} ${r.v_modele || ""}`.trim() : null, a_image: r.a_image, statut_veh: r.v_statut } : base;
   }).filter(x => admin || x.image);
 }
-app.get("/api/vitrine", enveloppe(async (_req, res) => res.set("Cache-Control", "public, max-age=60").json(await lireVitrine())));
+app.get("/api/vitrine", enveloppe(async (_req, res) => res.json(await lireVitrine())));
 app.get("/api/vitrine/:id/image", enveloppe(async (req, res) => {
   const r = await un("select image, image_type from vitrine where id=$1 and image is not null", [String(req.params.id)]);
   if (!r) throw err(404, "INTROUVABLE", "Image introuvable.");
@@ -987,7 +1023,7 @@ app.get("/vehicules/:id", enveloppe(async (req, res) => {
   envoyerPage(res, "vehicule", `/vehicules/${encodeURIComponent(v.id)}`, { vehicule: v });
 }));
 app.get("/sitemap.xml", enveloppe(async (_req, res) => {
-  res.set({ "Content-Type": "application/xml; charset=utf-8", "Cache-Control": "public, max-age=3600" }).send(sitemapXml(await tous("select id, maj_le from vehicules where not retire order by maj_le desc")));
+  res.set({ "Content-Type": "application/xml; charset=utf-8", "Cache-Control": "public, max-age=300" }).send(sitemapXml(await tous("select id, maj_le from vehicules where not retire order by maj_le desc")));
 }));
 
 /* Devis : consultation et paiement par lien sécurisé (jeton non devinable ; un jeton = un seul devis) */
@@ -1044,7 +1080,7 @@ app.get("/devis/:jeton.pdf", limiteur(60, 10 * 60e3), enveloppe(async (req, res)
 // llms.txt : mêmes tarifs que l'administration. index.html brut (avec repères) n'est jamais servi.
 app.get("/llms.txt", enveloppe(async (_req, res) => {
   const { tarifs } = await parametres();
-  res.set({ "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "public, max-age=300" }).send(remplacerTarifs(readFileSync(path.join(DOSSIER_PUBLIC, "llms.txt"), "utf8"), tarifs));
+  res.set({ "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-cache" }).send(remplacerTarifs(readFileSync(path.join(DOSSIER_PUBLIC, "llms.txt"), "utf8"), tarifs));
 }));
 app.get("/index.html", (_req, res) => res.redirect(301, "/"));
 app.use(express.static(DOSSIER_PUBLIC, { index: false, maxAge: "5m" }));

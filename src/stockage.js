@@ -64,6 +64,32 @@ export async function servirPublic(f, res) {
   createReadStream(p).on("error", () => res.status(404).end()).pipe(res);
 }
 
+/** Vidéos : même chose avec les requêtes Range (lecture progressive, avance rapide). */
+export async function servirPublicRange(f, req, res) {
+  res.setHeader("Accept-Ranges", "bytes");
+  res.setHeader("Cache-Control", "public, max-age=86400");
+  const type = f.type || "video/mp4";
+  if (f.stockage === "supabase") {
+    const h = { Authorization: `Bearer ${SB_KEY}`, apikey: SB_KEY }; if (req.headers.range) h.Range = req.headers.range;
+    const r = await fetch(`${SB_URL}/storage/v1/object/${BUCKET}/${f.chemin}`, { headers: h });
+    if (!r.ok && r.status !== 206) return res.status(r.status === 416 ? 416 : 404).end();
+    res.status(r.status); res.setHeader("Content-Type", type);
+    for (const k of ["content-length", "content-range"]) if (r.headers.get(k)) res.setHeader(k, r.headers.get(k));
+    const { Readable } = await import("node:stream"); return Readable.fromWeb(r.body).pipe(res);
+  }
+  const p = path.join(DOSSIER_LOCAL, f.chemin);
+  if (!p.startsWith(DOSSIER_LOCAL)) return res.status(400).end();
+  const { stat } = await import("node:fs/promises");
+  let taille; try { taille = (await stat(p)).size; } catch { return res.status(404).end(); }
+  res.setHeader("Content-Type", type);
+  const m = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range || "");
+  if (!m) { res.setHeader("Content-Length", taille); return createReadStream(p).pipe(res); }
+  let debut = m[1] === "" ? Math.max(0, taille - Number(m[2])) : Number(m[1]); const fin = m[1] !== "" && m[2] !== "" ? Math.min(Number(m[2]), taille - 1) : taille - 1;
+  if (debut > fin || debut >= taille) { res.setHeader("Content-Range", `bytes */${taille}`); return res.status(416).end(); }
+  res.status(206); res.setHeader("Content-Range", `bytes ${debut}-${fin}/${taille}`); res.setHeader("Content-Length", fin - debut + 1);
+  createReadStream(p, { start: debut, end: fin }).pipe(res);
+}
+
 export async function supprimer(f) {
   if (f.stockage === "supabase") {
     await fetch(`${SB_URL}/storage/v1/object/${BUCKET}/${f.chemin}`, { method: "DELETE", headers: { Authorization: `Bearer ${SB_KEY}`, apikey: SB_KEY } }).catch(() => {});
