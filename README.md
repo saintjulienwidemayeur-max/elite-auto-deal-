@@ -72,3 +72,6 @@ Frais de recherche : 30 $ de frais de dossier à l'ouverture ; les 150 $ de frai
 ## Vitrine du site et promos
 Admin → **Vitrine du site** : ajouter, modifier, réordonner (↑ ↓), masquer ou supprimer les diapositives de la première page (image PNG/WebP détourée, marque, modèle, filigrane, accroche, véhicule lié, badge Promo + texte). Elles sont stockées en base (table `vitrine`, images incluses) et chargées une seule fois depuis `sources/photos/vitrine.json` à la première installation. Admin → **Véhicules** : colonne **Prix promo** (vide = pas de promo) : le site affiche le prix barré et le client paie le prix promo. Une diapositive liée à un véhicule en promo affiche le badge « Promo » automatiquement ; elle est masquée si le véhicule est vendu.
 
+## Adresse publique (liens envoyés aux clients)
+`PUBLIC_URL` (ex. `https://eliteautodeal.com`) sert à fabriquer les liens des devis, des emails, du retour de paiement et de la réinitialisation du mot de passe. **À renseigner sur Render.** Sans elle, le serveur utilise `RENDER_EXTERNAL_URL` (adresse `onrender.com`, fournie par Render) et affiche un avertissement au démarrage ; `localhost` n'est utilisé qu'en développement. Un lien déjà envoyé avec une mauvaise adresse doit être renvoyé : le jeton du devis, lui, ne change pas (`/devis/<jeton>`).
+

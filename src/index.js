@@ -16,7 +16,10 @@ import { validerDevis, genererPdf, montant as montantDevis } from "./devis.js";
 import { pageHtml, sitemapXml, CHEMINS } from "./seo.js";
 
 const PORT = process.env.PORT || 3000;
-const PUBLIC_URL = (process.env.PUBLIC_URL || `http://localhost:${PORT}`).replace(/\/$/, "");
+// Adresse publique utilisée dans les liens envoyés aux clients (devis, retour de paiement, emails, réinitialisation).
+// Ordre : PUBLIC_URL (à renseigner : https://eliteautodeal.com) > RENDER_EXTERNAL_URL (fournie par Render) > localhost (développement seulement).
+const PUBLIC_URL = (process.env.PUBLIC_URL || process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`).replace(/\/$/, "");
+if (process.env.RENDER && !process.env.PUBLIC_URL) console.warn(`[config] PUBLIC_URL n'est pas renseignée : les liens utilisent ${PUBLIC_URL}. Définissez PUBLIC_URL=https://eliteautodeal.com sur Render.`);
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "";
 const SESSION_SECRET = process.env.SESSION_SECRET || crypto.randomBytes(32).toString("hex");
 const CARTE_ACTIVE = process.env.CARTE_ACTIVE !== "false";
