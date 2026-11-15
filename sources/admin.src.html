@@ -514,7 +514,7 @@ const COLORS={noir:'#1c1c1f',rouge:'#b3171c',blanc:'#e9e9e6',gris:'#8a8a90',arge
 /* ================= Données de démonstration ================= */
 const S={
  rate:132,
- tarifs:{financement:25,consultation:50,vente:200,recherche:50,essai:30,precommande:90},
+ tarifs:{financement:25,consultation:50,vente:200,recherche:30,service_recherche:150,essai:30,precommande:90},
  clients:[
   {id:'C-104',nom:'Nadège Pierre',tel:'+509 4811 2030',wa:'+509 4811 2030',email:'nadege.pierre@exemple.ht',d:'12 nov.',nb:1,paye:150,reinit:false},
   {id:'C-103',nom:'Jean-Robert Célestin',tel:'+509 3456 7788',wa:'+509 3456 7788',email:'',d:'11 nov.',nb:1,paye:0,reinit:true},
@@ -1016,7 +1016,7 @@ function csv(){return 'mois;ventes;chiffre_vehicules_usd;frais_service_usd\n'+S.
 let tpl='accueil';
 V['parametres-site']=()=>{
   const names={accueil:'Message d\'accueil',paiement:'Paiement confirmé',solde:'Solde de précommande',rappel:'Rappel de paiement'};
-  const labels={financement:'Dossier de financement',consultation:'Consultation',vente:'Service de vente',recherche:'Recherche / achat accompagné',essai:'Visite ou essai',precommande:'Précommande (% du prix)'};
+  const labels={financement:'Dossier de financement',consultation:'Consultation',vente:'Service de vente',recherche:'Recherche : frais de dossier (ouverture)',service_recherche:'Recherche : frais de service (véhicule trouvé, par devis)',essai:'Visite ou essai',precommande:'Précommande (% du prix)'};
   return `<div class="head"><div><h1>Paramètres du site</h1><p>Taux de change, tarifs et messages WhatsApp utilisés par les automatisations.</p></div></div>
   <div class="set-grid"><div class="stack">
    <section class="card"><div class="card-h"><h2>Taux de conversion</h2></div><div class="card-b form">

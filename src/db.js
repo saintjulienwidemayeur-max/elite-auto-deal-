@@ -36,6 +36,12 @@ export async function migrer() {
     if (t && Number(t.valeur.essai) === 50) { t.valeur.essai = 30; await q("update parametres set valeur=$1 where cle='tarifs'", [JSON.stringify(t.valeur)]); }
     await q("insert into parametres(cle, valeur) values ('migration_essai_30', 'true') on conflict (cle) do nothing");
   }
+  // Recherche : 30 $ de frais de dossier (au lieu de 50 $), appliqué une seule fois aux bases existantes
+  if (!(await un("select 1 from parametres where cle='migration_recherche_30'"))) {
+    const t = await un("select valeur from parametres where cle='tarifs'");
+    if (t) { const v = t.valeur; if (Number(v.recherche) === 50) v.recherche = 30; if (v.service_recherche == null) v.service_recherche = 150; await q("update parametres set valeur=$1 where cle='tarifs'", [JSON.stringify(v)]); }
+    await q("insert into parametres(cle, valeur) values ('migration_recherche_30', 'true') on conflict (cle) do nothing");
+  }
   const { n } = await un("select count(*)::int n from vehicules");
   if (n === 0) {
     const ph = COLS_VEHICULE.map((_, i) => "$" + (i + 1)).join(",");
@@ -46,7 +52,7 @@ export async function migrer() {
 export async function parametres() {
   const rows = await tous("select cle, valeur from parametres");
   const p = Object.fromEntries(rows.map(r => [r.cle, r.valeur]));
-  return { ...PARAMETRES_DEFAUT, ...p };
+  return { ...PARAMETRES_DEFAUT, ...p, tarifs: { ...PARAMETRES_DEFAUT.tarifs, ...(p.tarifs || {}) }, messages: { ...PARAMETRES_DEFAUT.messages, ...(p.messages || {}) } };
 }
 
 export const journaliser = (ref, texte, type = "info", par = "système") =>

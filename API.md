@@ -7,7 +7,7 @@ Montants : toujours calculés par le serveur. Le client n'envoie JAMAIS de monta
 
 ## Public
 
-GET /api/config → `{ "mode": "sandbox"|"live", "taux_htg": 132, "taux_date": "2026-11-12", "tarifs": { "consultation":50, "recherche":50, "essai":30, "vendre":200, "financement":25 }, "whatsapp": "50942405729", "methodes": ["moncash","natcash","carte"] }`
+GET /api/config → `{ "mode": "sandbox"|"live", "taux_htg": 132, "taux_date": "2026-11-12", "tarifs": { "consultation":50, "recherche":30, "service_recherche":150, "essai":30, "vendre":200, "financement":25 }, "whatsapp": "50942405729", "methodes": ["moncash","natcash","carte"] }`
 `methodes` peut ne contenir que "moncash" et "natcash" si le paiement carte n'est pas activé.
 
 GET /api/vehicules → tableau d'objets avec EXACTEMENT les mêmes clés que le tableau `V` du site (`id, marque, modele, annee, couleur, hex, km, prix, statut, type, forme, moteur, trans, traction, places, delai, note`) + `vedette: bool`. Statuts : disponible | transit | precommande | vendu | indisponible.

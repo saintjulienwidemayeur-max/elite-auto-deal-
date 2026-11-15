@@ -9,9 +9,9 @@ const fd = (o, fichiers = []) => { const f = new FormData(); for (const [k, v] o
 const base = { client_nom: "Jean Test", client_tel: "+509 3700 0000", conditions_acceptees: "1", donnees: JSON.stringify({ lignes: [["Marque", "Toyota"]], champs: { marque: "Toyota", modele: "Corolla" } }) };
 
 let refR, payR, refP, payP, token;
-await t("recherche mobile : montant serveur 50 $ x 132 = 6600 HTG", async () => {
+await t("recherche mobile : montant serveur 30 $ (frais de dossier) x 132 = 3960 HTG", async () => {
   const r = await j(await fetch(B + "/api/dossiers", { method: "POST", body: fd({ ...base, service: "recherche", methode: "moncash", montant: "1" }) }));
-  assert.equal(r.s, 201, JSON.stringify(r.b)); assert.equal(r.b.montant, 6600); assert.equal(r.b.devise, "HTG"); assert.match(r.b.checkout_url, /^https:/);
+  assert.equal(r.s, 201, JSON.stringify(r.b)); assert.equal(r.b.montant, 3960); assert.equal(r.b.devise, "HTG"); assert.match(r.b.checkout_url, /^https:/);
   refR = r.b.ref; payR = r.b.paiement_id;
 });
 await t("conditions obligatoires", async () => {
@@ -47,7 +47,7 @@ await t("webhook signature invalide => 401", async () => {
   assert.equal(r.status, 401);
 });
 await t("webhook payment.succeeded signé => dossier à traiter", async () => {
-  const corps = JSON.stringify({ id: "evt_1", event: "payment.succeeded", created_at: new Date().toISOString(), data: { id: payR, reference: refR + "-P1", amount: 6600, currency: "HTG", net_amount: 6336 } });
+  const corps = JSON.stringify({ id: "evt_1", event: "payment.succeeded", created_at: new Date().toISOString(), data: { id: payR, reference: refR + "-P1", amount: 3960, currency: "HTG", net_amount: 3802 } });
   const sig = "sha256=" + crypto.createHmac("sha256", "whsec_test").update(corps).digest("hex");
   for (let i = 0; i < 2; i++) { const r = await fetch(B + "/webhooks/freda", { method: "POST", headers: { "X-Freda-Signature": sig, "Content-Type": "application/json" }, body: corps }); assert.equal(r.status, 200); }
   await new Promise(r => setTimeout(r, 300));
@@ -67,7 +67,7 @@ await t("admin : mauvais mot de passe puis connexion", async () => {
 });
 const A = (u, o = {}) => fetch(B + u, { ...o, headers: { Authorization: "Bearer " + token, "Content-Type": "application/json", ...(o.headers || {}) } }).then(j);
 await t("admin : résumé, dossiers, paiements, fichiers", async () => {
-  const r = await A("/api/admin/resume"); assert.equal(r.s, 200); assert.ok(r.b.paiements_mois_usd >= 20250 + 50);
+  const r = await A("/api/admin/resume"); assert.equal(r.s, 200); assert.ok(r.b.paiements_mois_usd >= 20250 + 30);
   const ds = (await A("/api/admin/dossiers")).b; assert.ok(ds.length >= 3);
   const vente = ds.find(d => d.service === "vendre"); const det = (await A("/api/admin/dossiers/" + vente.ref)).b;
   assert.equal(det.fichiers.length, 1); const f = await fetch(B + det.fichiers[0].url, { headers: { Authorization: "Bearer " + token } }); assert.equal(f.status, 200);
