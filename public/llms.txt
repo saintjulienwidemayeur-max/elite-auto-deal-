@@ -14,12 +14,12 @@ Langue : français. Zone de service : Delmas, Port-au-Prince et toute la région
 - TikTok : https://www.tiktok.com/@eliteautodeal
 
 ## Services et tarifs (frais de service, différents du prix du véhicule)
-Les frais de 50 $ couvrent l'accompagnement, l'analyse, la préparation des documents, les démarches administratives et le suivi du client.
-- [Consultation automobile](https://eliteautodeal.com/consultation) : 50 $. Choix du véhicule, budget et critères.
-- [Recherche ou achat accompagné](https://eliteautodeal.com/recherche-vehicule) : 30 $ de frais de dossier à l'ouverture, puis 150 $ de frais de service seulement lorsque le véhicule est trouvé (devis par lien sécurisé). Véhicule absent du site ou déjà en Haïti.
-- [Visite ou essai](https://eliteautodeal.com/essai-visite) : 30 $. Visite, essai routier ou inspection d'un véhicule disponible de notre inventaire.
-- [Vente de votre véhicule](https://eliteautodeal.com/vendre-mon-vehicule) : 200 $, non remboursable. Photos, vidéos, fiche détaillée et vérification avant publication.
-- [Financement](https://eliteautodeal.com/financement) : dossier à 25 $ (ou l'équivalent en gourdes) : ouverture, vérification et examen initial du dossier ; l'approbation n'est pas garantie.
+Les frais de {{T:consultation}} couvrent l'accompagnement, l'analyse, la préparation des documents, les démarches administratives et le suivi du client.
+- [Consultation automobile](https://eliteautodeal.com/consultation) : {{T:consultation}}. Choix du véhicule, budget et critères.
+- [Recherche ou achat accompagné](https://eliteautodeal.com/recherche-vehicule) : {{T:recherche}} de frais de dossier à l'ouverture, puis {{T:service_recherche}} de frais de service seulement lorsque le véhicule est trouvé (devis par lien sécurisé). Véhicule absent du site ou déjà en Haïti.
+- [Visite ou essai](https://eliteautodeal.com/essai-visite) : {{T:essai}}. Visite, essai routier ou inspection d'un véhicule disponible de notre inventaire.
+- [Vente de votre véhicule](https://eliteautodeal.com/vendre-mon-vehicule) : {{T:vendre}}, non remboursable. Photos, vidéos, fiche détaillée et vérification avant publication.
+- [Financement](https://eliteautodeal.com/financement) : dossier à {{T:financement}} (ou l'équivalent en gourdes) : ouverture, vérification et examen initial du dossier ; l'approbation n'est pas garantie.
 
 ## Véhicules
 - [Inventaire](https://eliteautodeal.com/vehicules) : chaque annonce indique si le véhicule est en Haïti, en transit ou ouvert à la précommande.
@@ -33,7 +33,7 @@ Les frais de 50 $ couvrent l'accompagnement, l'analyse, la préparation des docu
 
 ## Questions fréquentes
 - **Où se trouve Elite Auto Deal ?** Elite Auto Deal est situé au 33, Rue Faustin 1er, Delmas 33, Port-au-Prince, Haïti. Les services s'adressent aux clients de Delmas et de toute la région de Port-au-Prince.
-- **Combien coûtent vos services ?** La consultation automobile coûte 50 $ et couvre l'accompagnement, l'analyse, la préparation des documents, les démarches administratives et le suivi du client. La recherche ou l'achat accompagné commence par 30 $ de frais de dossier (ouverture du dossier) ; les frais de service de 150 $ ne sont dus que lorsque le véhicule est trouvé, avec le prix du véhicule, grâce à votre devis. La visite ou l'essai coûte 30 $. La vente d'un véhicule confié coûte 200 $ (non remboursable) et le dossier de financement 25 $ (ou l'équivalent en gourdes). Ces frais de service ne sont pas le prix du véhicule.
+- **Combien coûtent vos services ?** La consultation automobile coûte {{T:consultation}} et couvre l'accompagnement, l'analyse, la préparation des documents, les démarches administratives et le suivi du client. La recherche ou l'achat accompagné commence par {{T:recherche}} de frais de dossier (ouverture du dossier) ; les frais de service de {{T:service_recherche}} ne sont dus que lorsque le véhicule est trouvé, avec le prix du véhicule, grâce à votre devis. La visite ou l'essai coûte {{T:essai}}. La vente d'un véhicule confié coûte {{T:vendre}} (non remboursable) et le dossier de financement {{T:financement}} (ou l'équivalent en gourdes). Ces frais de service ne sont pas le prix du véhicule.
 - **Comment fonctionne une précommande ?** Pour un véhicule publié qui n'est pas encore arrivé en Haïti, vous versez 90 % du prix en ligne, vous suivez l'expédition avec votre référence, puis vous réglez les 10 % restants à l'arrivée du véhicule en Haïti.
 - **Quels moyens de paiement acceptez-vous ?** Vous pouvez payer en ligne par MonCash, Natcash ou carte bancaire, via Freda Pay Issuing. Un paiement est confirmé uniquement par le prestataire de paiement. Les montants en gourdes sont calculés au taux affiché au moment du paiement.
 - **Les frais de service sont-ils remboursables ?** Les frais de dossier de financement, de consultation et de vente sont non remboursables. Les frais de recherche et de visite sont acquis dès la prise en charge du dossier.

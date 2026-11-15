@@ -17,6 +17,10 @@ const DISPO = { disponible: "https://schema.org/InStock", transit: "https://sche
 const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const usd = n => `${Math.round(Number(n)).toLocaleString("fr-FR").replace(/[  ]/g, " ")} $`;
 
+// Tarifs : le HTML contient des repères {{T:cle}} (« 50 $ ») et {{N:cle}} (« 50 ») remplacés par les tarifs enregistrés dans l'administration.
+const nombre = n => Number(n).toLocaleString("fr-FR", { maximumFractionDigits: 2 }).replace(/[\u202f\u00a0]/g, " ");
+export const remplacerTarifs = (txt, t) => txt.replace(/\{\{([TN]):([a-z_]+)\}\}/g, (m, type, cle) => t[cle] == null ? m : type === "T" ? `${nombre(t[cle])} $` : String(Number(t[cle])));
+
 let MODELE = null; // public/index.html lu une fois
 const modele = dossier => MODELE ??= readFileSync(path.join(dossier, "index.html"), "utf8");
 
@@ -66,7 +70,7 @@ function jsonLd(modeleJson, { vue, chemin, titre, description, tarifs, vehicule 
 
 /** Retourne le HTML complet de la page. `vehicule` n'est utilisé que pour la vue « vehicule ». */
 export function pageHtml(dossierPublic, vue, { tarifs, vehicule, chemin, noindex: forcer, vitrine }) {
-  let html = modele(dossierPublic);
+  let html = remplacerTarifs(modele(dossierPublic), tarifs);
   let [titre, description] = meta(vue === "vehicule" ? "vehicules" : vue, tarifs);
   if (vue === "vehicule") {
     const v = vehicule, nom = [v.marque, v.modele, v.annee && !String(v.modele).includes(String(v.annee)) ? v.annee : ""].filter(Boolean).join(" ");

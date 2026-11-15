@@ -75,3 +75,6 @@ Admin → **Vitrine du site** : ajouter, modifier, réordonner (↑ ↓), masque
 ## Adresse publique (liens envoyés aux clients)
 `PUBLIC_URL` (ex. `https://eliteautodeal.com`) sert à fabriquer les liens des devis, des emails, du retour de paiement et de la réinitialisation du mot de passe. **À renseigner sur Render.** Sans elle, le serveur utilise `RENDER_EXTERNAL_URL` (adresse `onrender.com`, fournie par Render) et affiche un avertissement au démarrage ; `localhost` n'est utilisé qu'en développement. Un lien déjà envoyé avec une mauvaise adresse doit être renvoyé : le jeton du devis, lui, ne change pas (`/devis/<jeton>`).
 
+
+## Tarifs affichés sur le site
+Tous les prix affichés (pages, menu, FAQ, conditions, JSON-LD, `llms.txt`, scripts) viennent des tarifs de l'administration (Paramètres du site → Tarifs des services). Les sources contiennent des repères `{{T:cle}}` (« 50 $ ») et `{{N:cle}}` (« 50 ») que le serveur remplace à chaque page (`src/seo.js`, `remplacerTarifs`) ; `public/index.html` n'est donc jamais servi tel quel. Pour ajouter un tarif affiché, utiliser un repère plutôt qu'un montant écrit en dur.

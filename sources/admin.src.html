@@ -981,7 +981,7 @@ V.financement=()=>{
     const bc=f.stage===3?'b-ok':f.stage===4?'b-bad':f.stage===2?'b-n':'b-warn';
     return `<article class="card fin"><div class="row"><div><h3>${esc(f.cl)}</h3><p class="small muted" style="margin:4px 0 0">${f.id}</p></div><span class="badge ${bc}">${FST[f.stage]}</span></div>
     <div class="steps" role="img" aria-label="Étape ${FST[f.stage]}">${bars}</div>
-    <dl class="kv small" style="margin-top:12px;grid-template-columns:120px 1fr"><dt>Véhicule</dt><dd>${esc(f.veh)}</dd><dt>Budget</dt><dd class="num">${fmt(f.bud)}</dd><dt>Apport</dt><dd class="num">${fmt(f.apport)}</dd><dt>Frais de dossier</dt><dd>25 $ payés</dd></dl>
+    <dl class="kv small" style="margin-top:12px;grid-template-columns:120px 1fr"><dt>Véhicule</dt><dd>${esc(f.veh)}</dd><dt>Budget</dt><dd class="num">${fmt(f.bud)}</dd><dt>Apport</dt><dd class="num">${fmt(f.apport)}</dd><dt>Frais de dossier</dt><dd>${fmt((S.tarifs&&S.tarifs.financement)||25)} payés</dd></dl>
     <ul class="check" aria-label="Pièces justificatives, ${done} sur 4">${DOCS.map((d,i)=>`<li><span class="bx ${f.docs[i]?'y':''}">${f.docs[i]?ic('check'):''}</span>${d}${i===2&&f.aval?' <span class="tag">avaliseur</span>':''}</li>`).join('')}</ul>
     <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
      ${f.stage<2?`<button class="btn btn-t btn-sm" data-fadv="${f.id}" ${done<4&&f.stage===1?'disabled':''}>${f.stage===0?(done<4?'Relancer les pièces manquantes':'Marquer complet'):'Passer en examen'}</button>`:''}

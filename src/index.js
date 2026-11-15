@@ -5,7 +5,7 @@ import multer from "multer";
 import crypto from "node:crypto";
 import os from "node:os";
 import path from "node:path";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { unlink } from "node:fs/promises";
 import { q, un, tous, migrer, parametres, journaliser, transaction } from "./db.js";
 import { SERVICES, COLS_VEHICULE } from "./catalogue.js";
@@ -13,7 +13,7 @@ import { creerPaiement, lirePaiement, signatureValide, modeFreda, fredaConfigure
 import { enregistrer, servir, servirPublic, supprimer } from "./stockage.js";
 import { envoyerEmail, emailConfigure, emailBienvenue, emailCode, emailDevis } from "./email.js";
 import { validerDevis, genererPdf, montant as montantDevis } from "./devis.js";
-import { pageHtml, sitemapXml, CHEMINS } from "./seo.js";
+import { pageHtml, sitemapXml, CHEMINS, remplacerTarifs } from "./seo.js";
 
 const PORT = process.env.PORT || 3000;
 // Adresse publique utilisée dans les liens envoyés aux clients (devis, retour de paiement, emails, réinitialisation).
@@ -1041,7 +1041,13 @@ app.get("/devis/:jeton.pdf", limiteur(60, 10 * 60e3), enveloppe(async (req, res)
   if (!d) throw err(404, "INTROUVABLE", "Devis introuvable.");
   res.set({ "Content-Type": "application/pdf", "Content-Disposition": `inline; filename="${nomPdf(d)}"`, "Cache-Control": "private, no-store" }).send(await genererPdf(d));
 }));
-app.use(express.static(DOSSIER_PUBLIC, { extensions: ["html"], maxAge: "5m" }));
+// llms.txt : mêmes tarifs que l'administration. index.html brut (avec repères) n'est jamais servi.
+app.get("/llms.txt", enveloppe(async (_req, res) => {
+  const { tarifs } = await parametres();
+  res.set({ "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "public, max-age=300" }).send(remplacerTarifs(readFileSync(path.join(DOSSIER_PUBLIC, "llms.txt"), "utf8"), tarifs));
+}));
+app.get("/index.html", (_req, res) => res.redirect(301, "/"));
+app.use(express.static(DOSSIER_PUBLIC, { index: false, maxAge: "5m" }));
 app.use("/api", (_req, _res, next) => next(err(404, "INTROUVABLE", "Route inconnue.")));
 // Adresse inconnue : page d'accueil avec le statut 404 (non indexée)
 app.use(enveloppe(async (req, res, next) => {

@@ -134,7 +134,7 @@
      {
       "@type": "Offer",
       "priceCurrency": "USD",
-      "price": "50",
+      "price": "{{N:consultation}}",
       "itemOffered": {
        "@type": "Service",
        "name": "Consultation automobile",
@@ -147,7 +147,7 @@
      {
       "@type": "Offer",
       "priceCurrency": "USD",
-      "price": "30",
+      "price": "{{N:recherche}}",
       "itemOffered": {
        "@type": "Service",
        "name": "Recherche ou achat accompagné",
@@ -160,7 +160,7 @@
      {
       "@type": "Offer",
       "priceCurrency": "USD",
-      "price": "30",
+      "price": "{{N:essai}}",
       "itemOffered": {
        "@type": "Service",
        "name": "Visite ou essai",
@@ -173,7 +173,7 @@
      {
       "@type": "Offer",
       "priceCurrency": "USD",
-      "price": "200",
+      "price": "{{N:vendre}}",
       "itemOffered": {
        "@type": "Service",
        "name": "Vente de votre véhicule",
@@ -186,7 +186,7 @@
      {
       "@type": "Offer",
       "priceCurrency": "USD",
-      "price": "25",
+      "price": "{{N:financement}}",
       "itemOffered": {
        "@type": "Service",
        "name": "Dossier de financement",
@@ -246,7 +246,7 @@
      "name": "Combien coûtent vos services ?",
      "acceptedAnswer": {
       "@type": "Answer",
-      "text": "La consultation automobile coûte 50 $ et couvre l'accompagnement, l'analyse, la préparation des documents, les démarches administratives et le suivi du client. La recherche ou l'achat accompagné commence par 30 $ de frais de dossier (ouverture du dossier) ; les frais de service de 150 $ ne sont dus que lorsque le véhicule est trouvé, avec le prix du véhicule, grâce à votre devis. La visite ou l'essai coûte 30 $. La vente d'un véhicule confié coûte 200 $ (non remboursable) et le dossier de financement 25 $ (ou l'équivalent en gourdes). Ces frais de service ne sont pas le prix du véhicule."
+      "text": "La consultation automobile coûte {{T:consultation}} et couvre l'accompagnement, l'analyse, la préparation des documents, les démarches administratives et le suivi du client. La recherche ou l'achat accompagné commence par {{T:recherche}} de frais de dossier (ouverture du dossier) ; les frais de service de {{T:service_recherche}} ne sont dus que lorsque le véhicule est trouvé, avec le prix du véhicule, grâce à votre devis. La visite ou l'essai coûte {{T:essai}}. La vente d'un véhicule confié coûte {{T:vendre}} (non remboursable) et le dossier de financement {{T:financement}} (ou l'équivalent en gourdes). Ces frais de service ne sont pas le prix du véhicule."
      }
     },
     {
@@ -867,11 +867,11 @@ input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:
     <a href="#compte">Mon espace <small id="compte-menu-etat">Connexion</small></a>
     <a href="#vehicules">Véhicules <small>Inventaire</small></a>
     <a href="#precommande">Précommander <small>90 % puis 10 %</small></a>
-    <a href="#recherche">Trouver un véhicule <small>30 $</small></a>
-    <a href="#essai">Réserver un essai <small>30 $</small></a>
-    <a href="#consultation">Consultation <small>50 $</small></a>
-    <a href="#vendre">Vendre mon véhicule <small>200 $</small></a>
-    <a href="#financement">Demander un financement <small>25 $</small></a>
+    <a href="#recherche">Trouver un véhicule <small>{{T:recherche}}</small></a>
+    <a href="#essai">Réserver un essai <small>{{T:essai}}</small></a>
+    <a href="#consultation">Consultation <small>{{T:consultation}}</small></a>
+    <a href="#vendre">Vendre mon véhicule <small>{{T:vendre}}</small></a>
+    <a href="#financement">Demander un financement <small>{{T:financement}}</small></a>
     <a href="#suivi">Suivre mon dossier</a>
   </nav>
 </header>
@@ -912,10 +912,10 @@ input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:
       <h2 class="sr">Que voulez-vous faire ?</h2>
       <div class="actions-grille">
         <a class="action principale" href="#vehicules"><svg viewBox="0 0 32 32" fill="none" stroke-width="1.6"><path d="M4 20v-4.5L7.5 9h17L28 15.5V20"/><path d="M3 20h26v4H3z"/><circle cx="9" cy="24" r="2.5"/><circle cx="23" cy="24" r="2.5"/></svg><div><b>Acheter un véhicule</b><span>Comptant, financement ou précommande</span></div></a>
-        <a class="action" href="#recherche"><svg viewBox="0 0 32 32" fill="none" stroke-width="1.6"><circle cx="14" cy="14" r="8"/><path d="m20 20 7 7"/></svg><div><b>Trouver un véhicule</b><span>Recherche personnalisée, 30 $ de frais de dossier</span></div></a>
-        <a class="action" href="#essai"><svg viewBox="0 0 32 32" fill="none" stroke-width="1.6"><rect x="5" y="7" width="22" height="20" rx="2"/><path d="M5 13h22M11 4v6M21 4v6"/><path d="m12 20 3 3 6-6"/></svg><div><b>Réserver un essai</b><span>Visite ou essai, 30 $</span></div></a>
-        <a class="action" href="#vendre"><svg viewBox="0 0 32 32" fill="none" stroke-width="1.6"><path d="M16 4 4 10v2h24v-2L16 4Z"/><path d="M7 12v11M13 12v11M19 12v11M25 12v11M4 27h24"/></svg><div><b>Vendre mon véhicule</b><span>Vente accompagnée, 200 $</span></div></a>
-        <a class="action" href="#financement"><svg viewBox="0 0 32 32" fill="none" stroke-width="1.6"><rect x="4" y="8" width="24" height="16" rx="2"/><path d="M4 13h24M9 19h6"/></svg><div><b>Demander un financement</b><span>Dossier de financement, 25 $</span></div></a>
+        <a class="action" href="#recherche"><svg viewBox="0 0 32 32" fill="none" stroke-width="1.6"><circle cx="14" cy="14" r="8"/><path d="m20 20 7 7"/></svg><div><b>Trouver un véhicule</b><span>Recherche personnalisée, {{T:recherche}} de frais de dossier</span></div></a>
+        <a class="action" href="#essai"><svg viewBox="0 0 32 32" fill="none" stroke-width="1.6"><rect x="5" y="7" width="22" height="20" rx="2"/><path d="M5 13h22M11 4v6M21 4v6"/><path d="m12 20 3 3 6-6"/></svg><div><b>Réserver un essai</b><span>Visite ou essai, {{T:essai}}</span></div></a>
+        <a class="action" href="#vendre"><svg viewBox="0 0 32 32" fill="none" stroke-width="1.6"><path d="M16 4 4 10v2h24v-2L16 4Z"/><path d="M7 12v11M13 12v11M19 12v11M25 12v11M4 27h24"/></svg><div><b>Vendre mon véhicule</b><span>Vente accompagnée, {{T:vendre}}</span></div></a>
+        <a class="action" href="#financement"><svg viewBox="0 0 32 32" fill="none" stroke-width="1.6"><rect x="4" y="8" width="24" height="16" rx="2"/><path d="M4 13h24M9 19h6"/></svg><div><b>Demander un financement</b><span>Dossier de financement, {{T:financement}}</span></div></a>
       </div>
     </div>
   </div>
@@ -948,32 +948,32 @@ input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:
       <div class="services-grille">
         <article class="service">
           <h3>Consultation automobile</h3>
-          <div class="tarif"><b>50 $</b><span>frais de service</span></div>
+          <div class="tarif"><b>{{T:consultation}}</b><span>frais de service</span></div>
           <p>Un échange personnalisé pour choisir le bon véhicule, définir votre budget et vos critères.</p>
           <a class="btn btn-noir" href="#consultation">Réserver une consultation</a>
         </article>
         <article class="service">
           <h3>Recherche ou achat accompagné</h3>
-          <div class="tarif"><b>30 $</b><span>frais de dossier</span></div>
-          <p>Nous trouvons un véhicule absent du site, ou nous vous accompagnons pour l'achat d'un véhicule déjà en Haïti. Frais de service de <b data-tarif="service_recherche">150 $</b>, dus seulement lorsque le véhicule est trouvé.</p>
+          <div class="tarif"><b>{{T:recherche}}</b><span>frais de dossier</span></div>
+          <p>Nous trouvons un véhicule absent du site, ou nous vous accompagnons pour l'achat d'un véhicule déjà en Haïti. Frais de service de <b data-tarif="service_recherche">{{T:service_recherche}}</b>, dus seulement lorsque le véhicule est trouvé.</p>
           <a class="btn btn-noir" href="#recherche">Confier ma recherche</a>
         </article>
         <article class="service">
           <h3>Visite ou essai</h3>
-          <div class="tarif"><b>30 $</b><span>frais de service</span></div>
+          <div class="tarif"><b>{{T:essai}}</b><span>frais de service</span></div>
           <p>Visite, essai routier ou inspection d'un véhicule disponible en Haïti, avec confirmation selon sa disponibilité réelle.</p>
           <a class="btn btn-noir" href="#essai">Réserver mon essai</a>
         </article>
         <article class="service">
           <h3>Vente de votre véhicule</h3>
-          <div class="tarif"><b>200 $</b><span>non remboursable</span></div>
+          <div class="tarif"><b>{{T:vendre}}</b><span>non remboursable</span></div>
           <p>Confiez-nous la vente : photos, vidéos et fiche détaillée, puis vérification avant toute publication.</p>
           <a class="btn btn-noir" href="#vendre">Vendre mon véhicule</a>
         </article>
       </div>
       <div class="encadre">
         <svg aria-hidden="true"><use href="#i-info"/></svg>
-        <p><b>Les frais de service de 50 $ couvrent l'accompagnement, l'analyse, la préparation des documents, les démarches administratives et le suivi du client.</b> Ils ne sont pas le prix du véhicule : ils ne constituent ni un acompte de réservation ni des frais de financement. Le dossier de financement coûte 25 $ (ou l'équivalent en gourdes) et ne garantit pas l'approbation. <a href="#conditions">Lire les conditions</a></p>
+        <p><b>Les frais de service de {{T:consultation}} couvrent l'accompagnement, l'analyse, la préparation des documents, les démarches administratives et le suivi du client.</b> Ils ne sont pas le prix du véhicule : ils ne constituent ni un acompte de réservation ni des frais de financement. Le dossier de financement coûte {{T:financement}} (ou l'équivalent en gourdes) et ne garantit pas l'approbation. <a href="#conditions">Lire les conditions</a></p>
       </div>
     </div>
   </section>
@@ -1004,7 +1004,7 @@ input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:
           <ol>
             <li>Vous sélectionnez ou décrivez le véhicule.</li>
             <li>Vous indiquez vos disponibilités.</li>
-            <li>Vous payez 30 $ de frais de service, pas un acompte.</li>
+            <li>Vous payez {{T:essai}} de frais de service, pas un acompte.</li>
             <li>Nous confirmons le rendez-vous selon la disponibilité réelle.</li>
           </ol>
           <a class="btn btn-noir" href="#essai">Réserver mon essai</a>
@@ -1041,7 +1041,7 @@ input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:
       <div class="sec-tete"><h2>Questions fréquentes</h2><p>Les réponses aux questions que l'on nous pose le plus souvent.</p></div>
       <div class="faq">
         <details><summary>Où se trouve Elite Auto Deal ?</summary><p>Elite Auto Deal est situé au 33, Rue Faustin 1er, Delmas 33, Port-au-Prince, Haïti. Les services s'adressent aux clients de Delmas et de toute la région de Port-au-Prince.</p></details>
-        <details><summary>Combien coûtent vos services ?</summary><p>La consultation automobile coûte 50 $ et couvre l'accompagnement, l'analyse, la préparation des documents, les démarches administratives et le suivi du client. La recherche ou l'achat accompagné commence par 30 $ de frais de dossier (ouverture du dossier) ; les frais de service de 150 $ ne sont dus que lorsque le véhicule est trouvé, avec le prix du véhicule, grâce à votre devis. La visite ou l'essai coûte 30 $. La vente d'un véhicule confié coûte 200 $ (non remboursable) et le dossier de financement 25 $ (ou l'équivalent en gourdes). Ces frais de service ne sont pas le prix du véhicule.</p></details>
+        <details><summary>Combien coûtent vos services ?</summary><p>La consultation automobile coûte {{T:consultation}} et couvre l'accompagnement, l'analyse, la préparation des documents, les démarches administratives et le suivi du client. La recherche ou l'achat accompagné commence par {{T:recherche}} de frais de dossier (ouverture du dossier) ; les frais de service de {{T:service_recherche}} ne sont dus que lorsque le véhicule est trouvé, avec le prix du véhicule, grâce à votre devis. La visite ou l'essai coûte {{T:essai}}. La vente d'un véhicule confié coûte {{T:vendre}} (non remboursable) et le dossier de financement {{T:financement}} (ou l'équivalent en gourdes). Ces frais de service ne sont pas le prix du véhicule.</p></details>
         <details><summary>Comment fonctionne une précommande ?</summary><p>Pour un véhicule publié qui n'est pas encore arrivé en Haïti, vous versez 90 % du prix en ligne, vous suivez l'expédition avec votre référence, puis vous réglez les 10 % restants à l'arrivée du véhicule en Haïti.</p></details>
         <details><summary>Quels moyens de paiement acceptez-vous ?</summary><p>Vous pouvez payer en ligne par MonCash, Natcash ou carte bancaire, via Freda Pay Issuing. Un paiement est confirmé uniquement par le prestataire de paiement. Les montants en gourdes sont calculés au taux affiché au moment du paiement.</p></details>
         <details><summary>Les frais de service sont-ils remboursables ?</summary><p>Les frais de dossier de financement, de consultation et de vente sont non remboursables. Les frais de dossier de recherche et de visite sont acquis dès la prise en charge du dossier.</p></details>
@@ -1170,7 +1170,7 @@ input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:
   <div class="wrap">
     <div class="page-tete"><div class="fil"><a href="#accueil">Accueil</a> / Consultation</div>
       <div class="rang"><div><h1>Consultation automobile</h1><p class="lead">Un accompagnement personnalisé : choix du véhicule, conseils, recherche ou orientation selon vos besoins.</p></div>
-      <div class="etiquette-prix"><b>50 $</b><span>frais de service, non remboursables</span></div></div>
+      <div class="etiquette-prix"><b>{{T:consultation}}</b><span>frais de service, non remboursables</span></div></div>
     </div>
     <div class="parcours" data-service="consultation">
       <div class="parcours-principal">
@@ -1213,11 +1213,11 @@ input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:
   <div class="wrap">
     <div class="page-tete"><div class="fil"><a href="#accueil">Accueil</a> / Trouver un véhicule</div>
       <div class="rang"><div><h1>Confiez-nous l'achat de votre véhicule</h1><p class="lead">Vous souhaitez acheter un véhicule, mais vous manquez de temps ou vous ne savez pas où chercher ? Elite Auto Deal s'occupe de tout pour vous !</p></div>
-      <div class="etiquette-prix"><b>30 $</b><span>frais de dossier, pas un acompte</span></div></div>
+      <div class="etiquette-prix"><b>{{T:recherche}}</b><span>frais de dossier, pas un acompte</span></div></div>
     </div>
     <div class="parcours" data-service="recherche">
       <div class="parcours-principal">
-        <div class="encadre" style="margin:0 0 14px"><svg aria-hidden="true"><use href="#i-info"/></svg><p>Notre équipe effectue les recherches nécessaires afin de trouver le véhicule qui correspond à vos besoins et à votre budget.<br><br>Frais de service : <b data-tarif="service_recherche">150 $</b> US.<br><br>Le paiement du véhicule s'effectue uniquement après la confirmation de votre dossier.</p></div>
+        <div class="encadre" style="margin:0 0 14px"><svg aria-hidden="true"><use href="#i-info"/></svg><p>Notre équipe effectue les recherches nécessaires afin de trouver le véhicule qui correspond à vos besoins et à votre budget.<br><br>Frais de service : <b data-tarif="service_recherche">{{T:service_recherche}}</b> US.<br><br>Le paiement du véhicule s'effectue uniquement après la confirmation de votre dossier.</p></div>
         <ol class="etapier"><li>Informations</li><li>Récapitulatif</li><li>Paiement</li><li>Confirmation</li></ol>
         <form class="form-service" novalidate>
           <div class="bloc-form">
@@ -1262,7 +1262,7 @@ input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:
   <div class="wrap">
     <div class="page-tete"><div class="fil"><a href="#accueil">Accueil</a> / Réserver un essai</div>
       <div class="rang"><div><h1>Réserver mon essai</h1><p class="lead">Visite, essai routier ou inspection d'un véhicule déjà en Haïti. Le rendez-vous est confirmé selon la disponibilité réelle du véhicule.</p></div>
-      <div class="etiquette-prix"><b>30 $</b><span>frais de service, pas un acompte</span></div></div>
+      <div class="etiquette-prix"><b>{{T:essai}}</b><span>frais de service, pas un acompte</span></div></div>
     </div>
     <div class="parcours" data-service="essai">
       <div class="parcours-principal">
@@ -1304,7 +1304,7 @@ input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:
   <div class="wrap">
     <div class="page-tete"><div class="fil"><a href="#accueil">Accueil</a> / Vendre mon véhicule</div>
       <div class="rang"><div><h1>Confier la vente de mon véhicule</h1><p class="lead">Envoyez la fiche, les photos et les vidéos depuis votre téléphone. L'annonce n'est publiée qu'après vérification et acceptation par Elite Auto Deal.</p></div>
-      <div class="etiquette-prix"><b>200 $</b><span>non remboursable</span></div></div>
+      <div class="etiquette-prix"><b>{{T:vendre}}</b><span>non remboursable</span></div></div>
     </div>
     <div class="parcours" data-service="vendre">
       <div class="parcours-principal">
@@ -1363,12 +1363,12 @@ input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:
   <div class="wrap">
     <div class="page-tete"><div class="fil"><a href="#accueil">Accueil</a> / Financement</div>
       <div class="rang"><div><h1>Demande de financement</h1><p class="lead">Un parcours distinct, avec vérification de vos documents. Aucune approbation n'est automatique : la décision revient à Elite Auto Deal après examen.</p></div>
-      <div class="etiquette-prix"><b>25 $</b><span>frais de dossier, ou l'équivalent en gourdes</span></div></div>
+      <div class="etiquette-prix"><b>{{T:financement}}</b><span>frais de dossier, ou l'équivalent en gourdes</span></div></div>
     </div>
     <div class="parcours" data-service="financement">
       <div class="parcours-principal">
         <ol class="etapier"><li>Informations</li><li>Récapitulatif</li><li>Paiement</li><li>Confirmation</li></ol>
-        <div class="encadre" style="margin:0 0 14px"><svg aria-hidden="true"><use href="#i-info"/></svg><p><b>Ce que couvrent les 25 $ :</b> les frais correspondent à l'ouverture, à la vérification et à l'examen initial de votre dossier de financement.<br><br>Une fois votre dossier soumis, il passe par les étapes suivantes : demande reçue, vérification des documents, dossier en cours d'examen, puis décision finale de financement.</p></div>
+        <div class="encadre" style="margin:0 0 14px"><svg aria-hidden="true"><use href="#i-info"/></svg><p><b>Ce que couvrent les {{T:financement}} :</b> les frais correspondent à l'ouverture, à la vérification et à l'examen initial de votre dossier de financement.<br><br>Une fois votre dossier soumis, il passe par les étapes suivantes : demande reçue, vérification des documents, dossier en cours d'examen, puis décision finale de financement.</p></div>
         <div class="encadre rouge cache" id="fi-depuis-achat" style="margin:0 0 14px"><svg aria-hidden="true"><use href="#i-info"/></svg><p>Vous avez choisi le financement pour votre achat. Complétez ce dossier ; le véhicule choisi est déjà indiqué.</p></div>
         <form class="form-service" novalidate>
           <div class="bloc-form">
@@ -1461,7 +1461,7 @@ input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:
   <div class="wrap legal" style="padding-bottom:clamp(40px,6vw,80px)">
     <div class="page-tete"><div class="fil"><a href="#accueil">Accueil</a> / Conditions</div><h1>Conditions des services</h1><p class="lead">Ces conditions sont présentées avant chaque paiement. Texte type à valider par Elite Auto Deal.</p></div>
     <h2>Frais de service</h2>
-    <p>Consultation (50 $), frais de dossier de recherche ou d'achat accompagné (30 $), visite ou essai (30 $), vente d'un véhicule confié (200 $) et dossier de financement (25 $ ou l'équivalent en gourdes) sont des frais de service. Les frais de service de recherche (150 $) ne sont dus que lorsque le véhicule est trouvé : ils sont payés avec le prix du véhicule, par devis. Les 50 $ de la consultation couvrent l'accompagnement, l'analyse, la préparation des documents, les démarches administratives et le suivi du client. Ils ne constituent ni le prix d'un véhicule, ni un acompte de réservation, ni des frais de financement.</p>
+    <p>Consultation ({{T:consultation}}), frais de dossier de recherche ou d'achat accompagné ({{T:recherche}}), visite ou essai ({{T:essai}}), vente d'un véhicule confié ({{T:vendre}}) et dossier de financement ({{T:financement}} ou l'équivalent en gourdes) sont des frais de service. Les frais de service de recherche ({{T:service_recherche}}) ne sont dus que lorsque le véhicule est trouvé : ils sont payés avec le prix du véhicule, par devis. Les {{T:consultation}} de la consultation couvrent l'accompagnement, l'analyse, la préparation des documents, les démarches administratives et le suivi du client. Ils ne constituent ni le prix d'un véhicule, ni un acompte de réservation, ni des frais de financement.</p>
     <h2>Remboursement</h2>
     <p>Les frais de dossier de financement, de consultation et de vente sont non remboursables. Les frais de dossier de recherche et de visite sont acquis dès la prise en charge du dossier.</p>
     <h2>Précommande</h2>
@@ -1525,7 +1525,7 @@ input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:
 /* ---------- Réglages ---------- */
 let TAUX_HTG = 132;           // 1 USD = 132 HTG (taux affiché, modifiable par l'administrateur)
 let TAUX_DATE = "12 novembre 2026";
-const TARIFS = {consultation:50,recherche:30,service_recherche:150,essai:30,vendre:200,financement:25};
+const TARIFS = {consultation:{{N:consultation}},recherche:{{N:recherche}},service_recherche:{{N:service_recherche}},essai:{{N:essai}},vendre:{{N:vendre}},financement:{{N:financement}}};
 let MODE_REEL = false, CONFIG = null;
 let WA_NUM = "50942405729";
 const ANNEE = 2026;
@@ -1883,27 +1883,27 @@ const SERV={
    statuts:["Paiement confirmé","Préparation du véhicule et des documents","Livraison planifiée","Livré"]},
  consultation:{titre:"Consultation automobile",court:"Consultation",montant:()=>TARIFS.consultation,
    nature:"Frais de service — consultation",
-   cond:"J'accepte que les frais de consultation de 50 $ soient non remboursables et ne constituent pas un acompte sur un véhicule.",
+   cond:"J'accepte que les frais de consultation de {{T:consultation}} soient non remboursables et ne constituent pas un acompte sur un véhicule.",
    suite:["Un conseiller vous écrit sur WhatsApp dans les 24 heures ouvrables.","Vous convenez ensemble de la date de la consultation."],
    statuts:["Paiement confirmé","Prise de contact sur WhatsApp","Consultation planifiée","Consultation effectuée"]},
  recherche:{titre:"Recherche personnalisée ou achat accompagné",court:"Recherche",montant:()=>TARIFS.recherche,
    nature:"Frais de dossier — recherche ou accompagnement",
-   cond:"Je comprends que les 30 $ sont des frais de dossier pour l'ouverture de ma recherche : ce n'est ni le prix du véhicule, ni un acompte. Les frais de service de 150 $ ne sont dus que lorsque le véhicule est trouvé, avec le prix du véhicule, par devis.",
+   cond:"Je comprends que les {{T:recherche}} sont des frais de dossier pour l'ouverture de ma recherche : ce n'est ni le prix du véhicule, ni un acompte. Les frais de service de {{T:service_recherche}} ne sont dus que lorsque le véhicule est trouvé, avec le prix du véhicule, par devis.",
    suite:["Votre dossier de recherche est ouvert et pris en charge par un conseiller.","Nous vous écrivons sur WhatsApp pour affiner vos critères.","Une fois le véhicule trouvé, vous recevez un devis par lien sécurisé (frais de service + prix du véhicule)."],
    statuts:["Paiement confirmé","Prise de contact sur WhatsApp","Recherche en cours","Proposition de véhicule","Dossier clôturé"]},
  essai:{titre:"Réservation d'une visite ou d'un essai",court:"Visite ou essai",montant:()=>TARIFS.essai,
    nature:"Frais de service — visite, essai ou inspection",
-   cond:"Je comprends que les 30 $ sont des frais de service et non un acompte sur le véhicule, et que le rendez-vous est confirmé selon la disponibilité réelle du véhicule.",
+   cond:"Je comprends que les {{T:essai}} sont des frais de service et non un acompte sur le véhicule, et que le rendez-vous est confirmé selon la disponibilité réelle du véhicule.",
    suite:["Nous vérifions la disponibilité réelle du véhicule.","Vous recevez la confirmation du rendez-vous sur WhatsApp.","Le jour venu, un conseiller vous accompagne."],
    statuts:["Paiement confirmé","Disponibilité du véhicule vérifiée","Rendez-vous confirmé","Visite ou essai effectué"]},
  vendre:{titre:"Service de vente d'un véhicule",court:"Vente",montant:()=>TARIFS.vendre,
    nature:"Frais de service — vente accompagnée",
-   cond:"J'accepte que les frais de 200 $ soient non remboursables et que l'annonce ne soit publiée qu'après vérification et acceptation par Elite Auto Deal.",
+   cond:"J'accepte que les frais de {{T:vendre}} soient non remboursables et que l'annonce ne soit publiée qu'après vérification et acceptation par Elite Auto Deal.",
    suite:["Votre dossier, vos photos et vos vidéos sont enregistrés.","Nous vérifions le véhicule et les documents.","Vous êtes informé de l'acceptation avant toute publication."],
    statuts:["Dossier reçu et payé","Vérification du véhicule et des documents","Accepté — annonce en préparation","Annonce publiée","Vendu"]},
  financement:{titre:"Dossier de financement",court:"Financement",montant:()=>TARIFS.financement,
    nature:"Frais de dossier de financement",
-   cond:"J'accepte que les 25 $ couvrent l'examen de mon dossier, ne soient pas remboursables, ne constituent pas un acompte et ne garantissent pas l'approbation.",
+   cond:"J'accepte que les {{T:financement}} couvrent l'examen de mon dossier, ne soient pas remboursables, ne constituent pas un acompte et ne garantissent pas l'approbation.",
    suite:["Votre demande est reçue.","Nous vérifions vos documents.","Votre dossier est en cours d'examen.","Vous recevez la décision finale de financement."],
    statuts:["Demande reçue","Vérification des documents","Dossier en cours d'examen","Décision finale de financement"]}
 };
@@ -2256,7 +2256,7 @@ function occupe(f,oui,txt){const b=f.querySelector("button[type=submit]");if(!b)
 function memoRef(r){CPT.ref=r;try{sessionStorage.setItem("ead-compte-ref",r);}catch(_){}}
 
 /* Démonstration : compte enregistré sur cet appareil */
-const DEMO_MONTANTS={precommande:20250,consultation:50,recherche:30,essai:30,vendre:200,financement:25};
+const DEMO_MONTANTS={precommande:20250,consultation:{{N:consultation}},recherche:{{N:recherche}},essai:{{N:essai}},vendre:{{N:vendre}},financement:{{N:financement}}};
 function lireDemo(){try{return JSON.parse(localStorage.getItem(CLE_DEMO)||"null");}catch(_){return null;}}
 function ecrireDemo(c){try{c?localStorage.setItem(CLE_DEMO,JSON.stringify(c)):localStorage.removeItem(CLE_DEMO);}catch(_){}}
 function demoDossiers(){
