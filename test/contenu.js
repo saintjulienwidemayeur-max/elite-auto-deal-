@@ -26,6 +26,6 @@ await t("essai : plus de choix « véhicule trouvé ailleurs » (inventaire seul
 await t("recherche : nouveau titre et accroche, une seule option « Type de demande », nouveau texte d'encadré", async () => {
   assert.match(r, /<h1>Confiez-nous l'achat de votre véhicule<\/h1>/); assert.ok(!/Votre recherche automobile/.test(r)); assert.match(r, /Vous souhaitez acheter un véhicule, mais vous manquez de temps ou vous ne savez pas où chercher \? Elite Auto Deal s'occupe de tout pour vous !/);
   assert.equal((r.match(/name="type"/g) || []).length, 1); assert.ok(!/inspecter un véhicule déjà en Haïti/.test(r));
-  assert.match(r, /Notre équipe effectue les recherches pour trouver le véhicule qui correspond à vos besoins et à votre budget\./); assert.match(r, /Le montant total du véhicule vous sera communiqué après confirmation de votre dossier\./);
+  assert.match(r, /Notre équipe effectue les recherches nécessaires afin de trouver le véhicule qui correspond à vos besoins et à votre budget\./); assert.match(r, /Frais de service : <b data-tarif="service_recherche">150 \$<\/b> US\./); assert.match(r, /Le paiement du véhicule s'effectue uniquement après la confirmation de votre dossier\./);
 });
 console.log(`${ok} scénarios contenu OK`);
