@@ -87,6 +87,7 @@ async function appliquerStatut(p, statut, data = {}, source = "verification") {
     if (statut === "succeeded") {
       if (p.type === "initial") {
         await c.query("update dossiers set etat='a_traiter', etape=greatest(etape,1), maj_le=now() where ref=$1", [p.ref]);
+        await c.query("update devis set statut='paye', maj_le=now() where dossier_ref=$1", [p.ref]); // devis payé en ligne
         if ((d.service === "achat" || d.service === "precommande") && d.vehicule_id) {
           const v = (await c.query("update vehicules set statut='vendu', maj_le=now() where id=$1 and statut<>'vendu' returning id", [d.vehicule_id])).rowCount;
           if (!v) await c.query("insert into journal(ref, texte, type) values ($1,$2,'alerte')", [p.ref, "Attention : ce véhicule était déjà marqué vendu au moment du paiement. Vérifiez le dossier."]);
@@ -754,25 +755,29 @@ app.post("/api/admin/vehicules/:id/photos/:pid/principale", enveloppe(async (req
 }));
 
 /* Devis (espace administrateur : Gestion des devis) */
-const VUE_DEVIS = "id, numero, jeton, client_nom, client_email, client_tel, lignes, frais_supplementaires, total_usd, statut, envoye_le, cree_le, maj_le";
+const VUE_DEVIS = "id, numero, jeton, client_nom, client_email, client_tel, lignes, frais_supplementaires, total_usd, statut, envoye_le, expire_le, dossier_ref, cree_le, maj_le";
 const devisParId = async id => { const d = await un(`select ${VUE_DEVIS} from devis where id=$1`, [Number(id) || 0]); if (!d) throw err(404, "INTROUVABLE", "Devis introuvable."); return d; };
 const verifier = b => { try { return validerDevis(b); } catch (e) { throw err(400, "DEVIS", e.message); } };
 const nomPdf = d => `Devis-${d.numero}.pdf`;
 const lienPdf = d => `${PUBLIC_URL}/devis/${d.jeton}.pdf`;
+const lienDevis = d => `${PUBLIC_URL}/devis/${d.jeton}`; // page du devis (consultation et paiement en ligne)
 app.get("/api/admin/devis", enveloppe(async (_req, res) => res.json(await tous(`select ${VUE_DEVIS} from devis order by cree_le desc limit 200`))));
 app.post("/api/admin/devis", enveloppe(async (req, res) => {
   const v = verifier(req.body);
   const { id } = await un("select nextval(pg_get_serial_sequence('devis','id'))::int id");
-  const numero = `DV-${new Date().getFullYear()}-${String(id).padStart(4, "0")}`;
-  const d = await un(`insert into devis(id, numero, jeton, client_nom, client_email, client_tel, lignes, frais_supplementaires, total_usd)
-    values ($1,$2,$3,$4,$5,$6,$7,$8,$9) returning ${VUE_DEVIS}`, [id, numero, crypto.randomBytes(24).toString("base64url"), v.client_nom, v.client_email, v.client_tel, JSON.stringify(v.lignes), v.frais_supplementaires, v.total_usd]);
+  const numero = `EAD-DEV-${String(id).padStart(4, "0")}`;
+  const d = await un(`insert into devis(id, numero, jeton, client_nom, client_email, client_tel, lignes, frais_supplementaires, total_usd, expire_le)
+    values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) returning ${VUE_DEVIS}`, [id, numero, crypto.randomBytes(24).toString("base64url"), v.client_nom, v.client_email, v.client_tel, JSON.stringify(v.lignes), v.frais_supplementaires, v.total_usd, v.expire_le]);
   await journaliser(null, `Devis ${numero} créé pour ${v.client_nom} (${montantDevis(v.total_usd)})`, "devis", "administrateur");
   res.status(201).json(d);
 }));
 app.patch("/api/admin/devis/:id", enveloppe(async (req, res) => {
-  await devisParId(req.params.id); const v = verifier(req.body);
-  res.json(await un(`update devis set client_nom=$2, client_email=$3, client_tel=$4, lignes=$5, frais_supplementaires=$6, total_usd=$7, maj_le=now() where id=$1 returning ${VUE_DEVIS}`,
-    [Number(req.params.id), v.client_nom, v.client_email, v.client_tel, JSON.stringify(v.lignes), v.frais_supplementaires, v.total_usd]));
+  const ex = await devisParId(req.params.id);
+  if (ex.statut === "paye") throw err(409, "DEJA_PAYE", "Ce devis est déjà payé : il ne peut plus être modifié.");
+  const v = verifier(req.body);
+  if (!req.body?.expire_le) v.expire_le = ex.expire_le; // pas de nouvelle date : on garde l'expiration actuelle
+  res.json(await un(`update devis set client_nom=$2, client_email=$3, client_tel=$4, lignes=$5, frais_supplementaires=$6, total_usd=$7, expire_le=$8, maj_le=now() where id=$1 returning ${VUE_DEVIS}`,
+    [Number(req.params.id), v.client_nom, v.client_email, v.client_tel, JSON.stringify(v.lignes), v.frais_supplementaires, v.total_usd, v.expire_le]));
 }));
 app.delete("/api/admin/devis/:id", enveloppe(async (req, res) => { const d = await devisParId(req.params.id); await q("delete from devis where id=$1", [d.id]); await journaliser(null, `Devis ${d.numero} supprimé`, "devis", "administrateur"); res.json({ ok: true }); }));
 app.get("/api/admin/devis/:id/pdf", enveloppe(async (req, res) => {
@@ -783,9 +788,8 @@ app.post("/api/admin/devis/:id/email", limiteur(30, 15 * 60e3), enveloppe(async 
   const d = await devisParId(req.params.id);
   if (!d.client_email) throw err(400, "EMAIL", "Ajoutez l'adresse email du client pour envoyer le devis par email.");
   if (!emailConfigure()) throw err(503, "EMAIL_INDISPONIBLE", "L'envoi d'email n'est pas configuré (clé Brevo manquante).");
-  const pdf = await genererPdf(d);
-  const ok = await envoyerEmail({ a: d.client_email, nom: d.client_nom, pieces: [{ nom: nomPdf(d), contenu: pdf }],
-    ...emailDevis({ nom: d.client_nom, numero: d.numero, total: montantDevis(d.total_usd), publicUrl: PUBLIC_URL, whatsapp: process.env.WHATSAPP_NUMERO || "50942405729" }) });
+  const ok = await envoyerEmail({ a: d.client_email, nom: d.client_nom,
+    ...emailDevis({ nom: d.client_nom, numero: d.numero, total: montantDevis(d.total_usd), lien: lienDevis(d), expire: d.expire_le, whatsapp: process.env.WHATSAPP_NUMERO || "50942405729" }) });
   if (!ok) throw err(502, "EMAIL", "Brevo n'a pas pu envoyer l'email. Vérifiez la clé API et l'expéditeur validé.");
   const n = await un(`update devis set statut='envoye', envoye_le=now(), maj_le=now() where id=$1 returning ${VUE_DEVIS}`, [d.id]);
   await journaliser(null, `Devis ${d.numero} envoyé par email à ${d.client_email}`, "devis", "administrateur");
@@ -795,10 +799,10 @@ app.post("/api/admin/devis/:id/whatsapp", enveloppe(async (req, res) => {
   const d = await devisParId(req.params.id);
   const tel = telNorm(d.client_tel);
   if (tel.length < 8) throw err(400, "TEL", "Ajoutez le numéro WhatsApp du client pour partager le devis.");
-  const message = `Bonjour ${prenomDe(d.client_nom)}, voici votre devis Elite Auto Deal n° ${d.numero} d'un montant de ${montantDevis(d.total_usd)} : ${lienPdf(d)}`;
+  const message = `Bonjour ${prenomDe(d.client_nom)}, voici votre devis Elite Auto Deal n° ${d.numero} d'un montant de ${montantDevis(d.total_usd)}${d.expire_le ? ` (valable jusqu'au ${new Date(d.expire_le).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric", timeZone: "America/Port-au-Prince" })})` : ""}. Consultez-le et payez-le en ligne : ${lienDevis(d)}`;
   const n = await un(`update devis set statut=case when statut='envoye' then statut else 'partage' end, maj_le=now() where id=$1 returning ${VUE_DEVIS}`, [d.id]);
   await journaliser(null, `Devis ${d.numero} partagé par WhatsApp (${d.client_nom})`, "devis", "administrateur");
-  res.json({ devis: n, lien_pdf: lienPdf(d), message, lien_whatsapp: `https://wa.me/${tel}?text=${encodeURIComponent(message)}` });
+  res.json({ devis: n, lien_devis: lienDevis(d), lien_pdf: lienPdf(d), message, lien_whatsapp: `https://wa.me/${tel}?text=${encodeURIComponent(message)}` });
 }));
 
 /* Clients */
@@ -901,6 +905,51 @@ app.get("/sitemap.xml", enveloppe(async (_req, res) => {
   res.set({ "Content-Type": "application/xml; charset=utf-8", "Cache-Control": "public, max-age=3600" }).send(sitemapXml(await tous("select id, maj_le from vehicules where not retire order by maj_le desc")));
 }));
 
+/* Devis : consultation et paiement par lien sécurisé (jeton non devinable ; un jeton = un seul devis) */
+const vueDevisPublic = async d => {
+  const p = d.dossier_ref ? await un("select statut, methode, confirme_le from paiements where ref=$1 and type='initial' order by id desc limit 1", [d.dossier_ref]) : null;
+  const expire = d.expire_le && new Date(d.expire_le).getTime() < Date.now();
+  const { taux } = await parametres();
+  return { numero: d.numero, client_nom: d.client_nom, lignes: d.lignes, frais_supplementaires: Number(d.frais_supplementaires), total_usd: Number(d.total_usd), cree_le: d.cree_le, expire_le: d.expire_le,
+    statut: d.statut === "paye" ? "paye" : expire ? "expire" : "actif", ref: d.dossier_ref, paiement: p ? { statut: p.statut, methode: p.methode, confirme_le: p.confirme_le } : null,
+    methodes: CARTE_ACTIVE ? ["moncash", "natcash", "carte"] : ["moncash", "natcash"], taux_htg: taux.taux_htg, paiement_actif: fredaConfiguree(), whatsapp: process.env.WHATSAPP_NUMERO || "50942405729" };
+};
+const devisParJeton = async j => { const d = await un(`select ${VUE_DEVIS} from devis where jeton=$1`, [String(j || "")]); if (!d) throw err(404, "INTROUVABLE", "Ce devis n'existe pas ou le lien n'est plus valable."); return d; };
+app.get("/api/devis/:jeton", limiteur(120, 10 * 60e3), enveloppe(async (req, res) => {
+  const d = await devisParJeton(req.params.jeton);
+  if (d.dossier_ref) await rafraichir(d.dossier_ref);
+  res.set("Cache-Control", "no-store").json(await vueDevisPublic(await devisParJeton(req.params.jeton)));
+}));
+app.post("/api/devis/:jeton/payer", limiteur(10, 15 * 60e3), enveloppe(async (req, res) => {
+  let d = await devisParJeton(req.params.jeton);
+  if (d.dossier_ref) await rafraichir(d.dossier_ref);
+  d = await devisParJeton(req.params.jeton);
+  if (d.statut === "paye") throw err(409, "DEJA_PAYE", "Ce devis est déjà payé. Merci !");
+  if (d.expire_le && new Date(d.expire_le).getTime() < Date.now()) throw err(410, "EXPIRE", "Ce devis a expiré. Contactez-nous sur WhatsApp pour obtenir un nouveau devis.");
+  const methode = lireMethode(req.body?.methode);
+  const email = String(req.body?.client_email || d.client_email || "").trim().slice(0, 160);
+  if (methode === "carte" && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) throw err(400, "EMAIL", "Une adresse email est nécessaire pour le paiement par carte (reçu).");
+  let ref = d.dossier_ref;
+  if (!ref) { // le dossier de paiement est créé au premier paiement ; le montant vient uniquement du devis enregistré sur le serveur
+    ref = await nouvelleRef();
+    await un(`insert into dossiers(ref, service, client_nom, client_tel, client_whatsapp, client_email, donnees, montant_usd, conditions_acceptees_le, statut_solde)
+      values ($1,'devis',$2,$3,$3,$4,$5,$6, now(), 'non_du') returning ref`,
+      [ref, d.client_nom, d.client_tel || "", email || null, { detail: `Devis ${d.numero}`, devis: d.numero, lignes: [...d.lignes.map(l => [l.description, `${l.quantite} x ${montantDevis(l.prix_unitaire)}`]), ...(Number(d.frais_supplementaires) > 0 ? [["Frais supplémentaires", montantDevis(d.frais_supplementaires)]] : [])] }, d.total_usd]);
+    await q("update devis set dossier_ref=$2, maj_le=now() where id=$1 and dossier_ref is null", [d.id, ref]);
+    ref = (await devisParJeton(req.params.jeton)).dossier_ref;
+    await journaliser(ref, `Dossier créé pour le paiement du devis ${d.numero}`, "dossier");
+  }
+  const dossier = await un("select * from dossiers where ref=$1", [ref]);
+  const p = await un("select * from paiements where ref=$1 and type='initial' order by id desc limit 1", [ref]);
+  if (p?.statut === "pending" && p.methode === methode && Date.now() - new Date(p.cree_le).getTime() < 10 * 60e3) return res.json({ ref, checkout_url: p.checkout_url });
+  const r = await lancerPaiement({ dossier, type: "initial", methode, montantUsd: Number(d.total_usd), email });
+  res.json({ ref, checkout_url: r.checkout_url });
+}));
+// Page du devis (même application, vue « devis » ; jamais indexée)
+app.get("/devis/:jeton", enveloppe(async (req, res, next) => {
+  if (/\.pdf$/i.test(req.params.jeton)) return next(); // /devis/<jeton>.pdf : route suivante
+  await envoyerPage(res, "devis", "/devis/" + encodeURIComponent(req.params.jeton), { noindex: true });
+}));
 // Lien public du devis (non devinable) : utilisé pour le partage WhatsApp
 app.get("/devis/:jeton.pdf", limiteur(60, 10 * 60e3), enveloppe(async (req, res) => {
   const d = await un(`select ${VUE_DEVIS} from devis where jeton=$1`, [String(req.params.jeton || "")]);

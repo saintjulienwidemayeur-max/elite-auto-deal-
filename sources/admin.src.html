@@ -1335,11 +1335,15 @@ async function boot(){
 /* ================= Rendu & événements ================= */
 let LOGO='',MARK='';
 /* ================= Gestion des devis ================= */
-const DV={id:null,f:{nom:'',email:'',tel:'',frais:''},lignes:[{description:'',quantite:'1',prix_unitaire:''}],list:[],busy:false};
+const dvExpireDefaut=()=>{const d=new Date(Date.now()+30*864e5);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
+const dvAujourdhui=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
+const DV={id:null,f:{nom:'',email:'',tel:'',frais:'',expire:dvExpireDefaut()},lignes:[{description:'',quantite:'1',prix_unitaire:''}],list:[],busy:false};
 const dvNum=v=>{const n=Number(String(v==null?'':v).replace(/\s/g,'').replace(',','.'));return isFinite(n)?n:0};
 const dvMoney=n=>(Math.round((n+Number.EPSILON)*100)/100).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,' ').replace('.',',')+' $';
 const dvTotal=()=>DV.lignes.reduce((t,l)=>t+Math.round(dvNum(l.quantite)*dvNum(l.prix_unitaire)*100)/100,0)+dvNum(DV.f.frais);
-const DV_ST={brouillon:['Brouillon','b-g'],envoye:['Envoyé par email','b-ok'],partage:['Partagé sur WhatsApp','b-n']};
+const DV_ST={brouillon:['Brouillon','b-g'],envoye:['Envoyé par email','b-n'],partage:['Partagé sur WhatsApp','b-n'],paye:['Payé','b-ok'],expire:['Expiré','b-bad']};
+const dvStatut=d=>d.statut!=='paye'&&d.expire_le&&new Date(d.expire_le)<new Date()?'expire':d.statut;
+const dvLien=d=>location.origin+'/devis/'+d.jeton;
 LOADERS.devis=()=>api('/api/admin/devis').then(r=>{DV.list=r||[]});
 NEEDS.devis=['devis'];
 function dvLigne(l,i){
@@ -1353,9 +1357,9 @@ function dvLigne(l,i){
 }
 function dvListe(){
   if(!DV.list.length)return `<div class="empty"><b>Aucun devis pour le moment</b>Les devis que vous créez apparaissent ici.</div>`;
-  return `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Devis</th><th>Client</th><th class="r">Total</th><th>Statut</th><th>Date</th><th class="r">Actions</th></tr></thead><tbody>${DV.list.map(d=>{const st=DV_ST[d.statut]||DV_ST.brouillon;
-   return `<tr><td><b>${esc(d.numero)}</b></td><td>${esc(d.client_nom)}<div class="small muted">${esc(d.client_email||d.client_tel||'')}</div></td><td class="r"><b>${dvMoney(+d.total_usd)}</b></td><td><span class="badge ${st[1]}">${st[0]}</span></td><td>${esc(fdate(d.cree_le))}</td>
-   <td class="r"><div style="display:inline-flex;gap:6px;flex-wrap:wrap;justify-content:flex-end"><button class="btn btn-t btn-sm" data-dv="edit" data-id="${d.id}">Modifier</button><button class="btn btn-t btn-sm" data-dv="lpdf" data-id="${d.id}">PDF</button><button class="btn btn-t btn-sm" data-dv="lmail" data-id="${d.id}">Email</button><button class="btn btn-t btn-sm" data-dv="lwa" data-id="${d.id}">WhatsApp</button><button class="btn btn-t btn-sm" data-dv="del" data-id="${d.id}" aria-label="Supprimer ${esc(d.numero)}">${ic('x')}</button></div></td></tr>`}).join('')}</tbody></table></div>`;
+  return `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Devis</th><th>Client</th><th class="r">Total</th><th>Statut</th><th>Date</th><th class="r">Actions</th></tr></thead><tbody>${DV.list.map(d=>{const st=DV_ST[dvStatut(d)]||DV_ST.brouillon;
+   return `<tr><td><b>${esc(d.numero)}</b></td><td>${esc(d.client_nom)}<div class="small muted">${esc(d.client_email||d.client_tel||'')}</div></td><td class="r"><b>${dvMoney(+d.total_usd)}</b></td><td><span class="badge ${st[1]}">${st[0]}</span>${d.expire_le&&dvStatut(d)!=='paye'?`<div class="small muted">Expire le ${esc(fdate(d.expire_le))}</div>`:''}</td><td>${esc(fdate(d.cree_le))}</td>
+   <td class="r"><div style="display:inline-flex;gap:6px;flex-wrap:wrap;justify-content:flex-end"><button class="btn btn-t btn-sm" data-dv="edit" data-id="${d.id}">Modifier</button><button class="btn btn-t btn-sm" data-dv="lpdf" data-id="${d.id}">PDF</button><button class="btn btn-t btn-sm" data-dv="lmail" data-id="${d.id}">Email</button><button class="btn btn-t btn-sm" data-dv="lwa" data-id="${d.id}">WhatsApp</button><button class="btn btn-t btn-sm" data-dv="lcopy" data-id="${d.id}">Lien</button><button class="btn btn-t btn-sm" data-dv="del" data-id="${d.id}" aria-label="Supprimer ${esc(d.numero)}">${ic('x')}</button></div></td></tr>`}).join('')}</tbody></table></div>`;
 }
 V.devis=()=>`<div class="head"><div><span class="dv-eyebrow">ESPACE ADMINISTRATEUR</span><h1>Créer un devis</h1><p class="dv-sub">ELITE AUTO DEAL · Gestion commerciale</p></div></div>
  <section class="card"><div class="card-b"><div class="empty"><b>Disponible une fois connecté au serveur</b>La gestion des devis (PDF, email, WhatsApp) fonctionne avec le tableau de bord réel, sur le site en ligne.</div></div></section>`;
@@ -1368,18 +1372,21 @@ VL.devis=()=>`<div class="head"><div><span class="dv-eyebrow">ESPACE ADMINISTRAT
    <div class="field"><label for="dv-tel">Téléphone / WhatsApp</label><input id="dv-tel" data-dvf="tel" type="tel" value="${esc(DV.f.tel)}" maxlength="40" placeholder="+509 0000 0000" autocomplete="off"></div></div></div></section>
  <section class="card" style="margin-bottom:18px"><div class="card-h"><h2>Détails du devis</h2><span class="small muted">USD</span></div><div class="card-b">
    <div id="dvLignes">${DV.lignes.map(dvLigne).join('')}</div>
-   <button class="btn btn-t btn-sm" type="button" data-dv="add" style="margin-top:12px">${ic('plus')}Ajouter une ligne</button>
-   <div class="field" style="max-width:260px;margin-top:18px"><label for="dv-frais">Frais supplémentaires ($)</label><input id="dv-frais" data-dvf="frais" inputmode="decimal" value="${esc(DV.f.frais)}" placeholder="0,00"></div>
+   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn btn-t btn-sm" type="button" data-dv="add">${ic('plus')}Ajouter une ligne</button><button class="btn btn-t btn-sm" type="button" data-dv="addsvc">${ic('plus')}Ajouter les frais de service de recherche</button></div>
+   <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:18px">
+    <div class="field" style="flex:1 1 220px;max-width:260px"><label for="dv-frais">Frais supplémentaires ($)</label><input id="dv-frais" data-dvf="frais" inputmode="decimal" value="${esc(DV.f.frais)}" placeholder="0,00"></div>
+    <div class="field" style="flex:1 1 220px;max-width:260px"><label for="dv-expire">Valable jusqu'au</label><input id="dv-expire" data-dvf="expire" type="date" value="${esc(DV.f.expire)}" min="${dvAujourdhui()}"><span class="hint">30 jours par défaut.</span></div></div>
    <div class="dv-total" aria-live="polite"><span>Total automatique</span><b id="dvTotal">${dvMoney(dvTotal())}</b></div></div></section>
  <section class="card" style="margin-bottom:18px"><div class="card-h"><h2>Actions</h2></div><div class="card-b"><div class="dv-actions">
    <button class="btn btn-n" type="button" data-dv="pdf">${ic('file')}Générer le devis en PDF</button>
    <button class="btn btn-p" type="button" data-dv="mail">${ic('send')}Envoyer directement par Email</button>
-   <button class="btn btn-wa" type="button" data-dv="wa">${ic('wa')}Partager par WhatsApp</button></div>
-   <p class="small muted" style="margin:12px 0 0">Chaque action enregistre d'abord le devis${DV.id?' (modification du devis en cours)':''}. Le total est recalculé par le serveur.</p></div></section>
+   <button class="btn btn-wa" type="button" data-dv="wa">${ic('wa')}Partager par WhatsApp</button>
+   <button class="btn btn-t" type="button" data-dv="copy">${ic('copy')}Copier le lien sécurisé</button></div>
+   <p class="small muted" style="margin:12px 0 0">Chaque action enregistre d'abord le devis${DV.id?' (modification du devis en cours)':''}. Le client reçoit un <b>lien sécurisé</b> (non devinable, valable pour ce devis seulement) vers une page du site où il voit le devis et peut le <b>payer en ligne</b> ; le PDF est une copie à télécharger. Le total est recalculé par le serveur.</p></div></section>
  </form>
  <section class="card"><div class="card-h"><h2>Devis récents</h2><span class="small muted num">${DV.list.length}</span></div><div class="card-b" style="padding:0" id="dvListe">${dvListe()}</div></section>`;
 function dvMajTotal(){const t=$('#dvTotal');if(t)t.textContent=dvMoney(dvTotal());DV.lignes.forEach((l,i)=>{const e=document.querySelector(`[data-lt="${i}"]`);if(e)e.textContent=dvMoney(Math.round(dvNum(l.quantite)*dvNum(l.prix_unitaire)*100)/100)})}
-function dvCorps(){return {client_nom:DV.f.nom,client_email:DV.f.email,client_tel:DV.f.tel,frais_supplementaires:DV.f.frais===''?0:dvNum(DV.f.frais),lignes:DV.lignes.map(l=>({description:l.description,quantite:dvNum(l.quantite),prix_unitaire:dvNum(l.prix_unitaire)}))}}
+function dvCorps(){return {expire_le:DV.f.expire||undefined,client_nom:DV.f.nom,client_email:DV.f.email,client_tel:DV.f.tel,frais_supplementaires:DV.f.frais===''?0:dvNum(DV.f.frais),lignes:DV.lignes.map(l=>({description:l.description,quantite:dvNum(l.quantite),prix_unitaire:dvNum(l.prix_unitaire)}))}}
 async function dvEnregistrer(){
   const d=DV.id?await api('/api/admin/devis/'+DV.id,{method:'PATCH',body:dvCorps()}):await api('/api/admin/devis',{method:'POST',body:dvCorps()});
   DV.id=d.id;LV.loaded.devis=0;return d;
@@ -1401,6 +1408,7 @@ async function dvAction(kind,id){
     if(!id){const d=await dvEnregistrer();did=d.id}
     if(kind==='pdf'||kind==='lpdf'){await dvPdf(did,w);toast('Devis PDF généré')}
     else if(kind==='mail'||kind==='lmail'){const d=await api(`/api/admin/devis/${did}/email`,{method:'POST',body:{}});toast(`Devis ${d.numero} envoyé à ${d.client_email}`)}
+    else if(kind==='copy'||kind==='lcopy'){const d=DV.list.find(x=>x.id===did)||await api('/api/admin/devis').then(l=>l.find(x=>x.id===did));const lien=dvLien(d);try{await navigator.clipboard.writeText(lien);toast('Lien sécurisé copié')}catch(_){window.prompt('Copiez le lien du devis :',lien)}}
     else{const r=await api(`/api/admin/devis/${did}/whatsapp`,{method:'POST',body:{}});if(w&&!w.closed)w.location.href=r.lien_whatsapp;else window.open(r.lien_whatsapp,'_blank');toast('WhatsApp ouvert avec le message du devis')}
   }catch(e){if(w)w.close();fail(e)}
   finally{DV.busy=false;await dvRafraichir()}
@@ -1415,11 +1423,12 @@ document.addEventListener('click',e=>{
   const k=b.dataset.dv;
   if(k==='add'){if(DV.lignes.length>=30)return toastErr('30 lignes maximum.');DV.lignes.push({description:'',quantite:'1',prix_unitaire:''});render();const i=DV.lignes.length-1;const el=$('#dv-d'+i);el&&el.focus();return}
   if(k==='rm'){DV.lignes.splice(+b.dataset.i,1);render();return}
-  if(k==='reset'){DV.id=null;DV.f={nom:'',email:'',tel:'',frais:''};DV.lignes=[{description:'',quantite:'1',prix_unitaire:''}];render();return}
-  if(k==='edit'){const d=DV.list.find(x=>String(x.id)===b.dataset.id);if(!d)return;DV.id=d.id;DV.f={nom:d.client_nom||'',email:d.client_email||'',tel:d.client_tel||'',frais:+d.frais_supplementaires?String(d.frais_supplementaires):''};DV.lignes=(d.lignes||[]).map(l=>({description:l.description,quantite:String(l.quantite),prix_unitaire:String(l.prix_unitaire)}));render();window.scrollTo({top:0,behavior:'smooth'});return}
+  if(k==='addsvc'){const t=(CFG&&CFG.tarifs&&CFG.tarifs.service_recherche)||150;DV.lignes.push({description:'Frais de service : recherche et accompagnement',quantite:'1',prix_unitaire:String(t)});render();return}
+  if(k==='reset'){DV.id=null;DV.f={nom:'',email:'',tel:'',frais:'',expire:dvExpireDefaut()};DV.lignes=[{description:'',quantite:'1',prix_unitaire:''}];render();return}
+  if(k==='edit'){const d=DV.list.find(x=>String(x.id)===b.dataset.id);if(!d)return;DV.id=d.id;DV.f={nom:d.client_nom||'',email:d.client_email||'',tel:d.client_tel||'',frais:+d.frais_supplementaires?String(d.frais_supplementaires):'',expire:d.expire_le?String(d.expire_le).slice(0,10):dvExpireDefaut()};DV.lignes=(d.lignes||[]).map(l=>({description:l.description,quantite:String(l.quantite),prix_unitaire:String(l.prix_unitaire)}));render();window.scrollTo({top:0,behavior:'smooth'});return}
   if(k==='del'){const d=DV.list.find(x=>String(x.id)===b.dataset.id);return confirmBox('Supprimer ce devis ?',`Le devis ${esc(d.numero)} de ${esc(d.client_nom)} sera supprimé définitivement. Un lien WhatsApp déjà partagé ne fonctionnera plus.`,'Supprimer',async()=>{try{await api('/api/admin/devis/'+d.id,{method:'DELETE'});if(DV.id===d.id){DV.id=null}toast('Devis supprimé');await dvRafraichir()}catch(err){fail(err)}},true)}
-  if(['pdf','mail','wa'].includes(k))return dvAction(k);
-  if(['lpdf','lmail','lwa'].includes(k))return dvAction(k,b.dataset.id);
+  if(['pdf','mail','wa','copy'].includes(k))return dvAction(k);
+  if(['lpdf','lmail','lwa','lcopy'].includes(k))return dvAction(k,+b.dataset.id);
 });
 /* ================= Code d'accès administrateur ================= */
 const _vParams=V['parametres-site'];

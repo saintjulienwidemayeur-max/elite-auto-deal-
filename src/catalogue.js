@@ -12,6 +12,7 @@ export const SERVICES = {
     statuts: ["Paiement confirmé", "Disponibilité du véhicule vérifiée", "Rendez-vous confirmé", "Visite ou essai effectué"] },
   vendre: { titre: "Service de vente d'un véhicule", tarif: "vendre",
     statuts: ["Dossier reçu et payé", "Vérification du véhicule et des documents", "Accepté, annonce en préparation", "Annonce publiée", "Vendu"] },
+  devis: { titre: "Paiement d'un devis", statuts: ["Paiement confirmé", "Dossier pris en charge", "En cours de traitement", "Terminé"] },
   financement: { titre: "Dossier de financement", tarif: "financement",
     statuts: ["Demande reçue", "Vérification des documents", "Dossier en cours d'examen", "Décision finale de financement"] },
 };

@@ -163,3 +163,11 @@ create table if not exists devis (
   maj_le timestamptz not null default now()
 );
 create index if not exists devis_cree_idx on devis(cree_le desc);
+
+-- Devis consultables et payables en ligne par lien sécurisé
+alter table devis add column if not exists expire_le timestamptz;
+alter table devis add column if not exists dossier_ref text references dossiers(ref) on delete set null;
+alter table devis drop constraint if exists devis_statut_check;
+alter table devis add constraint devis_statut_check check (statut in ('brouillon','envoye','partage','paye'));
+alter table dossiers drop constraint if exists dossiers_service_check;
+alter table dossiers add constraint dossiers_service_check check (service in ('precommande','achat','consultation','recherche','essai','vendre','financement','devis'));

@@ -805,6 +805,21 @@ input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:
 .faq summary::after{content:"+";position:absolute;right:18px;top:50%;transform:translateY(-50%);font-size:22px;color:var(--rouge);font-weight:700}
 .faq details[open] summary::after{content:"\2212"}
 .faq details p{padding:0 18px 18px;color:var(--gris-700);font-size:15.5px;max-width:70ch}
+/* Devis en ligne */
+.dv-page{max-width:860px;margin:clamp(18px,3vw,32px) auto 0;display:grid;gap:18px}
+.dv-carte{background:#fff;border:1px solid var(--gris-200);border-radius:var(--r-l);overflow:hidden}
+.dv-tete{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;background:var(--noir);color:#fff;padding:20px clamp(18px,3vw,30px);border-bottom:4px solid var(--rouge)}
+.dv-tete .logo{width:150px;height:46px;color:#fff}.dv-tete .dv-num{text-align:right}.dv-tete .dv-num span{display:block;font-size:12px;letter-spacing:1.6px;color:#C9C9CC;font-weight:600}.dv-tete .dv-num b{font-size:22px}
+.dv-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;padding:20px clamp(18px,3vw,30px);border-bottom:1px solid var(--gris-100)}
+.dv-meta span{display:block;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--gris-500);font-weight:600;margin-bottom:2px}.dv-meta b{font-size:16px}
+.dv-tab{width:100%;border-collapse:collapse;font-size:15px}.dv-tab th{text-align:left;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--gris-500);padding:12px clamp(18px,3vw,30px);border-bottom:1px solid var(--gris-100)}
+.dv-tab td{padding:14px clamp(18px,3vw,30px);border-bottom:1px solid var(--gris-100);vertical-align:top}.dv-tab .r{text-align:right;white-space:nowrap}
+.dv-total{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin:clamp(16px,3vw,24px);padding:18px 22px;border-radius:var(--r-m);background:var(--rouge);color:#fff}
+.dv-total span{font-size:13px;letter-spacing:1.4px;text-transform:uppercase;font-weight:700}.dv-total b{font-size:clamp(26px,5vw,36px)}
+.dv-bandeau{margin:0 clamp(16px,3vw,24px) clamp(16px,3vw,24px);padding:14px 18px;border-radius:var(--r-m);font-weight:600}.dv-bandeau.ok{background:#E7F4EC;color:#14653A}.dv-bandeau.ko{background:#FBF1E0;color:#8A5200}
+.dv-actions{display:flex;gap:10px;flex-wrap:wrap}.dv-actions .btn{flex:1 1 210px}
+@media (max-width:640px){.dv-tab thead{display:none}.dv-tab,.dv-tab tbody{display:block}.dv-tab tr{display:flex;flex-wrap:wrap;gap:4px 16px;align-items:baseline;padding:12px clamp(18px,3vw,30px);border-bottom:1px solid var(--gris-100)}.dv-tab td{border:0;padding:0}.dv-tab td:first-child{flex:0 0 100%;font-weight:600}.dv-tab td:last-child{margin-left:auto}.dv-tab td[data-l]{color:var(--gris-700);font-size:14px}.dv-tab td[data-l]::before{content:attr(data-l)" : ";color:var(--gris-500)}}
+@media print{body *{visibility:hidden}.dv-carte,.dv-carte *{visibility:visible}.dv-carte{position:absolute;left:0;top:0;width:100%;border:0}}
 </style>
 </head>
 <body>
@@ -1442,6 +1457,13 @@ input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:
   </div>
 </div>
 
+<!-- ============ DEVIS (lien sécurisé) ============ -->
+<div class="vue" data-vue="devis">
+  <div class="wrap" style="padding-bottom:clamp(40px,6vw,80px)">
+    <div id="devis-zone" aria-live="polite"></div>
+  </div>
+</div>
+
 <!-- ============ CONDITIONS ============ -->
 <div class="vue" data-vue="conditions">
   <div class="wrap legal" style="padding-bottom:clamp(40px,6vw,80px)">
@@ -1693,12 +1715,14 @@ const etat={v:null,depuisAchat:false};
 const CHEMINS={accueil:"/",vehicules:"/vehicules",precommande:"/precommande",achat:"/acheter",consultation:"/consultation",recherche:"/recherche-vehicule",essai:"/essai-visite",vendre:"/vendre-mon-vehicule",financement:"/financement",suivi:"/suivi-dossier",conditions:"/conditions",retour:"/retour-paiement",compte:"/mon-espace","compte-dossier":"/mon-espace/dossier"};
 function vueDeChemin(p){
   p=(p||"/").replace(/\/+$/,"")||"/";
+  if(/\.pdf$/i.test(p))return null; // fichiers PDF : pas une vue
+  if(p.startsWith("/devis/")&&p.length>7)return{vue:"devis",jeton:decodeURIComponent(p.slice(7))};
   if(p.startsWith("/vehicules/")&&p.length>11)return{vue:"vehicule",id:decodeURIComponent(p.slice(11))};
   for(const[v,c]of Object.entries(CHEMINS))if(c===p)return{vue:v};
   return null;
 }
 const cheminDeVue=(v,vid)=>v==="vehicule"&&vid?"/vehicules/"+encodeURIComponent(vid):(CHEMINS[v]||"/");
-function vueCourante(){const r=vueDeChemin(location.pathname);if(!r)return"accueil";if(r.id)etat.v=r.id;return r.vue;}
+function vueCourante(){const r=vueDeChemin(location.pathname);if(!r)return"accueil";if(r.id)etat.v=r.id;if(r.jeton)etat.devisJeton=r.jeton;return r.vue;}
 function allerChemin(chemin,remplacer){
   if(location.pathname+location.search===chemin){route();return;}
   history[remplacer?"replaceState":"pushState"](null,"",chemin);if(!remplacer)TITRE_CLIENT=true;route();
@@ -1706,7 +1730,60 @@ function allerChemin(chemin,remplacer){
 // Anciennes adresses avec # (liens déjà partagés) : on les convertit vers la vraie URL
 (function(){const h=location.hash.slice(1);if(h&&CHEMINS[h]!==undefined&&location.pathname==="/")history.replaceState(null,"",CHEMINS[h]+location.search);})();
 let TITRE_CLIENT=false; // vrai après une navigation dans la page ; avant, on garde le titre complet envoyé par le serveur
-const VUES=["accueil","vehicules","vehicule","precommande","achat","consultation","recherche","essai","vendre","financement","suivi","conditions","retour","compte","compte-dossier"];
+const VUES=["accueil","vehicules","vehicule","precommande","achat","consultation","recherche","essai","vendre","financement","suivi","conditions","retour","compte","compte-dossier","devis"];
+/* ---------- Devis en ligne (lien sécurisé) ---------- */
+const eur=n=>Number(n).toLocaleString("fr-FR",{minimumFractionDigits:2,maximumFractionDigits:2}).replace(/[  ]/g," ")+" $";
+const DVP={methode:"moncash",email:"",cond:false};
+async function rendreDevisPublic(){
+  const z=document.getElementById("devis-zone");if(!z)return;
+  const j=etat.devisJeton;
+  z.innerHTML=`<div class="verif" role="status" style="margin-top:20px"><span class="spin"></span>Chargement de votre devis…</div>`;
+  let d;
+  try{d=await api("/api/devis/"+encodeURIComponent(j));}
+  catch(e){z.innerHTML=`<div class="carte-suivi"><b>${esc(e.status===404?"Ce devis n'existe pas ou le lien n'est plus valable.":e.message)}</b><p class="muted" style="margin-top:6px">Contactez-nous sur WhatsApp : nous vous renverrons votre devis.</p><a class="btn btn-wa btn-sm" target="_blank" rel="noopener" href="${waUrl("Bonjour Elite Auto Deal, j'ai un problème avec le lien de mon devis.")}">Écrire sur WhatsApp</a></div>`;return;}
+  if(!d.methodes.includes(DVP.methode))DVP.methode=d.methodes[0];
+  const actif=d.statut==="actif",carte=DVP.methode==="carte";
+  const libM={moncash:["MonCash","Payé en gourdes"],natcash:["Natcash","Payé en gourdes"],carte:["Carte bancaire","Payé en dollars"]};
+  const total=Number(d.total_usd);
+  const lignes=d.lignes.map(l=>`<tr><td>${esc(l.description)}</td><td class="r" data-l="Qté">${esc(String(l.quantite).replace(".",","))}</td><td class="r" data-l="Prix unitaire">${eur(l.prix_unitaire)}</td><td class="r"><b>${eur(l.quantite*l.prix_unitaire)}</b></td></tr>`).join("")+(d.frais_supplementaires>0?`<tr><td>Frais supplémentaires</td><td class="r"></td><td class="r"></td><td class="r"><b>${eur(d.frais_supplementaires)}</b></td></tr>`:"");
+  let bas="";
+  if(d.statut==="paye")bas=`<div class="dv-bandeau ok">Devis payé, merci ! Votre dossier ${esc(d.ref||"")} est pris en charge.</div>`;
+  else if(d.statut==="expire")bas=`<div class="dv-bandeau ko">Ce devis a expiré le ${esc(dateFr(d.expire_le))}. Contactez-nous sur WhatsApp pour obtenir un nouveau devis.</div>`;
+  const paiement=actif?`<section class="bloc-form" id="dv-paie"><h3>Payer ce devis</h3>
+    ${d.paiement_actif?`<fieldset><legend>Moyen de paiement</legend><div class="choix deux">${d.methodes.map(k=>`<label><input type="radio" name="dv-methode" value="${k}" ${DVP.methode===k?"checked":""}><span>${libM[k][0]}<small>${libM[k][1]}</small></span></label>`).join("")}</div></fieldset>
+    <div class="a-payer"><div><span>Montant à payer</span><br><b>${carte?eur(total):Math.round(total*d.taux_htg).toLocaleString("fr-FR").replace(/[  ]/g," ")+" HTG"}</b></div><span>${carte?"Payé en dollars par carte":`${eur(total)} au taux de ${Number(d.taux_htg).toLocaleString("fr-FR")} HTG pour 1 USD`}</span></div>
+    ${carte?`<div class="champ"><label for="dv-email">Email pour le reçu de la carte</label><input id="dv-email" type="email" autocomplete="email" required value="${esc(DVP.email)}"></div>`:""}
+    <label class="case"><input type="checkbox" id="dv-cond" ${DVP.cond?"checked":""}><span>J'ai lu les <a href="/conditions">conditions des services</a> et j'accepte de payer ce devis.</span></label>
+    <div class="erreur-paie cache" id="dv-err" role="alert"></div>
+    <button class="btn btn-rouge" type="button" id="dv-payer"><svg aria-hidden="true"><use href="#i-cadenas"/></svg>Payer maintenant</button>
+    <p class="muted" style="font-size:13.5px">Vous serez redirigé vers la page de paiement sécurisée Freda Pay Issuing. Le montant est celui de ce devis, il ne peut pas être modifié.</p>`
+    :`<p class="muted">Le paiement en ligne n'est pas encore disponible. Écrivez-nous sur WhatsApp pour régler ce devis.</p>`}</section>`:"";
+  z.innerHTML=`<div class="dv-page">
+    <article class="dv-carte" id="dv-carte"><div class="dv-tete"><svg class="logo" role="img" aria-label="Elite Auto Deal"><use href="#logo"/></svg><div class="dv-num"><span>DEVIS</span><b>${esc(d.numero)}</b></div></div>
+      <div class="dv-meta"><div><span>Client</span><b>${esc(d.client_nom)}</b></div><div><span>Émis le</span><b>${esc(dateFr(d.cree_le))}</b></div><div><span>Valable jusqu'au</span><b>${esc(dateFr(d.expire_le))}</b></div></div>
+      <table class="dv-tab"><thead><tr><th>Description</th><th class="r">Qté</th><th class="r">Prix unitaire</th><th class="r">Total</th></tr></thead><tbody>${lignes}</tbody></table>
+      <div class="dv-total"><span>Total à payer</span><b>${eur(total)}</b></div>${bas}</article>
+    ${paiement}
+    <div class="dv-actions"><a class="btn btn-contour" href="/devis/${encodeURIComponent(j)}.pdf" target="_blank" rel="noopener">Télécharger le PDF</a><button class="btn btn-contour" type="button" id="dv-imprimer">Imprimer</button><a class="btn btn-wa" target="_blank" rel="noopener" href="${waUrl("Bonjour Elite Auto Deal, j'ai une question sur mon devis "+d.numero+".")}"><svg aria-hidden="true"><use href="#i-wa"/></svg>Écrire sur WhatsApp</a></div>
+    <p class="muted" style="font-size:13.5px">Ce lien est personnel : il donne accès à ce devis uniquement. L'original est cette page ; le PDF est une copie à télécharger ou imprimer.</p></div>`;
+  const imp=document.getElementById("dv-imprimer");if(imp)imp.onclick=()=>window.print();
+  z.querySelectorAll('input[name="dv-methode"]').forEach(x=>x.onchange=()=>{DVP.methode=x.value;const e=document.getElementById("dv-email");if(e)DVP.email=e.value;DVP.cond=document.getElementById("dv-cond").checked;rendreDevisPublic();});
+  const bp=document.getElementById("dv-payer");
+  if(bp)bp.onclick=async()=>{
+    const err=document.getElementById("dv-err");err.classList.add("cache");
+    const mail=document.getElementById("dv-email"),cond=document.getElementById("dv-cond");
+    const montrer=m=>{err.textContent=m;err.classList.remove("cache");};
+    if(!cond.checked)return montrer("Cochez la case pour accepter les conditions avant de payer.");
+    if(mail&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail.value.trim()))return montrer("Indiquez une adresse email valide pour le reçu de la carte.");
+    DVP.cond=true;if(mail)DVP.email=mail.value.trim();
+    bp.disabled=true;bp.textContent="Redirection…";
+    try{
+      const r=await jenvoi("/api/devis/"+encodeURIComponent(j)+"/payer",{methode:DVP.methode,client_email:DVP.email||undefined});
+      try{localStorage.setItem("ead-derniere-ref",r.ref);localStorage.setItem("ead-derniere-methode",DVP.methode);}catch(_){}
+      location.href=r.checkout_url;
+    }catch(e){bp.disabled=false;bp.innerHTML='<svg aria-hidden="true"><use href="#i-cadenas"/></svg>Payer maintenant';montrer(e.message);}
+  };
+}
 function route(){
   let h=vueCourante();
   if(!VUES.includes(h))h="accueil";
@@ -1716,6 +1793,7 @@ function route(){
   if(h!=="retour")arreterRetour();
   if(h==="retour")afficherRetour();
   if(h==="vehicule")rendreDetail();
+  if(h==="devis")rendreDevisPublic();
   if(h==="vehicules")rendreInventaire();
   if(h!=="compte-dossier")clearTimeout(CPT.t);
   if(h==="compte")rendreCompte(true);

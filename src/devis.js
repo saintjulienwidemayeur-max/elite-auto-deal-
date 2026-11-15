@@ -3,6 +3,7 @@ import PDFDocument from "pdfkit";
 import { readFileSync, existsSync } from "node:fs";
 
 const arrondi2 = n => Math.round((Number(n) + Number.EPSILON) * 100) / 100;
+export const VALIDITE_JOURS = () => Math.max(1, Number(process.env.DEVIS_VALIDITE_JOURS) || 30);
 export const montant = n => arrondi2(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, " ").replace(".", ",") + " $";
 
 /** Nettoie et valide les données du formulaire. Lance une Error(message) si invalide. */
@@ -24,7 +25,15 @@ export function validerDevis(b = {}) {
   });
   const frais = b.frais_supplementaires === "" || b.frais_supplementaires == null ? 0 : Number(b.frais_supplementaires);
   if (!(frais >= 0 && frais <= 10_000_000)) throw new Error("Frais supplémentaires invalides.");
-  return { client_nom: nom, client_email: email, client_tel: tel, lignes, frais_supplementaires: arrondi2(frais), total_usd: totalDevis(lignes, frais) };
+  // Date d'expiration (AAAA-MM-JJ) : par défaut aujourd'hui + 30 jours ; fin de journée à Port-au-Prince
+  let expire_le;
+  if (b.expire_le) {
+    const j = String(b.expire_le).slice(0, 10);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(j) || isNaN(new Date(j))) throw new Error("Date d'expiration invalide.");
+    expire_le = new Date(`${j}T23:59:59-05:00`);
+    if (expire_le.getTime() < Date.now()) throw new Error("La date d'expiration doit être aujourd'hui ou plus tard.");
+  } else expire_le = new Date(Date.now() + VALIDITE_JOURS() * 86400e3);
+  return { client_nom: nom, client_email: email, client_tel: tel, lignes, frais_supplementaires: arrondi2(frais), total_usd: totalDevis(lignes, frais), expire_le };
 }
 export const totalDevis = (lignes, frais) => arrondi2(lignes.reduce((s, l) => s + arrondi2(l.quantite * l.prix_unitaire), 0) + Number(frais || 0));
 
@@ -55,7 +64,7 @@ export function genererPdf(d) {
     doc.text(client.join("\n") || " ", L + W / 2 + 10, y + 31, { width: W / 2 - 10, lineGap: 2 });
     y += 31 + 5 * 14 + 14;
     doc.fillColor(GRIS).font("Helvetica").fontSize(9.5).text(`Date d'émission : ${date}`, L, y);
-    if (Number(process.env.DEVIS_VALIDITE_JOURS) > 0) doc.text(`Validité : ${Number(process.env.DEVIS_VALIDITE_JOURS)} jours`, L, y, { width: W, align: "right" });
+    if (d.expire_le) doc.text(`Valable jusqu'au ${new Date(d.expire_le).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric", timeZone: "America/Port-au-Prince" })}`, L, y, { width: W, align: "right" });
     y += 26;
 
     const col = { desc: L + 10, qte: L + W * 0.56, pu: L + W * 0.67, tot: L + W * 0.84 }, largeurs = { desc: W * 0.54 - 14, qte: W * 0.09, pu: W * 0.15, tot: W * 0.16 - 10 };

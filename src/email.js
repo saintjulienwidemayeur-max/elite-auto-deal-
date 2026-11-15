@@ -79,18 +79,20 @@ export function emailCode({ code, finalite }) {
   };
 }
 
-export function emailDevis({ nom, numero, total, publicUrl: url, whatsapp }) {
+export function emailDevis({ nom, numero, total, lien, expire, whatsapp }) {
   const prenom = esc(String(nom).trim().split(/\s+/)[0]);
+  const date = expire ? new Date(expire).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric", timeZone: "America/Port-au-Prince" }) : "";
   return {
     sujet: `Votre devis ${numero} — Elite Auto Deal`,
     html: cadre(`Votre devis ${esc(numero)}`, `<p style="margin:0 0 14px">Bonjour ${prenom},</p>
-      <p style="margin:0 0 14px">Merci de votre confiance. Vous trouverez votre devis en pièce jointe (PDF).</p>
+      <p style="margin:0 0 14px">Merci de votre confiance. Votre devis est prêt : vous pouvez le consulter et le payer en ligne en toute sécurité grâce au lien ci-dessous.</p>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:18px 0"><tr><td align="center" style="background:${FOND};border:1px solid #e4e4e0;border-radius:10px;padding:18px 12px">
       <div style="font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:${GRIS};margin-bottom:6px">Total du devis</div>
-      <div style="font-size:30px;font-weight:bold;color:${NOIR}">${esc(total)}</div></td></tr></table>
-      <p style="margin:0 0 6px;color:${GRIS};font-size:14px">Pour toute question ou pour confirmer ce devis, écrivez-nous sur WhatsApp${whatsapp ? ` au <b style="color:${NOIR}">+${esc(whatsapp)}</b>` : ""}.</p>
-      ${url ? bouton(url, "Visiter Elite Auto Deal") : ""}`,
-      `Votre devis ${numero} d'un montant de ${total}, en pièce jointe.`),
-    texte: `Bonjour ${String(nom).trim().split(/\s+/)[0]}, voici votre devis ${numero} d'un montant de ${total} (PDF en pièce jointe). Elite Auto Deal.`,
+      <div style="font-size:30px;font-weight:bold;color:${NOIR}">${esc(total)}</div>${date ? `<div style="font-size:13px;color:${GRIS};margin-top:8px">Valable jusqu'au ${esc(date)}</div>` : ""}</td></tr></table>
+      ${bouton(lien, "Voir et payer mon devis")}
+      <p style="margin:18px 0 6px;color:${GRIS};font-size:13px">Ce lien est personnel : il donne accès à ce devis uniquement.</p>
+      <p style="margin:0;color:${GRIS};font-size:14px">Une question ? Écrivez-nous sur WhatsApp${whatsapp ? ` au <b style="color:${NOIR}">+${esc(whatsapp)}</b>` : ""}.</p>`,
+      `Votre devis ${numero} d'un montant de ${total} : consultez-le et payez-le en ligne.`),
+    texte: `Bonjour ${String(nom).trim().split(/\s+/)[0]}, votre devis ${numero} d'un montant de ${total} est prêt${date ? ` (valable jusqu'au ${date})` : ""}. Consultez-le et payez-le en ligne : ${lien}`,
   };
 }

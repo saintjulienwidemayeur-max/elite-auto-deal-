@@ -10,7 +10,7 @@ export const CHEMINS = {
   suivi: "/suivi-dossier", conditions: "/conditions", retour: "/retour-paiement", compte: "/mon-espace", "compte-dossier": "/mon-espace/dossier",
 };
 export const CHEMINS_FIXES = Object.values(CHEMINS);
-const NOINDEX = new Set(["retour", "compte", "compte-dossier"]);
+const NOINDEX = new Set(["retour", "compte", "compte-dossier", "devis"]);
 const STATUT_LIB = { disponible: "Disponible en Haïti", transit: "En transit", precommande: "Disponible en précommande", vendu: "Vendu", indisponible: "Indisponible" };
 const DISPO = { disponible: "https://schema.org/InStock", transit: "https://schema.org/PreOrder", precommande: "https://schema.org/PreOrder", vendu: "https://schema.org/SoldOut", indisponible: "https://schema.org/OutOfStock" };
 
@@ -34,6 +34,7 @@ function meta(vue, t) {
     financement: [`Financement automobile en Haïti : dossier à ${usd(t.financement)} | Elite Auto Deal`, `Ouvrez un dossier de financement automobile pour ${usd(t.financement)} (ou l'équivalent en gourdes). L'approbation n'est pas garantie. Elite Auto Deal, Delmas, Port-au-Prince.`],
     suivi: ["Suivre mon dossier | Elite Auto Deal", "Suivez l'avancement de votre demande Elite Auto Deal avec votre référence : paiement, étapes et prochaines actions."],
     conditions: ["Conditions des services : frais, remboursement, précommande | Elite Auto Deal", "Conditions des services Elite Auto Deal : frais de service, remboursement, précommande, paiements, données personnelles et véhicules de tiers."],
+    devis: ["Votre devis | Elite Auto Deal", "Consultez et réglez votre devis Elite Auto Deal en ligne."],
     retour: ["Retour de paiement | Elite Auto Deal", "Statut de votre paiement Elite Auto Deal."],
     compte: ["Mon espace | Elite Auto Deal", "Connectez-vous à votre espace client Elite Auto Deal."],
     "compte-dossier": ["Mon dossier | Elite Auto Deal", "Détail de votre dossier Elite Auto Deal."],
