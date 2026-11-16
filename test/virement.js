@@ -68,8 +68,8 @@ await t("site : choix « Virement bancaire », écran de dépôt de preuve et ic
   const h = await (await fetch(B + "/")).text();
   for (const m of [/Virement bancaire/, /Déposez votre preuve de paiement/, /api\/dossiers\/"\+encodeURIComponent\(ref\)\+"\/preuve/]) assert.match(h, m);
   const pied = h.match(/<footer class="pied">([\s\S]*?)<\/footer>/)[1];
-  for (const i of ["i-tel", "i-wa", "i-mail", "i-pin", "i-insta", "i-fb", "i-tiktok"]) assert.match(pied, new RegExp(`#${i}"`));
-  assert.equal((pied.match(/<svg class="ic"/g) || []).length, 8);
+  for (const i of ["i-tel", "i-walogo", "i-mail", "i-pin", "i-insta", "i-fb", "i-tiktok"]) assert.match(pied, new RegExp(`#${i}"`));
+  assert.equal((pied.match(/<svg class="ic[ "]/g) || []).length, 8);
   const adm = await (await fetch(B + "/admin")).text(); assert.match(adm, /Virements bancaires/); assert.match(adm, /data-vr="ok"/);
 });
 console.log(`${ok} scénarios virement OK`);
