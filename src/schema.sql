@@ -144,7 +144,9 @@ create index if not exists otp_codes_client_idx on otp_codes(client_id, finalite
 
 -- Moyens de paiement : MonCash et Natcash séparés ('mobile' = anciens paiements, avant la séparation)
 alter table paiements drop constraint if exists paiements_methode_check;
-alter table paiements add constraint paiements_methode_check check (methode in ('mobile','moncash','natcash','carte'));
+alter table paiements add constraint paiements_methode_check check (methode in ('mobile','moncash','natcash','carte','virement'));
+alter table dossiers add column if not exists preuve_jeton text;
+alter table paiements add column if not exists motif_refus text;
 
 -- Gestion des devis (espace administrateur)
 create table if not exists devis (

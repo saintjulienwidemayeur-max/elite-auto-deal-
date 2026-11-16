@@ -96,3 +96,34 @@ export function emailDevis({ nom, numero, total, lien, expire, whatsapp }) {
     texte: `Bonjour ${String(nom).trim().split(/\s+/)[0]}, votre devis ${numero} d'un montant de ${total} est prêt${date ? ` (valable jusqu'au ${date})` : ""}. Consultez-le et payez-le en ligne : ${lien}`,
   };
 }
+
+export function emailPaiementConfirme({ nom, ref, montant, detail, lien, whatsapp }) {
+  const prenom = esc(String(nom).trim().split(/\s+/)[0]);
+  return {
+    sujet: `Paiement confirmé — dossier ${ref} — Elite Auto Deal`,
+    html: cadre("Paiement confirmé", `<p style="margin:0 0 14px">Bonjour ${prenom},</p>
+      <p style="margin:0 0 14px">Nous avons bien reçu et vérifié votre virement. Merci de votre confiance !</p>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:18px 0"><tr><td align="center" style="background:${FOND};border:1px solid #E5E7EB;border-radius:10px;padding:18px 12px">
+      <div style="font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:${GRIS};margin-bottom:6px">Montant confirmé</div>
+      <div style="font-size:28px;font-weight:bold;color:${NOIR}">${esc(montant)}</div>
+      <div style="font-size:13px;color:${GRIS};margin-top:8px">Dossier ${esc(ref)}${detail ? " · " + esc(detail) : ""}</div></td></tr></table>
+      <p style="margin:0 0 14px">Votre dossier est maintenant en cours de traitement. Vous pouvez suivre chaque étape depuis votre espace client.</p>
+      ${bouton(lien, "Suivre mon dossier")}
+      <p style="margin:18px 0 0;color:${GRIS};font-size:14px">Une question ? Écrivez-nous sur WhatsApp${whatsapp ? ` au <b style="color:${NOIR}">+${esc(whatsapp)}</b>` : ""}.</p>`,
+      `Votre virement de ${montant} est confirmé (dossier ${ref}).`),
+    texte: `Bonjour ${String(nom).trim().split(/\s+/)[0]}, votre virement de ${montant} est confirmé (dossier ${ref}). Suivez votre dossier : ${lien}`,
+  };
+}
+
+export function emailVirementRefuse({ nom, ref, motif, lien, whatsapp }) {
+  const prenom = esc(String(nom).trim().split(/\s+/)[0]);
+  return {
+    sujet: `Virement à vérifier — dossier ${ref} — Elite Auto Deal`,
+    html: cadre("Virement non validé", `<p style="margin:0 0 14px">Bonjour ${prenom},</p>
+      <p style="margin:0 0 14px">Nous n'avons pas pu valider votre virement pour le dossier <b style="color:${NOIR}">${esc(ref)}</b>.</p>
+      <p style="margin:0 0 14px;padding:12px 14px;background:${FOND};border-left:4px solid ${ROUGE};border-radius:6px"><b style="color:${NOIR}">Motif :</b> ${esc(motif)}</p>
+      <p style="margin:0 0 14px">Vous pouvez envoyer une nouvelle preuve de paiement depuis votre espace client, ou nous écrire sur WhatsApp${whatsapp ? ` au <b style="color:${NOIR}">+${esc(whatsapp)}</b>` : ""}.</p>
+      ${bouton(lien, "Ouvrir mon espace")}`, `Votre virement n'a pas pu être validé (dossier ${ref}).`),
+    texte: `Bonjour ${String(nom).trim().split(/\s+/)[0]}, votre virement (dossier ${ref}) n'a pas pu être validé. Motif : ${motif}. Envoyez une nouvelle preuve : ${lien}`,
+  };
+}

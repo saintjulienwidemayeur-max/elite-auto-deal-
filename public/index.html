@@ -516,6 +516,8 @@ section{padding:clamp(56px,8vw,104px) 0}
 .pied ul{list-style:none;margin:0;padding:0;display:grid;gap:4px}
 .pied a{text-decoration:none;color:#E5E7EB;display:inline-flex;min-height:36px;align-items:center}
 .pied a:hover{color:#fff;text-decoration:underline;text-decoration-color:var(--rouge);text-underline-offset:4px}
+.pied .ic{width:18px;height:18px;flex:none;margin-right:10px;color:var(--rouge)}
+.pied-adresse{display:flex;align-items:flex-start;color:#E5E7EB;font-size:15px;padding:6px 0}.pied-adresse .ic{margin-top:2px}
 .pied .logo{width:170px;height:52px;margin-bottom:12px;color:#fff}
 .pied .muted{color:#C9CBD1}
 .pied-bas{margin-top:36px;padding-top:18px;border-top:1px solid rgba(255,255,255,.16);display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-between;font-size:13px;color:#C9CBD1}
@@ -852,6 +854,12 @@ input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="logo" viewBox="0 0 680 207"><path fill="currentColor" fill-rule="evenodd" d="M9.5,55.0 12.0,57.2 26.8,65.5 37.2,70.5 41.8,71.8 96.0,71.5 125.5,73.0 148.8,75.0 174.5,78.2 179.5,78.5 182.8,79.2 192.2,80.0 193.8,80.5 224.0,83.0 228.2,83.8 289.8,87.8 337.2,89.5 392.2,90.0 456.5,88.0 508.0,84.0 530.2,82.8 563.0,82.8 577.0,83.8 588.0,85.0 601.8,87.2 626.2,92.8 648.8,100.0 661.5,105.0 667.8,108.0 669.8,108.2 669.5,107.2 662.8,101.5 656.5,97.0 647.0,91.2 632.2,84.2 616.2,78.8 608.2,76.5 593.5,73.2 572.2,70.0 550.2,68.0 528.5,67.5 521.5,66.8 513.0,63.0 490.0,51.2 470.8,42.2 448.5,33.0 426.8,25.0 412.0,20.2 394.2,15.8 381.5,13.5 364.5,11.5 340.2,10.0 307.5,9.8 273.2,11.2 248.2,13.8 225.2,17.0 194.0,23.5 156.5,33.5 144.0,37.5 137.5,39.0 131.2,41.2 105.8,48.0 104.2,48.8 83.2,53.0 68.2,55.0 51.8,56.2 28.8,56.2 12.0,54.8ZM158.2,52.2 181.5,44.0 199.8,38.8 222.2,33.2 246.0,29.0 273.8,25.5 290.0,24.2 309.0,23.5 346.2,24.0 367.0,25.8 387.2,28.8 402.5,32.2 416.8,36.2 437.8,43.2 462.0,53.2 482.0,63.0 490.0,67.5 490.8,68.8 490.0,69.5 485.5,69.5 458.5,71.8 401.5,73.8 350.8,73.8 292.0,71.8 245.8,68.5 209.8,64.5 208.5,64.0 193.5,62.0 177.5,58.8 158.8,53.2Z"/><path fill="currentColor" fill-rule="evenodd" d="M638.0,152.0 637.5,152.5 637.5,195.8 638.2,196.2 668.2,196.2 668.8,195.8 668.5,188.0 647.8,187.8 647.0,187.0 646.8,152.5 646.0,151.8ZM547.0,152.0 546.5,152.8 546.8,196.0 547.5,196.5 580.0,196.2 580.5,195.8 580.5,188.8 579.8,188.0 556.8,188.0 555.8,187.0 555.8,179.2 556.8,178.0 576.2,178.0 577.5,177.0 577.5,171.5 576.8,170.0 556.8,169.8 555.8,168.8 555.8,160.8 556.5,160.0 579.0,160.0 579.8,159.5 579.8,152.5 579.0,151.8ZM497.5,151.8 497.0,152.5 497.2,196.0 505.8,196.5 517.8,196.2 525.5,194.0 529.5,191.8 532.5,189.2 535.2,185.8 536.8,183.0 537.8,180.0 538.5,174.8 537.8,168.2 535.2,162.5 531.8,158.2 528.8,155.8 524.2,153.5 520.2,152.2 516.2,151.8ZM507.0,160.2 516.2,160.2 520.2,161.2 523.5,163.2 526.0,165.8 527.2,168.0 528.5,173.0 528.2,176.5 527.5,179.2 525.5,182.8 523.0,185.2 521.0,186.5 516.5,187.8 507.2,187.8 506.5,187.2 506.2,161.0ZM340.0,152.0 339.5,152.5 339.5,181.2 340.5,186.0 343.8,191.5 349.0,195.2 351.5,196.2 357.8,197.2 360.5,197.2 366.0,196.2 372.0,193.0 375.0,189.8 376.5,187.0 377.8,183.2 378.2,177.0 378.0,152.5 377.0,151.8 369.2,152.0 369.0,177.5 367.8,183.5 363.5,187.5 360.8,188.2 357.0,188.2 353.0,186.8 350.0,183.5 349.0,180.5 348.8,152.2 348.0,151.8ZM419.2,151.8 384.5,151.8 383.5,152.5 383.2,159.0 383.8,159.8 393.2,160.2 395.8,160.0 397.2,161.2 397.2,195.5 398.0,196.2 405.5,196.2 406.5,195.2 406.5,162.0 407.5,160.2 419.5,160.0 420.0,159.5 420.0,153.0ZM603.8,151.5 602.2,153.8 596.0,169.0 584.2,194.8 584.2,195.8 584.8,196.2 593.2,196.2 595.0,193.5 597.2,187.2 598.2,186.2 616.2,186.2 618.0,187.8 620.8,195.2 621.8,196.2 631.0,196.2 631.5,195.8 631.2,194.2 626.0,183.5 612.8,152.2 612.0,151.5 610.2,151.2ZM607.5,164.5 608.8,165.0 613.5,176.5 613.5,177.2 612.5,178.0 602.8,178.0 602.0,177.2 605.2,168.5ZM306.8,151.5 305.0,154.5 298.8,170.0 289.5,190.5 287.8,195.8 288.2,196.2 296.8,196.2 298.0,194.2 300.5,187.5 302.0,186.2 319.2,186.2 321.0,187.2 324.5,196.0 334.0,196.2 334.2,194.5 328.0,181.0 315.8,152.2 314.5,151.2ZM310.5,164.5 311.8,165.0 316.5,176.2 316.5,177.2 315.5,178.0 306.2,178.0 305.2,177.2 305.8,174.8 307.8,170.8 309.2,166.2ZM444.2,150.8 439.8,151.5 435.2,153.2 430.2,156.5 426.8,160.2 424.2,164.8 423.0,168.8 422.8,178.0 425.2,185.2 430.5,191.8 433.0,193.5 439.2,196.2 445.5,197.2 448.8,197.2 453.5,196.2 458.2,194.2 464.8,189.0 467.0,185.8 469.2,181.0 470.2,176.5 470.2,172.0 469.8,168.5 468.0,163.8 466.0,160.2 462.5,156.5 457.8,153.2 453.2,151.5 448.5,150.8ZM444.8,159.5 450.0,159.8 455.0,162.2 458.2,166.0 459.5,168.5 460.2,171.8 459.8,178.0 457.0,183.5 453.2,186.8 451.2,187.8 447.8,188.5 445.2,188.5 442.0,187.8 439.0,186.2 435.8,183.2 434.0,180.5 432.8,177.0 433.0,170.2 433.8,167.8 435.5,164.8 439.5,161.2 441.5,160.2ZM73.5,131.0 73.0,131.5 73.2,196.5 118.5,196.5 119.0,195.8 119.0,185.0 118.2,184.0 88.2,184.0 87.5,183.5 87.0,131.5 86.5,131.0ZM214.8,131.0 214.2,131.8 214.5,196.5 264.5,196.8 265.0,196.0 265.0,185.2 264.2,184.5 230.5,184.8 228.5,183.8 228.5,170.8 229.8,169.8 259.5,169.8 260.2,169.0 260.0,158.2 259.5,157.8 229.0,157.5 228.2,156.0 228.5,144.0 230.2,143.0 263.5,143.2 264.0,142.5 263.8,131.0ZM151.0,131.0 150.2,132.2 150.2,142.0 151.0,143.2 168.8,143.2 170.5,144.2 170.8,196.0 172.2,196.8 184.8,196.2 185.0,144.5 185.8,143.5 205.2,143.2 205.8,142.0 205.2,131.2 204.2,130.8ZM129.2,130.8 128.2,131.0 127.5,132.0 127.5,195.5 128.8,196.8 141.0,196.5 141.8,195.8 141.8,131.8 140.0,130.8ZM12.0,131.0 11.5,131.5 11.2,144.2 11.5,196.2 12.5,196.8 61.2,196.8 62.0,196.0 62.0,185.2 61.2,184.2 27.5,184.8 26.0,184.2 25.5,183.5 25.5,170.8 26.2,170.0 56.2,169.8 57.0,169.0 56.8,158.0 55.2,157.5 26.8,157.8 26.0,157.5 25.2,156.2 25.8,143.5 27.2,143.0 60.5,143.2 61.0,142.5 61.0,131.5 60.2,130.8Z"/></symbol>
   <symbol id="marque" viewBox="0 0 680 118"><path fill="currentColor" fill-rule="evenodd" d="M9.5,55.0 12.0,57.2 26.8,65.5 37.2,70.5 41.8,71.8 96.0,71.5 125.5,73.0 148.8,75.0 174.5,78.2 179.5,78.5 182.8,79.2 192.2,80.0 193.8,80.5 224.0,83.0 228.2,83.8 289.8,87.8 337.2,89.5 392.2,90.0 456.5,88.0 508.0,84.0 530.2,82.8 563.0,82.8 577.0,83.8 588.0,85.0 601.8,87.2 626.2,92.8 648.8,100.0 661.5,105.0 667.8,108.0 669.8,108.2 669.5,107.2 662.8,101.5 656.5,97.0 647.0,91.2 632.2,84.2 616.2,78.8 608.2,76.5 593.5,73.2 572.2,70.0 550.2,68.0 528.5,67.5 521.5,66.8 513.0,63.0 490.0,51.2 470.8,42.2 448.5,33.0 426.8,25.0 412.0,20.2 394.2,15.8 381.5,13.5 364.5,11.5 340.2,10.0 307.5,9.8 273.2,11.2 248.2,13.8 225.2,17.0 194.0,23.5 156.5,33.5 144.0,37.5 137.5,39.0 131.2,41.2 105.8,48.0 104.2,48.8 83.2,53.0 68.2,55.0 51.8,56.2 28.8,56.2 12.0,54.8ZM158.2,52.2 181.5,44.0 199.8,38.8 222.2,33.2 246.0,29.0 273.8,25.5 290.0,24.2 309.0,23.5 346.2,24.0 367.0,25.8 387.2,28.8 402.5,32.2 416.8,36.2 437.8,43.2 462.0,53.2 482.0,63.0 490.0,67.5 490.8,68.8 490.0,69.5 485.5,69.5 458.5,71.8 401.5,73.8 350.8,73.8 292.0,71.8 245.8,68.5 209.8,64.5 208.5,64.0 193.5,62.0 177.5,58.8 158.8,53.2Z"/></symbol>
+  <symbol id="i-tel" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 7 8.5 6 8.5-6"/></g></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></g></symbol>
+  <symbol id="i-insta" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r=".6" fill="currentColor"/></g></symbol>
+  <symbol id="i-fb" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M14 8.5h3V4.5h-3A4 4 0 0 0 10 8.5V11H7v4h3v6h4v-6h3l1-4h-4V9a.5.5 0 0 1 .5-.5z"/></symbol>
+  <symbol id="i-tiktok" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M16 3v10.5a4.5 4.5 0 1 1-4.5-4.5M16 3c.4 2.6 2 4.2 4.5 4.5"/></symbol>
   <symbol id="i-wa" viewBox="0 0 32 32"><path fill="currentColor" d="M16 3C8.8 3 3 8.7 3 15.8c0 2.5.7 4.9 2 7L3 29l6.4-2c2 1.1 4.3 1.7 6.6 1.7 7.2 0 13-5.7 13-12.8S23.2 3 16 3Zm0 23.4c-2.1 0-4.1-.6-5.9-1.7l-.4-.3-3.8 1.2 1.2-3.7-.3-.4a10.4 10.4 0 0 1-1.8-5.7C5 10 10 5.2 16 5.2S27 10 27 15.8 22 26.4 16 26.4Zm6-7.8c-.3-.2-2-1-2.3-1.1-.3-.1-.5-.2-.8.2l-1 1.3c-.2.2-.4.2-.7.1-.3-.2-1.4-.5-2.7-1.7-1-.9-1.7-2-1.9-2.3-.2-.3 0-.5.1-.7l.5-.6.4-.6c.1-.2 0-.4 0-.6l-1.1-2.6c-.3-.7-.6-.6-.8-.6h-.7c-.2 0-.6.1-.9.4-.3.3-1.2 1.1-1.2 2.8s1.2 3.2 1.4 3.5c.2.2 2.4 3.6 5.8 5 2.9 1.1 3.4.9 4 .8.7-.1 2-.8 2.3-1.6.3-.8.3-1.5.2-1.6-.1-.2-.4-.3-.7-.4Z"/></symbol>
   <symbol id="i-fleche-g" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-fleche-d" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
@@ -1511,13 +1519,14 @@ input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:
       <div><h4>Véhicules</h4><ul><li><a href="/vehicules">Inventaire</a></li><li><a href="/precommande">Précommande</a></li><li><a href="/acheter">Acheter</a></li><li><a href="/suivi-dossier">Suivre mon dossier</a></li></ul></div>
       <div><h4>Services</h4><ul><li><a href="/consultation">Consultation</a></li><li><a href="/recherche-vehicule">Recherche personnalisée</a></li><li><a href="/essai-visite">Visite ou essai</a></li><li><a href="/vendre-mon-vehicule">Vendre mon véhicule</a></li><li><a href="/financement">Financement</a></li></ul></div>
       <div><h4>Contact</h4><ul>
-        <li><a href="tel:+50942405729">+509 4240 5729</a></li>
-        <li><a href="mailto:contact@eliteautodeal.com">contact@eliteautodeal.com</a></li>
-        <li><a href="mailto:lakougroup@gmail.com">lakougroup@gmail.com</a></li>
-        <li style="color:#C9CBD1;font-size:15px;padding:6px 0">33, Rue Faustin 1er, Delmas 33, Port-au-Prince</li>
-        <li><a href="https://www.instagram.com/eliteautodeal.ht/" target="_blank" rel="noopener">Instagram</a></li>
-        <li><a href="https://www.facebook.com/eliteautodeal" target="_blank" rel="noopener">Facebook</a></li>
-        <li><a href="https://www.tiktok.com/@eliteautodeal" target="_blank" rel="noopener">TikTok</a></li>
+        <li><a href="tel:+50942405729"><svg class="ic" aria-hidden="true"><use href="#i-tel"/></svg>+509 4240 5729</a></li>
+        <li><a href="https://wa.me/50942405729" target="_blank" rel="noopener"><svg class="ic" aria-hidden="true"><use href="#i-wa"/></svg>WhatsApp</a></li>
+        <li><a href="mailto:contact@eliteautodeal.com"><svg class="ic" aria-hidden="true"><use href="#i-mail"/></svg>contact@eliteautodeal.com</a></li>
+        <li><a href="mailto:lakougroup@gmail.com"><svg class="ic" aria-hidden="true"><use href="#i-mail"/></svg>lakougroup@gmail.com</a></li>
+        <li class="pied-adresse"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg><span>33, Rue Faustin 1er, Delmas 33, Port-au-Prince</span></li>
+        <li><a href="https://www.instagram.com/eliteautodeal.ht/" target="_blank" rel="noopener"><svg class="ic" aria-hidden="true"><use href="#i-insta"/></svg>Instagram</a></li>
+        <li><a href="https://www.facebook.com/eliteautodeal" target="_blank" rel="noopener"><svg class="ic" aria-hidden="true"><use href="#i-fb"/></svg>Facebook</a></li>
+        <li><a href="https://www.tiktok.com/@eliteautodeal" target="_blank" rel="noopener"><svg class="ic" aria-hidden="true"><use href="#i-tiktok"/></svg>TikTok</a></li>
       </ul></div>
     </div>
     <div class="pied-bas"><span>© 2026 Elite Auto Deal. Tous droits réservés.</span><span><a href="/conditions" style="min-height:0">Conditions des services</a> &nbsp; <a href="/conditions" style="min-height:0">Données personnelles</a></span></div>
@@ -1752,13 +1761,13 @@ function allerChemin(chemin,remplacer){
 let TITRE_CLIENT=false; // vrai après une navigation dans la page ; avant, on garde le titre complet envoyé par le serveur
 const VUES=["accueil","vehicules","vehicule","precommande","achat","consultation","recherche","essai","vendre","financement","suivi","conditions","retour","compte","compte-dossier","devis"];
 /* ---------- Compte bancaire (virement ou dépôt) : coordonnées modifiables dans l'administration ---------- */
-function banqueHTML(b){
+function banqueHTML(b,ouvert){
   b=b||(typeof CONFIG!=="undefined"&&CONFIG&&CONFIG.banque);if(!b||!b.compte)return "";
-  return `<details class="bloc-banque"><summary>Payer par virement ou dépôt bancaire</summary>
+  return `<details class="bloc-banque"${ouvert?" open":""}><summary>${ouvert?"Coordonnées bancaires pour le virement":"Payer par virement ou dépôt bancaire"}</summary>
     <dl><div><dt>Banque</dt><dd>${esc(b.nom||"")}</dd></div><div><dt>Titulaire du compte</dt><dd>${esc(b.titulaire||"")}</dd></div>
     <div><dt>Numéro de compte</dt><dd><b>${esc(b.compte)}</b> <button class="lien" type="button" data-copier-compte="${esc(b.compte)}">Copier</button></dd></div>
     ${b.succursale?`<div><dt>Succursale</dt><dd>${esc(b.succursale)}</dd></div>`:""}${b.devise?`<div><dt>Devise du compte</dt><dd>${esc(b.devise)}</dd></div>`:""}</dl>
-    <p>Après votre virement ou votre dépôt, envoyez la preuve de paiement et la référence de votre dossier sur WhatsApp. Votre dossier est validé après vérification par notre équipe.</p></details>`;
+    <p>Après votre virement ou votre dépôt, choisissez « Virement bancaire » comme moyen de paiement pour déposer votre preuve de paiement. Votre dossier est validé après vérification par notre équipe.</p></details>`;
 }
 document.addEventListener("click",e=>{const b=e.target.closest("[data-copier-compte]");if(b)copier(b.dataset.copierCompte,"Numéro de compte copié");});
 
@@ -1773,8 +1782,8 @@ async function rendreDevisPublic(){
   try{d=await api("/api/devis/"+encodeURIComponent(j));}
   catch(e){z.innerHTML=`<div class="carte-suivi"><b>${esc(e.status===404?"Ce devis n'existe pas ou le lien n'est plus valable.":e.message)}</b><p class="muted" style="margin-top:6px">Contactez-nous sur WhatsApp : nous vous renverrons votre devis.</p><a class="btn btn-wa btn-sm" target="_blank" rel="noopener" href="${waUrl("Bonjour Elite Auto Deal, j'ai un problème avec le lien de mon devis.")}">Écrire sur WhatsApp</a></div>`;return;}
   if(!d.methodes.includes(DVP.methode))DVP.methode=d.methodes[0];
-  const actif=d.statut==="actif",carte=DVP.methode==="carte";
-  const libM={moncash:["MonCash","Payé en gourdes"],natcash:["Natcash","Payé en gourdes"],carte:["Carte bancaire","Payé en dollars"]};
+  const actif=d.statut==="actif",carte=DVP.methode==="carte",virement=DVP.methode==="virement";
+  const libM={moncash:["MonCash","Payé en gourdes"],natcash:["Natcash","Payé en gourdes"],carte:["Carte bancaire","Payé en dollars"],virement:["Virement bancaire","Preuve à déposer"]};
   const total=Number(d.total_usd);
   const lignes=d.lignes.map(l=>`<tr><td>${esc(l.description)}</td><td class="r" data-l="Qté">${esc(String(l.quantite).replace(".",","))}</td><td class="r" data-l="Prix unitaire">${eur(l.prix_unitaire)}</td><td class="r"><b>${eur(l.quantite*l.prix_unitaire)}</b></td></tr>`).join("")+(d.frais_supplementaires>0?`<tr><td>Frais supplémentaires</td><td class="r"></td><td class="r"></td><td class="r"><b>${eur(d.frais_supplementaires)}</b></td></tr>`:"");
   let bas="";
@@ -1783,7 +1792,8 @@ async function rendreDevisPublic(){
   const paiement=actif?`<section class="bloc-form" id="dv-paie"><h3>Payer maintenant</h3>
     ${d.paiement_actif?`<fieldset><legend>Moyen de paiement</legend><div class="choix deux">${d.methodes.map(k=>`<label><input type="radio" name="dv-methode" value="${k}" ${DVP.methode===k?"checked":""}><span>${libM[k][0]}<small>${libM[k][1]}</small></span></label>`).join("")}</div></fieldset>
     <div class="a-payer"><div><span>Montant à payer</span><br><b>${carte?eur(total):Math.round(total*d.taux_htg).toLocaleString("fr-FR").replace(/[  ]/g," ")+" HTG"}</b></div><span>${carte?"Payé en dollars par carte":`${eur(total)} au taux de ${Number(d.taux_htg).toLocaleString("fr-FR")} HTG pour 1 USD`}</span></div>
-    ${carte?`<div class="champ"><label for="dv-email">Email pour le reçu de la carte</label><input id="dv-email" type="email" autocomplete="email" required value="${esc(DVP.email)}"></div>`:""}
+    ${virement?banqueHTML(d.banque,true):""}
+    ${carte||virement?`<div class="champ"><label for="dv-email">${virement?"Email pour la confirmation du virement":"Email pour le reçu de la carte"}</label><input id="dv-email" type="email" autocomplete="email" required value="${esc(DVP.email)}"></div>`:""}
     <label class="case"><input type="checkbox" id="dv-cond" ${DVP.cond?"checked":""}><span>J'ai lu les <a href="/conditions">conditions des services</a> et j'accepte de payer ce devis.</span></label>
     <div class="erreur-paie cache" id="dv-err" role="alert"></div>
     <button class="btn btn-rouge" type="button" id="dv-payer"><svg aria-hidden="true"><use href="#i-cadenas"/></svg>Payer maintenant</button>
@@ -1808,12 +1818,13 @@ async function rendreDevisPublic(){
     const mail=document.getElementById("dv-email"),cond=document.getElementById("dv-cond");
     const montrer=m=>{err.textContent=m;err.classList.remove("cache");};
     if(!cond.checked)return montrer("Cochez la case pour accepter les conditions avant de payer.");
-    if(mail&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail.value.trim()))return montrer("Indiquez une adresse email valide pour le reçu de la carte.");
+    if(mail&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail.value.trim()))return montrer("Indiquez une adresse email valide pour recevoir le reçu ou la confirmation.");
     DVP.cond=true;if(mail)DVP.email=mail.value.trim();
     bp.disabled=true;bp.textContent="Redirection…";
     try{
       const r=await jenvoi("/api/devis/"+encodeURIComponent(j)+"/payer",{methode:DVP.methode,client_email:DVP.email||undefined});
       try{localStorage.setItem("ead-derniere-ref",r.ref);localStorage.setItem("ead-derniere-methode",DVP.methode);}catch(_){}
+      if(r.virement){memoJeton(r.ref,r.jeton);aller("retour");return;}
       location.href=r.checkout_url;
     }catch(e){bp.disabled=false;bp.innerHTML='<svg aria-hidden="true"><use href="#i-cadenas"/></svg>Payer maintenant';montrer(e.message);}
   };
@@ -2053,21 +2064,22 @@ function flux(p){
   }
   function paiementReel(){
     const m=montant(),meths=(CONFIG.methodes&&CONFIG.methodes.length?CONFIG.methodes:["moncash","natcash"]).filter(x=>x==="moncash"||x==="natcash"||x==="carte");
+    if((nom==="achat"||nom==="precommande")&&CONFIG.banque&&CONFIG.banque.compte)meths.push("virement");
     if(!meths.includes(F.methode))F.methode=meths[0];
-    const lib={moncash:["MonCash","Payé en gourdes : "+htg(m)],natcash:["Natcash","Payé en gourdes : "+htg(m)],carte:["Carte bancaire","Payé en dollars : "+usd(m)]};
+    const lib={moncash:["MonCash","Payé en gourdes : "+htg(m)],natcash:["Natcash","Payé en gourdes : "+htg(m)],carte:["Carte bancaire","Payé en dollars : "+usd(m)],virement:["Virement bancaire","En gourdes : "+htg(m)+" · preuve à déposer"]};
     const r=()=>{
-      const carte=F.methode==="carte";
+      const carte=F.methode==="carte",vir=F.methode==="virement";
       zone.innerHTML=`<div class="bloc-form">
-        <h3>Paiement sécurisé</h3>
+        <h3>${vir?"Paiement par virement":"Paiement sécurisé"}</h3>
         <fieldset><legend>Moyen de paiement</legend><div class="choix deux">${meths.map(k=>`<label><input type="radio" name="methode-${nom}" value="${k}" ${F.methode===k?"checked":""}><span>${lib[k][0]}<small>${lib[k][1]}</small></span></label>`).join("")}</div></fieldset>
         <div class="a-payer"><div><span>Montant à payer</span><br><b>${carte?usd(m):htg(m)}</b></div><span>${carte?"Payé en dollars par carte":`${usd(m)} au taux affiché de ${TAUX_HTG.toLocaleString("fr-FR")} HTG pour 1 USD`}</span></div>
-        ${carte?`<div class="champ"><label for="email-${nom}">Email pour le reçu de la carte</label><input id="email-${nom}" type="email" autocomplete="email" required value="${esc(F.email||(CPT.client&&CPT.client.email)||"")}"></div>`:""}
+        ${carte||vir?`<div class="champ"><label for="email-${nom}">${vir?"Email pour la confirmation du virement":"Email pour le reçu de la carte"}</label><input id="email-${nom}" type="email" autocomplete="email" required value="${esc(F.email||(CPT.client&&CPT.client.email)||"")}"></div>`:""}
         <label class="case"><input type="checkbox" id="cond-${nom}" ${F.cond?"checked":""}><span>${esc(S.cond)} <a href="/conditions">Conditions</a></span></label>
-        <p class="muted" style="font-size:13.5px">Vous serez redirigé vers la page de paiement sécurisée Freda Pay Issuing. Votre dossier est validé seulement quand Freda Pay Issuing confirme le paiement.</p>
-        ${nom==="achat"||nom==="precommande"?banqueHTML():""}
+        ${vir?`<p class="muted" style="font-size:13.5px">Effectuez le virement ou le dépôt, puis déposez votre preuve de paiement à l'étape suivante. Notre équipe vérifie la réception et vous envoie un email de confirmation.</p>${banqueHTML(undefined,true)}`:`<p class="muted" style="font-size:13.5px">Vous serez redirigé vers la page de paiement sécurisée Freda Pay Issuing. Votre dossier est validé seulement quand Freda Pay Issuing confirme le paiement.</p>
+        ${nom==="achat"||nom==="precommande"?banqueHTML():""}`}
         <div class="erreur-paie cache" id="err-${nom}" role="alert"></div>
       </div>
-      <div class="form-actions"><button class="lien" type="button" data-r="retour">Retour au récapitulatif</button><button class="btn btn-rouge" type="button" data-r="go"><svg aria-hidden="true"><use href="#i-cadenas"/></svg>Payer ${carte?usd(m):htg(m)}</button></div>`;
+      <div class="form-actions"><button class="lien" type="button" data-r="retour">Retour au récapitulatif</button><button class="btn btn-rouge" type="button" data-r="go"><svg aria-hidden="true"><use href="#i-cadenas"/></svg>${vir?"J'ai compris, continuer":"Payer "+(carte?usd(m):htg(m))}</button></div>`;
       zone.querySelectorAll(`input[name="methode-${nom}"]`).forEach(x=>x.onchange=()=>{F.methode=x.value;const e=zone.querySelector(`#email-${nom}`);if(e)F.email=e.value;F.cond=document.getElementById("cond-"+nom).checked;r();zone.querySelector(`input[value="${F.methode}"]`).focus();});
       zone.querySelector("[data-r=retour]").onclick=recap;
       zone.querySelector("[data-r=go]").onclick=payerReel;
@@ -2079,7 +2091,7 @@ function flux(p){
     if(F.paie)return;
     const errEl=document.getElementById("err-"+nom);errEl.classList.add("cache");
     const c=document.getElementById("cond-"+nom),em=document.getElementById("email-"+nom);
-    if(em&&!em.checkValidity()){erreurPaie("Entrez une adresse email valide pour recevoir le reçu de la carte.");em.focus();return;}
+    if(em&&!em.checkValidity()){erreurPaie("Entrez une adresse email valide pour recevoir le reçu ou la confirmation.");em.focus();return;}
     if(!c.checked){erreurPaie("Cochez les conditions pour continuer.");c.focus();return;}
     const fd=new FormData(),v=vehicule();
     fd.append("service",nom);
@@ -2112,6 +2124,7 @@ function flux(p){
       let d=null;try{d=JSON.parse(xhr.responseText);}catch(_){}
       if(xhr.status>=200&&xhr.status<300&&d&&d.ref){
         try{localStorage.setItem("ead-derniere-ref",d.ref);localStorage.setItem("ead-derniere-methode",d.methode||F.methode);}catch(_){}
+        if(d.virement){memoJeton(d.ref,d.jeton);aller("retour");return;}
         if(d.checkout_url){const t=document.getElementById("etat-"+nom);if(t)t.textContent="Redirection vers la page de paiement sécurisée Freda Pay Issuing…";location.href=d.checkout_url;}
         else{aller("retour");}
         return;
@@ -2207,6 +2220,8 @@ async function suiviReel(ref,out){
 /* Retour de la page de paiement */
 const RT={t:null,debut:0,ref:null,enCours:false};
 function arreterRetour(){clearTimeout(RT.t);RT.t=null;RT.enCours=false;}
+function memoJeton(ref,j){try{localStorage.setItem("ead-derniere-ref",ref);localStorage.setItem("ead-derniere-methode","virement");if(j)localStorage.setItem("ead-jeton-"+ref,j);}catch(_){}}
+function jetonDe(ref){let j=null;try{j=localStorage.getItem("ead-jeton-"+ref);}catch(_){}return j;}
 function refRetour(){let r=null;try{r=localStorage.getItem("ead-derniere-ref");}catch(_){}return r;}
 function afficherRetour(){
   const z=document.getElementById("retour-zone");arreterRetour();
@@ -2227,12 +2242,43 @@ async function sonder(){
   catch(e){if(e.status===404){RT.enCours=false;z.innerHTML=`<div class="carte-suivi"><b>Dossier ${esc(ref)} introuvable.</b><a class="btn btn-noir btn-sm" href="/suivi-dossier">Suivre un autre dossier</a></div>`;return;}}
   if(!RT.enCours)return;
   const st=d&&d.paiement?d.paiement.statut:"pending";
+  if(d&&d.paiement&&d.paiement.methode==="virement"&&st!=="succeeded"){await ecranVirement(d);RT.t=setTimeout(sonder,8000);return;}
   if(st==="succeeded"){RT.enCours=false;ecranSucces(d);return;}
   if(st==="failed"){RT.enCours=false;ecranEchec(d);return;}
   if(Date.now()-RT.debut>600000){RT.enCours=false;ecranEchec(d,true);return;}
   z.innerHTML=`<div class="bloc-form"><div class="verif" role="status"><span class="spin"></span>Paiement en attente de confirmation…</div>
     <p class="muted">Dossier <b>${esc(ref)}</b>${d&&d.paiement&&d.paiement.montant!=null?", "+montantDevise(d.paiement.montant,d.paiement.devise):""}. Si vous payez par MonCash ou Natcash, validez la transaction sur votre téléphone. Cette page se met à jour toute seule.</p></div>`;
   RT.t=setTimeout(sonder,4000);
+}
+/* Virement bancaire : dépôt de la preuve de paiement, puis vérification par l'administrateur */
+async function ecranVirement(d){
+  const z=document.getElementById("retour-zone"),ref=d.ref,j=jetonDe(ref),p=d.paiement||{};
+  const refus=p.statut==="failed",n=d.preuves||0;
+  const cle=`${p.statut}|${n}`;
+  const ex=z.querySelector("[data-virement]");
+  if(ex){if(ex.dataset.virement===cle)return;
+    if(ex.querySelector("input[type=file]")&&ex.querySelector("input[type=file]").files.length&&ex.dataset.virement.split("|")[0]===cle.split("|")[0]){return;}}
+  let info=null;
+  if(j){try{info=await api("/api/dossiers/"+encodeURIComponent(ref)+"/virement?jeton="+encodeURIComponent(j));}catch(_){}}
+  const b=(info&&info.banque)||CONFIG.banque;
+  z.innerHTML=`<div class="bloc-form" data-virement="${esc(cle)}">
+    <h3 tabindex="-1">${refus?"Virement non validé":n?"Preuve reçue, vérification en cours":"Déposez votre preuve de paiement"}</h3>
+    ${refus?`<div class="erreur-paie" role="alert">${esc(p.motif_refus||"Votre virement n'a pas pu être vérifié.")} Envoyez une nouvelle preuve ci-dessous.</div>`:""}
+    <p class="muted">Dossier <b>${esc(ref)}</b> · montant à virer : <b>${montantDevise(p.montant,p.devise)}</b>. ${n&&!refus?"Notre équipe vérifie la réception du virement et vous envoie un email de confirmation. Cette page se met à jour toute seule.":"Après votre virement ou dépôt, ajoutez la photo ou le PDF du reçu. Notre équipe le vérifie, puis vous recevez un email de confirmation."}</p>
+    ${banqueHTML(b,!n||refus)}
+    ${j?`<div class="champ"><label for="preuve-fichier">${n&&!refus?"Ajouter un autre fichier (facultatif)":"Preuve de paiement (photo ou PDF, 10 Mo max)"}</label><input id="preuve-fichier" type="file" accept="image/*,application/pdf" multiple></div>
+    <div class="erreur-paie cache" id="err-preuve" role="alert"></div>
+    <div class="form-actions"><a class="lien" href="/suivi-dossier">Suivre mon dossier</a><button class="btn btn-rouge" type="button" data-r="preuve"><svg aria-hidden="true"><use href="#i-upload"/></svg>Envoyer la preuve</button></div>`
+    :`<p class="muted">Pour déposer votre preuve depuis cet appareil, utilisez le navigateur où vous avez créé le dossier, ou envoyez-la sur WhatsApp avec la référence <b>${esc(ref)}</b>.</p>`}</div>`;
+  const bt=z.querySelector("[data-r=preuve]");
+  if(bt)bt.onclick=async()=>{
+    const f=document.getElementById("preuve-fichier").files,err=document.getElementById("err-preuve");err.classList.add("cache");
+    if(!f.length){err.textContent="Choisissez la photo ou le PDF de votre reçu.";err.classList.remove("cache");return;}
+    const fd=new FormData();fd.append("jeton",j);[...f].slice(0,3).forEach(x=>fd.append("fichiers",x,x.name));
+    bt.disabled=true;bt.textContent="Envoi…";
+    try{await api("/api/dossiers/"+encodeURIComponent(ref)+"/preuve",{method:"POST",body:fd});toast("Preuve envoyée. Nous la vérifions.");sonder();}
+    catch(e){bt.disabled=false;bt.textContent="Envoyer la preuve";err.textContent=e.message;err.classList.remove("cache");}
+  };
 }
 function ecranSucces(d){
   const z=document.getElementById("retour-zone"),S=SERV[d.service]||{suite:[]},p=d.paiement||{};
@@ -2565,7 +2611,7 @@ async function rendreCompte(rafraichir){
 }
 
 /* Détail d'un dossier */
-const LIB_METH={mobile:"MonCash ou Natcash",moncash:"MonCash",natcash:"Natcash",carte:"Carte bancaire"};
+const LIB_METH={mobile:"MonCash ou Natcash",moncash:"MonCash",natcash:"Natcash",carte:"Carte bancaire",virement:"Virement bancaire"};
 function libStatutPaie(s){return s==="succeeded"?"Payé":s==="failed"?"Non abouti":"En attente";}
 function detailHTML(d){
   const p=d.paiement||{},paye=p.statut==="succeeded",S=SERV[d.service]||{};

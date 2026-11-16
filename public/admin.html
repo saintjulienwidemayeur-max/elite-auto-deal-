@@ -672,6 +672,7 @@ const ROUTES=[
  {id:'apercu',l:'Aperçu',i:'home'},
  {id:'dossiers',l:'Dossiers',i:'folder',c:()=>S.dossiers.filter(d=>['paye','validation'].includes(d.st)).length},
  {id:'paiements',l:'Paiements',i:'card',c:()=>S.payments.filter(p=>p.st==='echoue').length},
+ {id:'virements',l:'Virements',i:'bank',c:()=>((typeof VR!=='undefined'&&VR.list)||[]).filter(x=>x.statut==='pending'&&x.preuves.length).length},
  {id:'vehicules',l:'Véhicules',i:'car'},
  {id:'vitrine',l:'Vitrine du site',i:'img'},
  {id:'financement',l:'Financement',i:'bank'},
@@ -1102,8 +1103,8 @@ function mapDossier(x){
 function mapPaiement(x){
   const svc=SVC_API[x.service]||x.service;
   const lab=(SVC_LABEL[svc]||x.service)+(x.type==='solde'?' (solde 10 %)':svc==='precommande'?' (90 %)':'');
-  const meth=x.methode==='carte'?'Carte bancaire':x.methode==='moncash'?'MonCash':x.methode==='natcash'?'Natcash':x.methode==='mobile'?'MonCash / Natcash':(x.methode||'');
-  return {ref:x.id,svc:lab,cl:x.client_nom||'',amt:+x.montant||0,cur:x.devise||'USD',usd:x.montant_usd,prov:(x.prestataire||'Freda Pay Issuing')+(meth?' · '+meth:''),st:PAY_IN[x.statut]||'attente',d:fdate(x.cree_le,true),dos:x.ref,freda:x.freda_id,conf:x.confirme_le,_api:x};
+  const meth=x.methode==='carte'?'Carte bancaire':x.methode==='moncash'?'MonCash':x.methode==='natcash'?'Natcash':x.methode==='mobile'?'MonCash / Natcash':x.methode==='virement'?'Virement bancaire':(x.methode||'');
+  return {ref:x.id,svc:lab,cl:x.client_nom||'',amt:+x.montant||0,cur:x.devise||'USD',usd:x.montant_usd,prov:(x.methode==='virement'?'Banque':(x.prestataire||'Freda Pay Issuing'))+(meth?' · '+meth:''),st:PAY_IN[x.statut]||'attente',d:fdate(x.cree_le,true),dos:x.ref,freda:x.freda_id,conf:x.confirme_le,_api:x};
 }
 function splitModel(m,y){m=String(m||'');const t=String(y||'');return t&&m.endsWith(' '+t)?m.slice(0,-t.length-1):m}
 function mapVehicule(x){
@@ -1462,6 +1463,38 @@ document.addEventListener('click',e=>{
   if(k==='del'){const d=DV.list.find(x=>String(x.id)===b.dataset.id);return confirmBox('Supprimer ce devis ?',`Le devis ${esc(d.numero)} de ${esc(d.client_nom)} sera supprimé définitivement. Un lien WhatsApp déjà partagé ne fonctionnera plus.`,'Supprimer',async()=>{try{await api('/api/admin/devis/'+d.id,{method:'DELETE'});if(DV.id===d.id){DV.id=null}toast('Devis supprimé');await dvRafraichir()}catch(err){fail(err)}},true)}
   if(['pdf','mail','wa','copy','pay'].includes(k))return dvAction(k);
   if(['lpdf','lmail','lwa','lcopy'].includes(k))return dvAction(k,+b.dataset.id);
+});
+/* ================= Virements bancaires ================= */
+const VR={list:[]};
+LOADERS.virements=()=>api('/api/admin/virements').then(r=>{VR.list=r||[]});
+NEEDS.virements=['virements'];NEEDS.apercu=[...NEEDS.apercu,'virements'];
+V.virements=()=>`<div class="head"><div><h1>Virements bancaires</h1><p>Vérifiez les preuves de paiement des clients, puis confirmez ou refusez le virement.</p></div></div>
+ <section class="card"><div class="card-b"><div class="empty"><b>Disponible une fois connecté au serveur</b>Cette page fonctionne avec les vrais dossiers.</div></div></section>`;
+const VR_ST={pending:['En attente','b-warn'],succeeded:['Confirmé','b-ok'],failed:['Refusé','b-bad']};
+const vrCarte=x=>{const st=VR_ST[x.statut]||VR_ST.pending;
+ return `<article class="card" style="margin-bottom:14px"><div class="card-b">
+  <div style="display:flex;flex-wrap:wrap;gap:8px 16px;justify-content:space-between;align-items:flex-start">
+   <div><b>${esc(x.client_nom||'Client')}</b><div class="small muted">${esc(x.ref)} · ${esc(x.detail||'')}</div>
+    <div class="small muted">${x.client_tel?esc(x.client_tel):''}${x.client_email?' · '+esc(x.client_email):''}</div></div>
+   <div style="text-align:right"><div class="num" style="font-size:20px;font-weight:700">${fmt(x.montant,'HTG')}</div><div class="small muted">≈ ${fmt(x.montant_usd)} · ${fdate(x.cree_le,true)}</div><span class="badge ${st[1]}">${st[0]}</span></div></div>
+  <div style="margin-top:12px"><div class="small muted" style="margin-bottom:6px">Preuve de paiement (${x.preuves.length})</div>
+   ${x.preuves.length?`<div class="files">${x.preuves.map(f=>`<button class="file" type="button" data-vr="file" data-id="${f.id}">${ic('file')}<span><b>${esc(f.nom)}</b></span></button>`).join('')}</div>`:`<div class="small muted">Aucune preuve déposée pour le moment.</div>`}</div>
+  ${x.statut==='failed'&&x.motif_refus?`<p class="small" style="margin:10px 0 0;color:#9E0B22"><b>Motif du refus :</b> ${esc(x.motif_refus)}</p>`:''}
+  ${x.statut!=='succeeded'?`<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px"><button class="btn btn-p" type="button" data-vr="ok" data-id="${x.id}">${ic('check')}Confirmer la réception</button><button class="btn btn-t" type="button" data-vr="no" data-id="${x.id}">Refuser</button></div>`:`<p class="small muted" style="margin:10px 0 0">Confirmé le ${fdate(x.confirme_le,true)}. Le client a reçu un email de confirmation.</p>`}
+ </div></article>`};
+VL.virements=()=>{const att=VR.list.filter(x=>x.statut==='pending'),aut=VR.list.filter(x=>x.statut!=='pending');
+ return `<div class="head"><div><h1>Virements bancaires</h1><p>Vérifiez les preuves de paiement des clients, puis confirmez ou refusez le virement. Le client reçoit un email à la confirmation.</p></div></div>
+ <h2 style="font-size:16px;margin:0 0 10px">À vérifier (${att.length})</h2>
+ ${att.length?att.map(vrCarte).join(''):`<div class="empty" style="margin-bottom:18px"><b>Aucun virement en attente</b>Les virements apparaissent ici dès qu'un client choisit ce moyen de paiement.</div>`}
+ ${aut.length?`<h2 style="font-size:16px;margin:22px 0 10px">Historique</h2>${aut.map(vrCarte).join('')}`:''}`};
+document.addEventListener('click',e=>{
+ const b=e.target.closest('[data-vr]');if(!b||!$('#view').contains(b))return;
+ const k=b.dataset.vr,x=VR.list.find(v=>String(v.id)===b.dataset.id);
+ const rafr=async()=>{LV.loaded.virements=0;LV.loaded.paiements=0;LV.loaded.dossiers=0;LV.loaded.resume=0;liveRender(true)};
+ if(k==='file')return openFile(b.dataset.id,b);
+ if(!x)return;
+ if(k==='ok')return confirmBox('Confirmer ce virement ?',`Vérifiez que ${esc(fmt(x.montant,'HTG'))} sont bien arrivés sur le compte. Le dossier ${esc(x.ref)} passera en « payé » et ${esc(x.client_nom||'le client')} recevra un email de confirmation.`,'Confirmer',async()=>{try{const r=await api(`/api/admin/virements/${x.id}/confirmer`,{method:'POST'});toast(r.email?'Virement confirmé. Email envoyé au client.':'Virement confirmé (aucun email envoyé : adresse ou service email manquant).');rafr()}catch(er){fail(er)}});
+ if(k==='no')return confirmBox('Refuser ce virement ?',`Indiquez le motif : il sera envoyé au client avec la possibilité de déposer une nouvelle preuve.<div class="field" style="margin-top:12px"><input id="vr-motif" maxlength="300" placeholder="Ex. : montant incomplet, reçu illisible" style="width:100%"></div>`,'Refuser',async()=>{try{const m=($('#vr-motif')||{}).value||'';await api(`/api/admin/virements/${x.id}/refuser`,{method:'POST',body:{motif:m}});toast('Virement refusé. Le client est prévenu.');rafr()}catch(er){fail(er)}},true);
 });
 /* ================= Code d'accès administrateur ================= */
 const _vParams=V['parametres-site'];

@@ -92,3 +92,13 @@ Rouge principal `#C8102E` (boutons, liens, actions), rouge foncé `#9E0B22` (sur
 
 ## Compte bancaire (virement ou dépôt)
 Les coordonnées (banque, titulaire, numéro de compte, succursale, devise) sont modifiables dans l'administration (Paramètres du site → Compte bancaire) et stockées dans `parametres` (clé `banque`). Elles s'affichent au paiement d'un véhicule (achat comptant ou précommande) et sur la page d'un devis (`/api/config` et `/api/devis/:jeton` les renvoient). Ce paiement n'est pas confirmé automatiquement : le client envoie la preuve sur WhatsApp et l'équipe vérifie avec la banque.
+
+## Virement bancaire (preuve de paiement)
+
+Pour un achat, une précommande ou un devis, le client peut choisir « Virement bancaire » (disponible dès que le compte bancaire est renseigné dans Paramètres du site). Aucun appel à Freda : un paiement `virement` en gourdes reste `pending`.
+
+1. Le client reçoit les coordonnées bancaires et un écran pour déposer sa preuve (photo ou PDF, 10 Mo max, 6 fichiers max). L'accès au dépôt est protégé par un jeton propre au dossier (mémorisé dans le navigateur du client).
+2. Admin → **Virements** : preuves consultables, boutons « Confirmer la réception » ou « Refuser » (avec motif).
+3. À la confirmation, le dossier passe en « payé » (véhicule vendu, devis payé) et le client reçoit l'email « Paiement confirmé ». Au refus, il reçoit un email avec le motif et peut déposer une nouvelle preuve.
+
+API : `POST /api/dossiers/:ref/preuve` (jeton), `GET /api/dossiers/:ref/virement?jeton=`, `GET /api/admin/virements`, `POST /api/admin/virements/:id/confirmer|refuser`. Test : `node test/virement.js`.

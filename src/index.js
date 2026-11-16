@@ -12,7 +12,7 @@ import { SERVICES, COLS_VEHICULE } from "./catalogue.js";
 import { creerPaiement, lirePaiement, signatureValide, modeFreda, fredaConfiguree, ErreurFreda } from "./freda.js";
 import { enregistrer, servir, servirPublic, servirPublicRange, supprimer } from "./stockage.js";
 import { photo45 } from "./medias.js";
-import { envoyerEmail, emailConfigure, emailBienvenue, emailCode, emailDevis } from "./email.js";
+import { envoyerEmail, emailConfigure, emailBienvenue, emailCode, emailDevis, emailPaiementConfirme, emailVirementRefuse } from "./email.js";
 import { validerDevis, genererPdf, montant as montantDevis } from "./devis.js";
 import { pageHtml, sitemapXml, CHEMINS, remplacerTarifs } from "./seo.js";
 
@@ -102,7 +102,7 @@ async function appliquerStatut(p, statut, data = {}, source = "verification") {
         await c.query("update dossiers set statut_solde='paye', etape=greatest(etape,$2), etat='en_cours', maj_le=now() where ref=$1", [p.ref, MAX_ETAPE(d.service) - 1]);
       }
       await c.query("insert into journal(ref, texte, type) values ($1,$2,'paiement')",
-        [p.ref, `Paiement ${p.type === "solde" ? "du solde " : ""}confirmé par Freda Pay Issuing (${source}) : ${p.montant} ${p.devise}`]);
+        [p.ref, `Paiement ${p.type === "solde" ? "du solde " : ""}confirmé ${p.methode === "virement" ? "par l'administrateur (virement bancaire)" : `par Freda Pay Issuing (${source})`} : ${p.montant} ${p.devise}`]);
     } else {
       await c.query("insert into journal(ref, texte, type) values ($1,$2,'alerte')", [p.ref, `Paiement échoué${data.failure_reason ? " : " + data.failure_reason : ""}`]);
     }
@@ -122,10 +122,10 @@ async function rafraichir(ref) {
 }
 
 /* ---------- Paiement ---------- */
-const LIB_METHODE = { moncash: "MonCash", natcash: "Natcash", mobile: "MonCash ou Natcash", carte: "Carte bancaire" };
+const LIB_METHODE = { moncash: "MonCash", natcash: "Natcash", mobile: "MonCash ou Natcash", carte: "Carte bancaire", virement: "Virement bancaire" };
 // Le client choisit explicitement MonCash, Natcash ou la carte : c'est cette valeur exacte qui est envoyée à Freda Pay Issuing.
-function lireMethode(v) {
-  if (v === "moncash" || v === "natcash" || v === "carte") return v;
+function lireMethode(v, virement = false) {
+  if (v === "moncash" || v === "natcash" || v === "carte" || (virement && v === "virement")) return v;
   throw err(400, "METHODE", "Choisissez MonCash, Natcash ou la carte bancaire.");
 }
 async function lancerPaiement({ dossier, type, methode, montantUsd, email }) {
@@ -154,6 +154,32 @@ async function lancerPaiement({ dossier, type, methode, montantUsd, email }) {
     [dossier.ref, type, tentative, freda_reference, f.id, methode, montant, devise, montantUsd, taux.taux_htg, "pending", f.checkout_url]);
   await journaliser(dossier.ref, `Lien de paiement ${type === "solde" ? "du solde " : ""}créé : ${montant} ${devise}`);
   return { checkout_url: f.checkout_url, paiement_id: f.id, montant, devise };
+}
+
+/** Virement bancaire : aucun appel à Freda. Le paiement reste « pending » jusqu'à la confirmation de l'administrateur. */
+const EMAIL_OK = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+async function creerVirement({ dossier, montantUsd, email }) {
+  if (!EMAIL_OK.test(email || dossier.client_email || "")) throw err(400, "EMAIL", "Une adresse email est nécessaire pour le virement (confirmation de réception).");
+  if (!dossier.client_email && email) await q("update dossiers set client_email=$2 where ref=$1", [dossier.ref, email]);
+  const { taux, banque } = await parametres();
+  const tentative = ((await un("select count(*)::int n from paiements where ref=$1 and type='initial'", [dossier.ref])).n) + 1;
+  const montant = Math.round(montantUsd * taux.taux_htg);
+  await q(`insert into paiements(ref, type, tentative, freda_reference, methode, montant, devise, montant_usd, taux_htg, statut)
+           values ($1,'initial',$2,$3,'virement',$4,'HTG',$5,$6,'pending')`,
+    [dossier.ref, tentative, `${dossier.ref}-V${tentative}`, montant, montantUsd, taux.taux_htg]);
+  const jeton = dossier.preuve_jeton || crypto.randomBytes(18).toString("hex");
+  await q("update dossiers set preuve_jeton=$2 where ref=$1", [dossier.ref, jeton]);
+  await journaliser(dossier.ref, `Virement bancaire choisi : ${montant} HTG à recevoir. En attente de la preuve de paiement.`);
+  return { virement: true, jeton, montant, devise: "HTG", banque };
+}
+async function virementInfo(p) { const { banque } = await parametres(); return { montant: p.montant, devise: p.devise, banque }; }
+async function dossierAvecJeton(req) {
+  const ref = String(req.params.ref).toUpperCase();
+  const d = await un("select * from dossiers where ref=$1", [ref]);
+  const j = String(req.body?.jeton || req.query?.jeton || "");
+  const ok = d?.preuve_jeton && j.length === d.preuve_jeton.length && crypto.timingSafeEqual(Buffer.from(j), Buffer.from(d.preuve_jeton));
+  if (!ok) throw err(403, "ACCES", "Lien de preuve invalide. Utilisez le lien reçu après votre choix de virement.");
+  return d;
 }
 
 /* ---------- Public ---------- */
@@ -209,9 +235,9 @@ app.post("/api/dossiers", limiteur(Number(process.env.LIMITE_DOSSIERS) || 12, 15
     const nom = String(b.client_nom || cli?.nom || "").trim().slice(0, 120), tel = String(b.client_tel || cli?.tel || "").trim().slice(0, 40);
     if (nom.length < 2 || tel.replace(/\D/g, "").length < 8) throw err(400, "CLIENT", "Indiquez votre nom complet et un numéro de téléphone valide.");
     if (b.conditions_acceptees !== "1") throw err(400, "CONDITIONS", "Vous devez accepter les conditions avant de payer.");
-    const methode = lireMethode(b.methode);
+    const methode = lireMethode(b.methode, ["achat", "precommande"].includes(b.service));
     const email = String(b.client_email || cli?.email || "").trim().slice(0, 160);
-    if (methode === "carte" && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) throw err(400, "EMAIL", "Une adresse email est nécessaire pour le paiement par carte (reçu).");
+    if ((methode === "carte" || methode === "virement") && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) throw err(400, "EMAIL", "Une adresse email est nécessaire pour le paiement par carte (reçu).");
     let donnees = {}; try { donnees = JSON.parse(b.donnees || "{}"); } catch { /* ignoré */ }
 
     // Montant calculé uniquement côté serveur
@@ -250,6 +276,10 @@ app.post("/api/dossiers", limiteur(Number(process.env.LIMITE_DOSSIERS) || 12, 15
     }
     if (fichiers.length) await journaliser(ref, `${fichiers.length} fichier(s) reçu(s)`, "media");
 
+    if (methode === "virement") {
+      const v2 = await creerVirement({ dossier, montantUsd, email });
+      return res.status(201).json({ ref, montant_usd: montantUsd, montant: v2.montant, devise: "HTG", methode, virement: true, jeton: v2.jeton, banque: v2.banque });
+    }
     const p = await lancerPaiement({ dossier, type: "initial", methode, montantUsd, email });
     res.status(201).json({ ref, montant_usd: montantUsd, montant: p.montant, devise: p.devise, methode, checkout_url: p.checkout_url, paiement_id: p.paiement_id });
   } finally {
@@ -267,10 +297,46 @@ app.get("/api/dossiers/:ref", limiteur(240, 10 * 60e3), enveloppe(async (req, re
   const S = SERVICES[d.service];
   res.set("Cache-Control", "no-store").json({
     ref, service: d.service, titre: S.titre, detail: d.donnees?.detail || "", cree_le: d.cree_le, etape: d.etape, statuts: S.statuts,
-    paiement: p ? { statut: p.statut, montant: p.montant, devise: p.devise, methode: p.methode, confirme_le: p.confirme_le } : null,
+    paiement: p ? { statut: p.statut, montant: p.montant, devise: p.devise, methode: p.methode, confirme_le: p.confirme_le, motif_refus: p.statut === "failed" ? p.motif_refus : null } : null,
+    preuves: p?.methode === "virement" ? (await un("select count(*)::int n from fichiers where ref=$1 and champ='preuve_virement'", [ref])).n : null,
     solde_usd: d.service === "precommande" && d.statut_solde !== "paye" ? arrondi2(d.prix_vehicule_usd - d.montant_usd) : null,
     prenom: prenomDe(d.client_nom),
   });
+}));
+
+// Virement : le client dépose sa preuve de paiement (image ou PDF, 10 Mo max, 3 fichiers max)
+const uploadPreuve = multer({
+  dest: os.tmpdir(), limits: { fileSize: 10 * 1024 * 1024, files: 3 },
+  fileFilter: (_req, f, cb) => cb(/^(image\/|application\/pdf$)/.test(f.mimetype) ? null : err(400, "FICHIER", `Type de fichier non accepté : ${f.originalname}. Photo ou PDF uniquement.`), true),
+});
+app.post("/api/dossiers/:ref/preuve", limiteur(20, 15 * 60e3), uploadPreuve.array("fichiers", 3), enveloppe(async (req, res) => {
+  const fichiers = req.files || [];
+  try {
+    const d = await dossierAvecJeton(req);
+    const p = await un("select * from paiements where ref=$1 and type='initial' order by id desc limit 1", [d.ref]);
+    if (!p || p.methode !== "virement") throw err(409, "PAS_DE_VIREMENT", "Ce dossier n'a pas de virement en cours.");
+    if (p.statut === "succeeded") throw err(409, "DEJA_PAYE", "Ce paiement est déjà confirmé. Merci !");
+    if (!fichiers.length) throw err(400, "VIDE", "Ajoutez la photo ou le PDF de votre reçu de virement.");
+    const deja = (await un("select count(*)::int n from fichiers where ref=$1 and champ='preuve_virement'", [d.ref])).n;
+    if (deja + fichiers.length > 6) throw err(400, "TROP", "Maximum 6 fichiers de preuve par dossier.");
+    for (const f of fichiers) {
+      const s = await enregistrer(f.path, d.ref, f.originalname, f.mimetype);
+      await q("insert into fichiers(ref, champ, nom, type, taille, stockage, chemin) values ($1,'preuve_virement',$2,$3,$4,$5,$6)",
+        [d.ref, f.originalname, f.mimetype, f.size, s.stockage, s.chemin]);
+    }
+    if (p.statut === "failed") await q("update paiements set statut='pending', echec_raison=null where id=$1", [p.id]);
+    await journaliser(d.ref, `Preuve de virement reçue (${fichiers.length} fichier(s)) : à vérifier par l'administrateur`, "paiement");
+    res.status(201).json({ ok: true, preuves: deja + fichiers.length });
+  } finally {
+    for (const f of fichiers) unlink(f.path).catch(() => {});
+  }
+}));
+app.get("/api/dossiers/:ref/virement", limiteur(60, 10 * 60e3), enveloppe(async (req, res) => {
+  const d = await dossierAvecJeton(req);
+  const p = await un("select * from paiements where ref=$1 and type='initial' and methode='virement' order by id desc limit 1", [d.ref]);
+  if (!p) throw err(404, "INTROUVABLE", "Aucun virement pour ce dossier.");
+  const n = (await un("select count(*)::int n from fichiers where ref=$1 and champ='preuve_virement'", [d.ref])).n;
+  res.set("Cache-Control", "no-store").json({ ref: d.ref, statut: p.statut, motif_refus: p.motif_refus, preuves: n, ...(await virementInfo(p)) });
 }));
 
 app.get("/api/photos/:id", enveloppe(async (req, res) => {
@@ -286,6 +352,7 @@ app.post("/api/dossiers/:ref/relancer", limiteur(10, 15 * 60e3), enveloppe(async
   await rafraichir(ref);
   const p = await un("select * from paiements where ref=$1 and type='initial' order by id desc limit 1", [ref]);
   if (p?.statut === "succeeded") throw err(409, "DEJA_PAYE", "Ce dossier est déjà payé.");
+  if (p?.statut === "pending" && p.methode === "virement") return res.json({ virement: true, en_attente: true });
   if (p?.statut === "pending" && Date.now() - new Date(p.cree_le).getTime() < 10 * 60e3) return res.json({ checkout_url: p.checkout_url });
   const methode = lireMethode(req.body?.methode);
   const r = await lancerPaiement({ dossier: d, type: "initial", methode, montantUsd: d.montant_usd, email: req.body?.client_email });
@@ -692,6 +759,48 @@ app.get("/api/admin/fichiers/:id", enveloppe(async (req, res) => {
   await servir(f, res);
 }));
 
+// Virements bancaires : vérification et confirmation par l'administrateur
+app.get("/api/admin/virements", enveloppe(async (_req, res) => {
+  const l = await tous(`select p.id, p.ref, p.montant, p.devise, p.montant_usd, p.statut, p.motif_refus, p.cree_le, p.confirme_le, d.service, d.client_nom, d.client_tel, d.client_email, d.donnees
+    from paiements p join dossiers d using(ref) where p.methode='virement' order by (p.statut='pending') desc, p.id desc limit 500`);
+  const fs = l.length ? await tous("select id, ref, nom, type, taille from fichiers where champ='preuve_virement' and ref = any($1) order by id", [l.map(x => x.ref)]) : [];
+  res.set("Cache-Control", "no-store").json(l.map(x => ({
+    ...x, detail: x.donnees?.detail || SERVICES[x.service]?.titre || "", donnees: undefined,
+    preuves: fs.filter(f => f.ref === x.ref).map(f => ({ id: f.id, nom: f.nom, type: f.type, taille: f.taille })),
+  })));
+}));
+async function virementAdmin(req) {
+  const p = await un("select * from paiements where id=$1 and methode='virement'", [Number(req.params.id) || 0]);
+  if (!p) throw err(404, "INTROUVABLE", "Virement introuvable.");
+  if (p.statut === "succeeded") throw err(409, "DEJA_CONFIRME", "Ce virement est déjà confirmé.");
+  return { p, d: await un("select * from dossiers where ref=$1", [p.ref]) };
+}
+const montantFmt = p => `${Number(p.montant).toLocaleString("fr-FR")} ${p.devise}`;
+const WA = () => process.env.WHATSAPP_NUMERO || "50942405729";
+app.post("/api/admin/virements/:id/confirmer", enveloppe(async (req, res) => {
+  const { p, d } = await virementAdmin(req);
+  await appliquerStatut(p, "succeeded", {}, "virement");
+  let email = false;
+  if (d.client_email && emailConfigure()) {
+    try {
+      await envoyerEmail({ a: d.client_email, nom: d.client_nom, ...emailPaiementConfirme({ nom: d.client_nom, ref: d.ref, montant: montantFmt(p), detail: d.donnees?.detail || SERVICES[d.service]?.titre || "", lien: `${PUBLIC_URL}/mon-espace`, whatsapp: WA() }) });
+      email = true; await journaliser(d.ref, "Email de confirmation de paiement envoyé au client", "paiement");
+    } catch (e) { await journaliser(d.ref, `Email de confirmation non envoyé : ${e.message}`, "alerte"); }
+  }
+  res.json({ ok: true, email });
+}));
+app.post("/api/admin/virements/:id/refuser", enveloppe(async (req, res) => {
+  const { p, d } = await virementAdmin(req);
+  const motif = String(req.body?.motif || "").trim().slice(0, 300) || "Le virement n'a pas pu être vérifié.";
+  await q("update paiements set statut='failed', echec_raison=$2, motif_refus=$2 where id=$1", [p.id, motif]);
+  await journaliser(d.ref, `Virement refusé : ${motif}`, "alerte", "administrateur");
+  let email = false;
+  if (d.client_email && emailConfigure()) {
+    try { await envoyerEmail({ a: d.client_email, nom: d.client_nom, ...emailVirementRefuse({ nom: d.client_nom, ref: d.ref, motif, lien: `${PUBLIC_URL}/mon-espace`, whatsapp: WA() }) }); email = true; } catch { /* ignoré */ }
+  }
+  res.json({ ok: true, email });
+}));
+
 app.get("/api/admin/paiements", enveloppe(async (_req, res) => {
   res.json((await tous(`select p.*, d.service, d.client_nom from paiements p join dossiers d using(ref) order by p.id desc limit 1000`)).map(p => ({
     id: p.id, ref: p.ref, service: p.service, client_nom: p.client_nom, montant: p.montant, devise: p.devise, montant_usd: p.montant_usd,
@@ -1040,7 +1149,7 @@ const vueDevisPublic = async d => {
   const { taux, banque } = await parametres();
   return { numero: d.numero, client_nom: d.client_nom, client_email: d.client_email || "", client_tel: d.client_tel || "", lignes: d.lignes, frais_supplementaires: Number(d.frais_supplementaires), total_usd: Number(d.total_usd), cree_le: d.cree_le, expire_le: d.expire_le,
     statut: d.statut === "paye" ? "paye" : expire ? "expire" : "actif", ref: d.dossier_ref, paiement: p ? { statut: p.statut, methode: p.methode, confirme_le: p.confirme_le } : null,
-    methodes: CARTE_ACTIVE ? ["moncash", "natcash", "carte"] : ["moncash", "natcash"], banque, taux_htg: taux.taux_htg, paiement_actif: fredaConfiguree(), whatsapp: process.env.WHATSAPP_NUMERO || "50942405729" };
+    methodes: [...(CARTE_ACTIVE ? ["moncash", "natcash", "carte"] : ["moncash", "natcash"]), ...(banque?.compte ? ["virement"] : [])], banque, taux_htg: taux.taux_htg, paiement_actif: fredaConfiguree(), whatsapp: process.env.WHATSAPP_NUMERO || "50942405729" };
 };
 const devisParJeton = async j => { const d = await un(`select ${VUE_DEVIS} from devis where jeton=$1`, [String(j || "")]); if (!d) throw err(404, "INTROUVABLE", "Ce devis n'existe pas ou le lien n'est plus valable."); return d; };
 app.get("/api/devis/:jeton", limiteur(120, 10 * 60e3), enveloppe(async (req, res) => {
@@ -1054,9 +1163,9 @@ app.post("/api/devis/:jeton/payer", limiteur(10, 15 * 60e3), enveloppe(async (re
   d = await devisParJeton(req.params.jeton);
   if (d.statut === "paye") throw err(409, "DEJA_PAYE", "Ce devis est déjà payé. Merci !");
   if (d.expire_le && new Date(d.expire_le).getTime() < Date.now()) throw err(410, "EXPIRE", "Ce devis a expiré. Contactez-nous sur WhatsApp pour obtenir un nouveau devis.");
-  const methode = lireMethode(req.body?.methode);
+  const methode = lireMethode(req.body?.methode, true);
   const email = String(req.body?.client_email || d.client_email || "").trim().slice(0, 160);
-  if (methode === "carte" && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) throw err(400, "EMAIL", "Une adresse email est nécessaire pour le paiement par carte (reçu).");
+  if ((methode === "carte" || methode === "virement") && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) throw err(400, "EMAIL", "Une adresse email est nécessaire pour le paiement par carte (reçu).");
   let ref = d.dossier_ref;
   if (!ref) { // le dossier de paiement est créé au premier paiement ; le montant vient uniquement du devis enregistré sur le serveur
     ref = await nouvelleRef();
@@ -1069,6 +1178,12 @@ app.post("/api/devis/:jeton/payer", limiteur(10, 15 * 60e3), enveloppe(async (re
   }
   const dossier = await un("select * from dossiers where ref=$1", [ref]);
   const p = await un("select * from paiements where ref=$1 and type='initial' order by id desc limit 1", [ref]);
+  if (methode === "virement") {
+    if (p?.statut === "pending" && p.methode === "virement") return res.json({ ref, virement: true, jeton: dossier.preuve_jeton, ...(await virementInfo(p)) });
+    const v2 = await creerVirement({ dossier, montantUsd: Number(d.total_usd), email });
+    return res.json({ ref, virement: true, jeton: v2.jeton, montant: v2.montant, devise: "HTG", banque: v2.banque });
+  }
+  if (p?.statut === "pending" && p.methode === "virement") await q("update paiements set statut='failed', echec_raison='Remplacé par un autre moyen de paiement' where id=$1", [p.id]);
   if (p?.statut === "pending" && p.methode === methode && Date.now() - new Date(p.cree_le).getTime() < 10 * 60e3) return res.json({ ref, checkout_url: p.checkout_url });
   const r = await lancerPaiement({ dossier, type: "initial", methode, montantUsd: Number(d.total_usd), email });
   res.json({ ref, checkout_url: r.checkout_url });
