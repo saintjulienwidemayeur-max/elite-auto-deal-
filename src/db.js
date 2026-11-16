@@ -61,7 +61,7 @@ export async function migrer() {
 export async function parametres() {
   const rows = await tous("select cle, valeur from parametres");
   const p = Object.fromEntries(rows.map(r => [r.cle, r.valeur]));
-  return { ...PARAMETRES_DEFAUT, ...p, tarifs: { ...PARAMETRES_DEFAUT.tarifs, ...(p.tarifs || {}) }, messages: { ...PARAMETRES_DEFAUT.messages, ...(p.messages || {}) } };
+  return { ...PARAMETRES_DEFAUT, ...p, tarifs: { ...PARAMETRES_DEFAUT.tarifs, ...(p.tarifs || {}) }, messages: { ...PARAMETRES_DEFAUT.messages, ...(p.messages || {}) }, banque: { ...PARAMETRES_DEFAUT.banque, ...(p.banque || {}) } };
 }
 
 export const journaliser = (ref, texte, type = "info", par = "système") =>

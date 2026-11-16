@@ -46,7 +46,7 @@ function meta(vue, t) {
   return m[vue] || m.accueil;
 }
 
-const SERVICES_LD = { consultation: "Consultation automobile", recherche: "Recherche ou achat accompagné de véhicule", essai: "Visite ou essai d'un véhicule", vendre: "Vente accompagnée de votre véhicule", financement: "Dossier de financement automobile" };
+const SERVICES_LD = { consultation: "Consultation automobile", recherche: "Confiez-nous l'achat de votre véhicule", essai: "Visite ou essai d'un véhicule", vendre: "Vente accompagnée de votre véhicule", financement: "Dossier de financement automobile" };
 
 function jsonLd(modeleJson, { vue, chemin, titre, description, tarifs, vehicule }) {
   const url = SITE + (chemin === "/" ? "/" : chemin);

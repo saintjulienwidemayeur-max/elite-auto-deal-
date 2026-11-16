@@ -86,3 +86,9 @@ Tous les prix affichés (pages, menu, FAQ, conditions, JSON-LD, `llms.txt`, scri
 
 ## Mises à jour immédiates
 Rien de ce qui vient de l'administration n'est gardé en cache : pages HTML (`max-age=0, must-revalidate`), `/api/*` (`no-cache`), `llms.txt`. Le site ouvert se rafraîchit seul toutes les 30 secondes, au retour sur l'onglet et au focus (véhicules, prix promo, photos, vidéos, vitrine), sans recharger la page. Les tarifs sont servis dans le HTML à chaque chargement.
+
+## Palette de couleurs
+Rouge principal `#C8102E` (boutons, liens, actions), rouge foncé `#9E0B22` (survol), blanc `#FFFFFF`, blanc cassé `#F7F7F8` (sections alternées), noir `#0B0B0C` (titres, en-tête, pied de page), gris texte `#5B5F66` (paragraphes), gris bordure `#E5E7EB`. Proportions visées : ~80 % blanc, ~15 % rouge, ~5 % noir. Variables CSS dans `sources/site.src.html` et `sources/admin.src.html` ; mêmes couleurs dans les emails (`src/email.js`), le PDF des devis (`src/devis.js`) et les icônes (`sources/assets/generate.cjs`, `node sources/assets/generate.cjs`). Règle : pas de texte rouge sur fond noir pour un long paragraphe.
+
+## Compte bancaire (virement ou dépôt)
+Les coordonnées (banque, titulaire, numéro de compte, succursale, devise) sont modifiables dans l'administration (Paramètres du site → Compte bancaire) et stockées dans `parametres` (clé `banque`). Elles s'affichent au paiement d'un véhicule (achat comptant ou précommande) et sur la page d'un devis (`/api/config` et `/api/devis/:jeton` les renvoient). Ce paiement n'est pas confirmé automatiquement : le client envoie la preuve sur WhatsApp et l'équipe vérifie avec la banque.

@@ -32,6 +32,8 @@ export const VITRINE_INITIALE = [
 export const PARAMETRES_DEFAUT = {
   taux: { taux_htg: 132, taux_date: "2026-11-12" },
   tarifs: { consultation: 50, recherche: 30, service_recherche: 150, essai: 30, vendre: 200, financement: 25 },
+  // Compte pour les virements et dépôts (paiement d'un véhicule) : modifiable dans l'administration
+  banque: { nom: "Capital Bank", titulaire: "Delva Karl Inry", compte: "1937270", succursale: "04", devise: "Gourdes (HTG)" },
   messages: {
     accueil: "🚘 ELITE AUTO DEAL vous souhaite la bienvenue !\n\nMerci de votre intérêt et de votre confiance.\n\nAfin de mieux répondre à votre demande, veuillez nous communiquer les informations suivantes :\n\nMarque :\nAnnée :\nModèle :\nBudget :\nMode de paiement : Comptant ou financement ?\nType de demande : Achat, précommande, recherche personnalisée ou réservation d'un essai ?\n\nNotre plateforme vous permet de consulter nos véhicules, de soumettre votre demande et d'effectuer les paiements de nos services en ligne de manière sécurisée.\n\nUne fois votre demande enregistrée et le paiement confirmé, vous recevrez les informations nécessaires pour la suite.\n\nELITE AUTO DEAL, Votre satisfaction, notre priorité ! 🤝",
     confirmation: "Bonjour {prenom}, votre paiement pour « {service} » est confirmé. Référence : {ref}. Suivi : {lien_suivi}",

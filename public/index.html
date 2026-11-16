@@ -9,7 +9,7 @@
 <link rel="alternate" hreflang="fr" href="https://eliteautodeal.com/">
 <link rel="alternate" hreflang="x-default" href="https://eliteautodeal.com/">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
-<meta name="theme-color" content="#0B0B0C">
+<meta name="theme-color" content="#C8102E">
 <meta name="application-name" content="Elite Auto Deal">
 <meta name="apple-mobile-web-app-title" content="Elite Auto Deal">
 <meta name="author" content="Elite Auto Deal">
@@ -150,7 +150,7 @@
       "price": "{{N:recherche}}",
       "itemOffered": {
        "@type": "Service",
-       "name": "Recherche ou achat accompagné",
+       "name": "Confiez-nous l'achat de votre véhicule",
        "description": "Recherche d'un véhicule absent du site ou accompagnement pour l'achat d'un véhicule déjà en Haïti.",
        "provider": {
         "@id": "https://eliteautodeal.com/#business"
@@ -299,8 +299,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{
-  --noir:#0B0B0C;--graphite:#1C1C1F;--gris-700:#4A4A50;--gris-500:#6E6E75;--gris-300:#C9C9CC;--gris-200:#DCDCD9;--gris-100:#EDEDEB;--gris-50:#F6F6F4;--blanc:#FFFFFF;
-  --rouge:#D7191F;--rouge-fonce:#A80F14;--rouge-50:#FDEBEC;
+  /* Palette Elite Auto Deal : rouge #C8102E (boutons, liens, actions), rouge foncé #9E0B22 (survol), blanc, blanc cassé #F7F7F8, noir #0B0B0C (titres, en-tête, pied), gris texte #5B5F66, gris bordure #E5E7EB */
+  --noir:#0B0B0C;--graphite:#1C1C1F;--gris-700:#5B5F66;--gris-500:#5B5F66;--gris-300:#CDD0D6;--gris-200:#E5E7EB;--gris-100:#EDEFF2;--gris-50:#F7F7F8;--blanc:#FFFFFF;
+  --rouge:#C8102E;--rouge-fonce:#9E0B22;--rouge-50:#FCE8EB;
   --succes:#1F8A4C;--succes-50:#E7F4EC;--alerte:#C77700;--alerte-50:#FCF2E1;--whatsapp:#25D366;
   --r-s:10px;--r-m:18px;--r-l:28px;
   --ombre:0 10px 30px rgba(11,11,12,.08);
@@ -309,9 +310,11 @@
 }
 *,*::before,*::after{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
-body{margin:0;font-family:var(--f-texte);font-size:16px;line-height:1.55;color:var(--noir);background:var(--blanc);overflow-x:hidden}
+body{margin:0;font-family:var(--f-texte);font-size:16px;line-height:1.55;color:var(--gris-700);background:var(--blanc);overflow-x:hidden}
 img,svg{max-width:100%}
-h1,h2,h3,h4{font-family:var(--f-titre);line-height:1.05;margin:0;letter-spacing:-.02em}
+h1,h2,h3,h4{font-family:var(--f-titre);line-height:1.05;margin:0;letter-spacing:-.02em;color:var(--noir)}
+input,select,textarea,.nav a,.champ label,legend,th,dd,summary,.montant,.heros-vehicule strong,.vcarte h3,.carte-suivi b{color:var(--noir)}
+.bloc-banque dd,.fiche dd{color:var(--noir)}
 h1{font-weight:800;font-size:clamp(34px,6vw,72px)}
 h2{font-weight:800;font-size:clamp(28px,4vw,48px)}
 h3{font-weight:700;font-size:20px;line-height:1.2}
@@ -340,10 +343,10 @@ button,input,select,textarea{font:inherit;color:inherit}
 .btn-sm{min-height:44px;padding:10px 16px;font-size:14px}
 .btn-bloc{width:100%}
 .btn[disabled]{opacity:.55;cursor:not-allowed}
-.lien{background:none;border:0;padding:0;color:var(--noir);font-weight:600;text-decoration:underline;text-underline-offset:3px;cursor:pointer;min-height:44px}
+.lien{background:none;border:0;padding:0;color:var(--rouge);font-weight:600;text-decoration:underline;text-underline-offset:3px;cursor:pointer;min-height:44px}
 
 /* En-tête */
-.entete{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:saturate(1.4) blur(12px);-webkit-backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid var(--gris-100)}
+.entete{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.94);backdrop-filter:saturate(1.4) blur(12px);-webkit-backdrop-filter:saturate(1.4) blur(12px);border-bottom:3px solid var(--rouge)}
 .entete .wrap{display:flex;align-items:center;gap:20px;height:72px}
 .logo-lien{display:flex;align-items:center;color:var(--noir);flex:none}
 .logo{width:136px;height:42px;display:block}
@@ -446,7 +449,7 @@ section{padding:clamp(56px,8vw,104px) 0}
 .specs li{font-size:12.5px;font-weight:500;color:var(--gris-700);background:var(--gris-50);border:1px solid var(--gris-100);padding:4px 9px;border-radius:999px}
 .vcarte-pied{margin-top:auto;display:flex;flex-direction:column;gap:12px}
 .prix-ligne{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
-.prix{font-family:var(--f-titre);font-weight:800;font-size:24px;letter-spacing:-.02em}
+.prix{font-family:var(--f-titre);font-weight:800;font-size:24px;letter-spacing:-.02em;color:var(--rouge)}
 .prix-note{font-size:12.5px;color:var(--gris-500)}
 .vcarte-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .vcarte-btns .seul{grid-column:1/-1}
@@ -463,14 +466,14 @@ section{padding:clamp(56px,8vw,104px) 0}
 
 /* Services */
 .services-grille{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:14px}
-.service{display:flex;flex-direction:column;gap:14px;padding:24px;border-radius:var(--r-m);border:1px solid var(--gris-200);background:#fff}
+.service{display:flex;flex-direction:column;gap:14px;padding:24px;border-radius:var(--r-m);border:1px solid var(--gris-200);border-top:4px solid var(--rouge);background:#fff}
 .service .tarif{display:flex;align-items:baseline;gap:8px}
-.service .tarif b{font-family:var(--f-titre);font-weight:800;font-size:34px;letter-spacing:-.03em}
+.service .tarif b{font-family:var(--f-titre);font-weight:800;font-size:34px;letter-spacing:-.03em;color:var(--rouge)}
 .service .tarif span{font-size:13px;color:var(--gris-500)}
 .service p{color:var(--gris-700);font-size:15px}
 .service ul{margin:0;padding-left:18px;color:var(--gris-700);font-size:14px}
 .service .btn{margin-top:auto}
-.encadre{margin-top:18px;display:flex;gap:14px;align-items:flex-start;padding:16px 18px;border-radius:var(--r-m);background:var(--gris-50);border:1px solid var(--gris-100);font-size:14.5px;color:var(--gris-700)}
+.encadre{margin-top:18px;display:flex;gap:14px;align-items:flex-start;padding:16px 18px;border-radius:var(--r-m);background:var(--gris-50);border:1px solid var(--gris-200);border-left:4px solid var(--rouge);font-size:14.5px;color:var(--gris-700)}
 .encadre svg{flex:none;width:22px;height:22px;margin-top:1px}
 .encadre b{color:var(--noir)}
 .encadre.rouge{background:var(--rouge-50);border-color:#F6C9CB}
@@ -507,14 +510,15 @@ section{padding:clamp(56px,8vw,104px) 0}
 .cta-noir .filigrane{position:absolute;right:-4%;bottom:-18%;width:min(70%,620px);color:#fff;opacity:.07;pointer-events:none}
 
 /* Pied */
-.pied{background:var(--gris-50);border-top:1px solid var(--gris-100);padding:clamp(40px,6vw,72px) 0 24px;margin-top:clamp(40px,6vw,80px)}
+.pied{background:var(--noir);color:#C9CBD1;border-top:4px solid var(--rouge);padding:clamp(40px,6vw,72px) 0 24px;margin-top:clamp(40px,6vw,80px)}
 .pied-grille{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:28px}
-.pied h4{font-size:15px;margin-bottom:12px}
+.pied h4{font-size:15px;margin-bottom:12px;color:#fff}
 .pied ul{list-style:none;margin:0;padding:0;display:grid;gap:4px}
-.pied a{text-decoration:none;color:var(--gris-700);display:inline-flex;min-height:36px;align-items:center}
-.pied a:hover{color:var(--noir);text-decoration:underline}
-.pied .logo{width:170px;height:52px;margin-bottom:12px}
-.pied-bas{margin-top:36px;padding-top:18px;border-top:1px solid var(--gris-200);display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-between;font-size:13px;color:var(--gris-500)}
+.pied a{text-decoration:none;color:#E5E7EB;display:inline-flex;min-height:36px;align-items:center}
+.pied a:hover{color:#fff;text-decoration:underline;text-decoration-color:var(--rouge);text-underline-offset:4px}
+.pied .logo{width:170px;height:52px;margin-bottom:12px;color:#fff}
+.pied .muted{color:#C9CBD1}
+.pied-bas{margin-top:36px;padding-top:18px;border-top:1px solid rgba(255,255,255,.16);display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-between;font-size:13px;color:#C9CBD1}
 
 /* Pages internes */
 .page-tete{padding:clamp(28px,5vw,56px) 0 clamp(20px,3vw,32px)}
@@ -524,7 +528,7 @@ section{padding:clamp(56px,8vw,104px) 0}
 .page-tete h1{font-size:clamp(30px,4.6vw,56px);max-width:20ch}
 .page-tete .lead{margin-top:12px}
 .etiquette-prix{display:inline-flex;flex-direction:column;gap:2px;padding:14px 18px;border-radius:var(--r-m);background:var(--gris-50);border:1px solid var(--gris-100)}
-.etiquette-prix b{font-family:var(--f-titre);font-weight:800;font-size:30px;line-height:1}
+.etiquette-prix b{font-family:var(--f-titre);font-weight:800;font-size:30px;line-height:1;color:var(--rouge)}
 .etiquette-prix span{font-size:13px;color:var(--gris-500)}
 
 /* Inventaire */
@@ -598,7 +602,7 @@ legend{font-weight:600;font-size:14px;margin-bottom:8px;padding:0}
 .a-payer b{font-family:var(--f-titre);font-weight:800;font-size:clamp(28px,4vw,38px);letter-spacing:-.02em}
 .a-payer span{color:#C4C4C8;font-size:13.5px}
 .progres{height:8px;border-radius:99px;background:var(--gris-100);overflow:hidden}.progres span{display:block;height:100%;width:0;background:var(--rouge);transition:width .2s}
-.erreur-paie{padding:12px 14px;border-radius:var(--r-s);background:var(--rouge-50,#FDEBEC);color:#8A0F13;font-size:14px;font-weight:500}
+.erreur-paie{padding:12px 14px;border-radius:var(--r-s);background:var(--rouge-50,#FDEBEC);color:#9E0B22;font-size:14px;font-weight:500}
 html.mode-reel [data-seulement-demo]{display:none!important}
 [tabindex="-1"]:focus{outline:none}
 .verif{display:flex;gap:12px;align-items:center;padding:16px;border-radius:var(--r-s);background:var(--gris-50);font-weight:600}
@@ -835,6 +839,13 @@ input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:
 .gal-it .gal-play{position:absolute;inset:0;display:grid;place-items:center;background:#0B0B0C;color:#fff;font-size:20px}
 .fin-dispo{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--succes);background:var(--succes-50,#E7F4EC);border-radius:999px;padding:4px 10px;margin-top:6px;text-decoration:none}
 .fin-dispo::before{content:"✓";font-weight:800}
+.sec-tete h2::before{content:"";display:block;width:48px;height:4px;border-radius:2px;background:var(--rouge);margin-bottom:14px}
+.page-tete h1::before{content:"";display:block;width:56px;height:5px;border-radius:3px;background:var(--rouge);margin-bottom:16px}
+.bloc-banque{margin-top:6px;border:1px solid var(--gris-200);border-left:4px solid var(--rouge);border-radius:var(--r-m);background:var(--gris-50);padding:2px 16px}
+.bloc-banque summary{cursor:pointer;font-weight:700;color:var(--noir);padding:14px 0;min-height:48px;display:flex;align-items:center}
+.bloc-banque dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px 18px;margin:0 0 10px}
+.bloc-banque dt{font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--gris-500)}.bloc-banque dd{margin:2px 0 0;font-weight:600;color:var(--noir)}
+.bloc-banque p{font-size:13.5px;margin:0 0 14px}
 </style>
 </head>
 <body>
@@ -959,25 +970,31 @@ input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:
           <h3>Consultation automobile</h3>
           <div class="tarif"><b>{{T:consultation}}</b><span>frais de service</span></div>
           <p>Un échange personnalisé pour choisir le bon véhicule, définir votre budget et vos critères.</p>
-          <a class="btn btn-noir" href="/consultation">Réserver une consultation</a>
+          <a class="btn btn-rouge" href="/consultation">Réserver une consultation</a>
         </article>
         <article class="service">
-          <h3>Recherche ou achat accompagné</h3>
+          <h3>Confiez-nous l'achat de votre véhicule</h3>
           <div class="tarif"><b>{{T:recherche}}</b><span>frais de dossier</span></div>
           <p>Nous trouvons un véhicule absent du site, ou nous vous accompagnons pour l'achat d'un véhicule déjà en Haïti. Frais de service de <b data-tarif="service_recherche">{{T:service_recherche}}</b>, dus seulement lorsque le véhicule est trouvé.</p>
-          <a class="btn btn-noir" href="/recherche-vehicule">Confier ma recherche</a>
+          <a class="btn btn-rouge" href="/recherche-vehicule">Confier ma recherche</a>
         </article>
         <article class="service">
           <h3>Visite ou essai</h3>
           <div class="tarif"><b>{{T:essai}}</b><span>frais de service</span></div>
           <p>Visite, essai routier ou inspection d'un véhicule disponible en Haïti, avec confirmation selon sa disponibilité réelle.</p>
-          <a class="btn btn-noir" href="/essai-visite">Réserver mon essai</a>
+          <a class="btn btn-rouge" href="/essai-visite">Réserver mon essai</a>
         </article>
         <article class="service">
           <h3>Vente de votre véhicule</h3>
           <div class="tarif"><b>{{T:vendre}}</b><span>non remboursable</span></div>
           <p>Confiez-nous la vente : photos, vidéos et fiche détaillée, puis vérification avant toute publication.</p>
-          <a class="btn btn-noir" href="/vendre-mon-vehicule">Vendre mon véhicule</a>
+          <a class="btn btn-rouge" href="/vendre-mon-vehicule">Vendre mon véhicule</a>
+        </article>
+        <article class="service">
+          <h3>Financement</h3>
+          <div class="tarif"><b>{{T:financement}}</b><span>frais de dossier</span></div>
+          <p>Ouvrez un dossier de financement pour votre achat : vérification de vos documents, examen, puis décision finale de financement.</p>
+          <a class="btn btn-rouge" href="/financement">Demander un financement</a>
         </article>
       </div>
       <div class="encadre">
@@ -1497,7 +1514,7 @@ input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:
         <li><a href="tel:+50942405729">+509 4240 5729</a></li>
         <li><a href="mailto:contact@eliteautodeal.com">contact@eliteautodeal.com</a></li>
         <li><a href="mailto:lakougroup@gmail.com">lakougroup@gmail.com</a></li>
-        <li style="color:var(--gris-700);font-size:15px;padding:6px 0">33, Rue Faustin 1er, Delmas 33, Port-au-Prince</li>
+        <li style="color:#C9CBD1;font-size:15px;padding:6px 0">33, Rue Faustin 1er, Delmas 33, Port-au-Prince</li>
         <li><a href="https://www.instagram.com/eliteautodeal.ht/" target="_blank" rel="noopener">Instagram</a></li>
         <li><a href="https://www.facebook.com/eliteautodeal" target="_blank" rel="noopener">Facebook</a></li>
         <li><a href="https://www.tiktok.com/@eliteautodeal" target="_blank" rel="noopener">TikTok</a></li>
@@ -1734,6 +1751,17 @@ function allerChemin(chemin,remplacer){
 (function(){const h=location.hash.slice(1);if(h&&CHEMINS[h]!==undefined&&location.pathname==="/")history.replaceState(null,"",CHEMINS[h]+location.search);})();
 let TITRE_CLIENT=false; // vrai après une navigation dans la page ; avant, on garde le titre complet envoyé par le serveur
 const VUES=["accueil","vehicules","vehicule","precommande","achat","consultation","recherche","essai","vendre","financement","suivi","conditions","retour","compte","compte-dossier","devis"];
+/* ---------- Compte bancaire (virement ou dépôt) : coordonnées modifiables dans l'administration ---------- */
+function banqueHTML(b){
+  b=b||(typeof CONFIG!=="undefined"&&CONFIG&&CONFIG.banque);if(!b||!b.compte)return "";
+  return `<details class="bloc-banque"><summary>Payer par virement ou dépôt bancaire</summary>
+    <dl><div><dt>Banque</dt><dd>${esc(b.nom||"")}</dd></div><div><dt>Titulaire du compte</dt><dd>${esc(b.titulaire||"")}</dd></div>
+    <div><dt>Numéro de compte</dt><dd><b>${esc(b.compte)}</b> <button class="lien" type="button" data-copier-compte="${esc(b.compte)}">Copier</button></dd></div>
+    ${b.succursale?`<div><dt>Succursale</dt><dd>${esc(b.succursale)}</dd></div>`:""}${b.devise?`<div><dt>Devise du compte</dt><dd>${esc(b.devise)}</dd></div>`:""}</dl>
+    <p>Après votre virement ou votre dépôt, envoyez la preuve de paiement et la référence de votre dossier sur WhatsApp. Votre dossier est validé après vérification par notre équipe.</p></details>`;
+}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-copier-compte]");if(b)copier(b.dataset.copierCompte,"Numéro de compte copié");});
+
 /* ---------- Devis en ligne (lien sécurisé) ---------- */
 const eur=n=>Number(n).toLocaleString("fr-FR",{minimumFractionDigits:2,maximumFractionDigits:2}).replace(/[  ]/g," ")+" $";
 const DVP={methode:"moncash",email:"",cond:false};
@@ -1768,6 +1796,7 @@ async function rendreDevisPublic(){
         <div class="dv-meta"><div><span>Émis le</span><b>${esc(dateFr(d.cree_le))}</b></div><div><span>Valable jusqu'au</span><b>${esc(dateFr(d.expire_le))}</b></div></div></section>
       <div class="dv-total"><span>Total à payer</span><b>${eur(total)}</b></div>${bas}
       ${paiement}
+      ${d.statut==="actif"?`<div style="margin:0 clamp(16px,3vw,24px) clamp(16px,3vw,24px)">${banqueHTML(d.banque)}</div>`:""}
     </article>
     <div class="dv-actions"><a class="btn btn-contour" href="/devis/${encodeURIComponent(j)}.pdf" target="_blank" rel="noopener">Télécharger le PDF</a><button class="btn btn-contour" type="button" id="dv-imprimer">Imprimer</button><a class="btn btn-wa" target="_blank" rel="noopener" href="${waUrl("Bonjour Elite Auto Deal, j'ai une question sur mon devis "+d.numero+".")}"><svg aria-hidden="true"><use href="#i-wa"/></svg>Écrire sur WhatsApp</a></div>
     <p class="muted" style="font-size:13.5px">Ce lien est personnel : il donne accès à ce devis uniquement. L'original est cette page ; le PDF est une copie à télécharger ou imprimer.</p></div>`;
@@ -2035,6 +2064,7 @@ function flux(p){
         ${carte?`<div class="champ"><label for="email-${nom}">Email pour le reçu de la carte</label><input id="email-${nom}" type="email" autocomplete="email" required value="${esc(F.email||(CPT.client&&CPT.client.email)||"")}"></div>`:""}
         <label class="case"><input type="checkbox" id="cond-${nom}" ${F.cond?"checked":""}><span>${esc(S.cond)} <a href="/conditions">Conditions</a></span></label>
         <p class="muted" style="font-size:13.5px">Vous serez redirigé vers la page de paiement sécurisée Freda Pay Issuing. Votre dossier est validé seulement quand Freda Pay Issuing confirme le paiement.</p>
+        ${nom==="achat"||nom==="precommande"?banqueHTML():""}
         <div class="erreur-paie cache" id="err-${nom}" role="alert"></div>
       </div>
       <div class="form-actions"><button class="lien" type="button" data-r="retour">Retour au récapitulatif</button><button class="btn btn-rouge" type="button" data-r="go"><svg aria-hidden="true"><use href="#i-cadenas"/></svg>Payer ${carte?usd(m):htg(m)}</button></div>`;

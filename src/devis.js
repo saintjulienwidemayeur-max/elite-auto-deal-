@@ -37,7 +37,7 @@ export function validerDevis(b = {}) {
 }
 export const totalDevis = (lignes, frais) => arrondi2(lignes.reduce((s, l) => s + arrondi2(l.quantite * l.prix_unitaire), 0) + Number(frais || 0));
 
-const NOIR = "#0B0B0C", ROUGE = "#D7191F", GRIS = "#6E6E75", FILET = "#E4E4E0", FOND = "#F6F6F4";
+const NOIR = "#0B0B0C", ROUGE = "#C8102E", GRIS = "#5B5F66", FILET = "#E5E7EB", FOND = "#F7F7F8"; // palette Elite Auto Deal
 const LOGO = new URL("../public/logo-email.png", import.meta.url).pathname;
 
 /** Retourne un Buffer PDF (A4). */

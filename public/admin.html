@@ -13,8 +13,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --noir:#0B0B0C;--graphite:#1C1C1F;--g700:#4A4A50;--g500:#6E6E75;--g300:#C9C9CC;--g200:#DCDCDA;--g100:#EDEDEB;--g50:#F6F6F4;--blanc:#fff;
-  --rouge:#D7191F;--rouge-f:#A80F14;--rouge-50:#FDEBEC;--succes:#1F8A4C;--succes-50:#E7F4EC;--alerte:#C77700;--alerte-50:#FBF1E0;--wa:#25D366;
+  --noir:#0B0B0C;--graphite:#1C1C1F;--g700:#5B5F66;--g500:#5B5F66;--g300:#CDD0D6;--g200:#E5E7EB;--g100:#EDEFF2;--g50:#F7F7F8;--blanc:#fff;
+  --rouge:#C8102E;--rouge-f:#9E0B22;--rouge-50:#FCE8EB;--succes:#1F8A4C;--succes-50:#E7F4EC;--alerte:#C77700;--alerte-50:#FBF1E0;--wa:#25D366;
   --r-s:10px;--r-m:18px;--r-l:28px;--ombre:0 10px 30px rgba(11,11,12,.08);
   --nav:248px;--top:68px;
   --fh:'Montserrat',system-ui,sans-serif;--fb:'Inter',system-ui,sans-serif;
@@ -48,7 +48,7 @@ a{color:inherit}
 .nav .foot strong{color:#fff;font-weight:600;display:block;font-size:13px}
 
 .main{margin-left:var(--nav);min-height:100vh}
-.top{position:sticky;top:0;z-index:30;height:var(--top);display:flex;align-items:center;gap:14px;padding:0 28px;background:rgba(246,246,244,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--g100)}
+.top{position:sticky;top:0;z-index:30;height:var(--top);display:flex;align-items:center;gap:14px;padding:0 28px;background:rgba(247,247,248,.94);backdrop-filter:blur(10px);border-bottom:3px solid var(--rouge)}
 .top .menu-btn{display:none}
 .search{flex:1;max-width:460px;position:relative}
 .search input{width:100%;height:44px;border:1px solid var(--g200);background:#fff;border-radius:var(--r-s);padding:0 14px 0 42px}
@@ -160,7 +160,7 @@ table.tbl{width:100%;border-collapse:collapse;font-size:14px}
 .photo-it .pa{display:flex;flex-direction:column;gap:6px;padding:8px}
 .photo-it .pa .btn{width:100%;justify-content:center}
 .upbar{height:6px;border-radius:99px;background:var(--g100);overflow:hidden;margin-top:10px}
-.upbar span{display:block;height:100%;width:0;background:var(--rouge,#d7191f);transition:width .2s}
+.upbar span{display:block;height:100%;width:0;background:var(--rouge,#C8102E);transition:width .2s}
 .photos-empty{padding:28px 16px;text-align:center;border:1.5px dashed var(--g300);border-radius:var(--r-m);color:var(--g500);font-size:14px}
 .thumb img{width:100%;height:100%;object-fit:cover}
 .veh-cell b{display:block;font-weight:600}
@@ -1031,14 +1031,14 @@ V.rapports=()=>{
   const W=640,H=240,pad=34,bw=(W-pad*2)/S.months.length;const max=Math.max(...S.months.map(m=>m.veh));
   const svg=`<svg viewBox="0 0 ${W} ${H+30}" role="img" aria-label="Ventes de véhicules par mois">
   ${[0,.5,1].map(f=>`<line x1="${pad}" x2="${W-6}" y1="${H-f*(H-20)}" y2="${H-f*(H-20)}" stroke="#EDEDEB"/><text x="${pad-6}" y="${H-f*(H-20)+4}" font-size="11" text-anchor="end" fill="#6E6E75">${Math.round(max*f/1000)}k</text>`).join('')}
-  ${S.months.map((m,i)=>{const h=m.veh/max*(H-20);const x=pad+i*bw+bw*.2;return `<rect x="${x}" y="${H-h}" width="${bw*.6}" height="${h}" rx="6" fill="${i===S.months.length-1?'#D7191F':'#0B0B0C'}"/><text x="${x+bw*.3}" y="${H+18}" font-size="12" text-anchor="middle" fill="#4A4A50">${m.m}</text><text x="${x+bw*.3}" y="${H-h-6}" font-size="11" text-anchor="middle" fill="#4A4A50">${m.sales} v.</text>`}).join('')}</svg>`;
+  ${S.months.map((m,i)=>{const h=m.veh/max*(H-20);const x=pad+i*bw+bw*.2;return `<rect x="${x}" y="${H-h}" width="${bw*.6}" height="${h}" rx="6" fill="${i===S.months.length-1?'#C8102E':'#0B0B0C'}"/><text x="${x+bw*.3}" y="${H+18}" font-size="12" text-anchor="middle" fill="#4A4A50">${m.m}</text><text x="${x+bw*.3}" y="${H-h-6}" font-size="11" text-anchor="middle" fill="#4A4A50">${m.sales} v.</text>`}).join('')}</svg>`;
   return `<div class="head"><div><h1>Rapports</h1><p>Ventes de véhicules et frais de service, juin à novembre 2026 (démonstration).</p></div>
   <div class="actions"><button class="btn btn-n" id="copyCsv">${ic('copy')}Copier en CSV</button></div></div>
   <div class="kpis" style="grid-template-columns:repeat(3,1fr)">
    <div class="kpi"><span class="l">Véhicules vendus</span><span class="v num">${S.months.reduce((a,m)=>a+m.sales,0)}</span><span class="s">sur 6 mois</span></div>
    <div class="kpi"><span class="l">Chiffre d'affaires véhicules</span><span class="v num">${fmt(S.months.reduce((a,m)=>a+m.veh,0))}</span><span class="s">prix de vente encaissés</span></div>
    <div class="kpi"><span class="l">Frais de service</span><span class="v num">${fmt(S.months.reduce((a,m)=>a+m.svc,0))}</span><span class="s">consultation, essai, vente, financement</span></div></div>
-  <div class="grid2"><section class="card"><div class="card-h"><h2>Ventes de véhicules par mois</h2><div class="legend"><span><i style="background:#0B0B0C"></i>Mois clôturés</span><span><i style="background:#D7191F"></i>Mois en cours</span></div></div><div class="card-b rep-chart">${svg}</div></section>
+  <div class="grid2"><section class="card"><div class="card-h"><h2>Ventes de véhicules par mois</h2><div class="legend"><span><i style="background:#0B0B0C"></i>Mois clôturés</span><span><i style="background:#C8102E"></i>Mois en cours</span></div></div><div class="card-b rep-chart">${svg}</div></section>
   <section class="card"><div class="card-h"><h2>Détail mensuel</h2></div><div class="card-b" style="padding-top:8px"><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Mois</th><th class="r">Ventes</th><th class="r">Véhicules</th><th class="r">Services</th></tr></thead><tbody>${S.months.map(m=>`<tr><td>${m.m}</td><td class="r num">${m.sales}</td><td class="r num">${fmt(m.veh)}</td><td class="r num">${fmt(m.svc)}</td></tr>`).join('')}</tbody></table></div>
   <label class="sr" for="csv">Export CSV</label><textarea class="csv" id="csv" readonly style="margin-top:14px">${csv()}</textarea><p class="small muted" style="margin:6px 0 0">Collez le CSV dans Excel ou Google Sheets.</p></div></section></div>`;
 };
@@ -1227,14 +1227,14 @@ VL.rapports=()=>{
   const W=640,H=240,pad=40,bw=(W-pad*2)/ms.length;const max=Math.max(1,...ms.map(m=>m.rec));
   const svg=`<svg viewBox="0 0 ${W} ${H+30}" role="img" aria-label="Recettes par mois">
   ${[0,.5,1].map(f=>`<line x1="${pad}" x2="${W-6}" y1="${H-f*(H-20)}" y2="${H-f*(H-20)}" stroke="#EDEDEB"/><text x="${pad-6}" y="${H-f*(H-20)+4}" font-size="11" text-anchor="end" fill="#6E6E75">${max*f>=1000?Math.round(max*f/1000)+'k':Math.round(max*f)}</text>`).join('')}
-  ${ms.map((m,i)=>{const h=m.rec/max*(H-20);const x=pad+i*bw+bw*.2;return `<rect x="${x}" y="${H-h}" width="${bw*.6}" height="${Math.max(h,0)}" rx="6" fill="${i===ms.length-1?'#D7191F':'#0B0B0C'}"/><text x="${x+bw*.3}" y="${H+18}" font-size="12" text-anchor="middle" fill="#4A4A50">${m.m}</text>${m.sales?`<text x="${x+bw*.3}" y="${H-h-6}" font-size="11" text-anchor="middle" fill="#4A4A50">${m.sales} v.</text>`:''}`}).join('')}</svg>`;
+  ${ms.map((m,i)=>{const h=m.rec/max*(H-20);const x=pad+i*bw+bw*.2;return `<rect x="${x}" y="${H-h}" width="${bw*.6}" height="${Math.max(h,0)}" rx="6" fill="${i===ms.length-1?'#C8102E':'#0B0B0C'}"/><text x="${x+bw*.3}" y="${H+18}" font-size="12" text-anchor="middle" fill="#4A4A50">${m.m}</text>${m.sales?`<text x="${x+bw*.3}" y="${H-h-6}" font-size="11" text-anchor="middle" fill="#4A4A50">${m.sales} v.</text>`:''}`}).join('')}</svg>`;
   return `<div class="head"><div><h1>Rapports</h1><p>Ventes et recettes encaissées via Freda Pay Issuing, ${new Date().getFullYear()}.</p></div>
   <div class="actions"><button class="btn btn-n" id="copyCsv">${ic('copy')}Copier en CSV</button></div></div>
   <div class="kpis" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr))">
    <div class="kpi"><span class="l">Véhicules vendus</span><span class="v num">${ms.reduce((a,m)=>a+m.sales,0)}</span><span class="s">sur la période</span></div>
    <div class="kpi"><span class="l">Recettes encaissées</span><span class="v num">${fmt(ms.reduce((a,m)=>a+m.rec,0))}</span><span class="s">paiements confirmés</span></div>
    <div class="kpi"><span class="l">Ce mois</span><span class="v num">${fmt(ms[ms.length-1].rec)}</span><span class="s">${ms[ms.length-1].sales} vente(s)</span></div></div>
-  <div class="grid2"><section class="card"><div class="card-h"><h2>Recettes par mois</h2><div class="legend"><span><i style="background:#0B0B0C"></i>Mois clôturés</span><span><i style="background:#D7191F"></i>Mois en cours</span></div></div><div class="card-b rep-chart">${svg}</div></section>
+  <div class="grid2"><section class="card"><div class="card-h"><h2>Recettes par mois</h2><div class="legend"><span><i style="background:#0B0B0C"></i>Mois clôturés</span><span><i style="background:#C8102E"></i>Mois en cours</span></div></div><div class="card-b rep-chart">${svg}</div></section>
   <section class="card"><div class="card-h"><h2>Détail</h2></div><div class="card-b" style="padding-top:8px"><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Mois</th><th class="r">Ventes</th><th class="r">Recettes</th></tr></thead><tbody>${ms.map(m=>`<tr><td>${m.m}</td><td class="r num">${m.sales}</td><td class="r num">${fmt(m.rec)}</td></tr>`).join('')}</tbody></table></div>
   ${ps.length?`<h3 style="font-size:15px;margin:18px 0 8px">Par service</h3><div class="tbl-wrap"><table class="tbl"><tbody>${ps.map(x=>`<tr><td>${esc(SVC_LABEL[SVC_API[x.service]||x.service]||x.service)}</td><td class="r num">${fmt(+x.total_usd||+x.recettes_usd||0)}</td></tr>`).join('')}</tbody></table></div>`:''}
   <label class="sr" for="csv">Export CSV</label><textarea class="csv" id="csv" readonly style="margin-top:14px">${csvLive()}</textarea><p class="small muted" style="margin:6px 0 0">Collez le CSV dans Excel ou Google Sheets.</p></div></section></div>`;
@@ -1473,7 +1473,22 @@ const accesCarte=()=>`<section class="card" style="margin-top:18px;max-width:560
    <div class="small" id="accErr" role="alert" style="color:var(--rouge);min-height:18px"></div>
    <button class="btn btn-n" type="submit" id="accBtn">Modifier le code d'accès</button>
    <p class="small muted" style="margin:0">Les autres appareils connectés sont déconnectés. Gardez ce code en lieu sûr : il donne accès aux dossiers clients et aux paiements.</p></form></div></section>`;
-V['parametres-site']=()=>_vParams()+(LIVE?accesCarte():'');
+const banqueCarte=()=>{const b=((LV.params||{}).banque)||{};return `<section class="card" style="margin-top:18px;max-width:560px"><div class="card-h"><h2>Compte bancaire (virement ou dépôt)</h2></div><div class="card-b">
+  <form class="form" id="banqueForm" novalidate autocomplete="off">
+   <p class="small muted" style="margin:0">Ces coordonnées s'affichent sur le site, au paiement d'un véhicule (achat ou précommande) et sur la page d'un devis.</p>
+   <div class="field"><label for="bq-n">Banque</label><input id="bq-n" value="${esc(b.nom||'')}" maxlength="60"></div>
+   <div class="field"><label for="bq-t">Titulaire du compte</label><input id="bq-t" value="${esc(b.titulaire||'')}" maxlength="80"></div>
+   <div class="two"><div class="field"><label for="bq-c">Numéro de compte</label><input id="bq-c" inputmode="numeric" value="${esc(b.compte||'')}" maxlength="40"></div><div class="field"><label for="bq-s">Succursale</label><input id="bq-s" value="${esc(b.succursale||'')}" maxlength="20"></div></div>
+   <div class="field"><label for="bq-d">Devise du compte</label><input id="bq-d" value="${esc(b.devise||'')}" maxlength="40" placeholder="Gourdes (HTG)"></div>
+   <div class="small" id="bqErr" role="alert" style="color:var(--rouge);min-height:18px"></div>
+   <button class="btn btn-n" type="submit" id="bqBtn">Enregistrer le compte bancaire</button></form></div></section>`};
+V['parametres-site']=()=>_vParams()+(LIVE?banqueCarte()+accesCarte():'');
+document.addEventListener('submit',async e=>{
+  if(e.target.id!=='banqueForm')return;e.preventDefault();const err=$('#bqErr');err.textContent='';
+  const banque={nom:$('#bq-n').value.trim(),titulaire:$('#bq-t').value.trim(),compte:$('#bq-c').value.trim(),succursale:$('#bq-s').value.trim(),devise:$('#bq-d').value.trim()};
+  if(!banque.compte||banque.compte.replace(/\D/g,'').length<6){err.textContent='Indiquez un numéro de compte valide.';return}
+  const b=$('#bqBtn');b.disabled=true;try{await saveParams({banque},'Compte bancaire enregistré')}finally{b.disabled=false}
+});
 document.addEventListener('submit',async e=>{
   if(e.target.id!=='accForm')return;e.preventDefault();
   const err=$('#accErr'),b=$('#accBtn'),a=$('#acc-a').value,n=$('#acc-n').value,c=$('#acc-c').value;err.textContent='';

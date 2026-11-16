@@ -175,8 +175,8 @@ async function avecPhotos(vs, admin = false) {
 }
 
 app.get("/api/config", enveloppe(async (_req, res) => {
-  const { taux, tarifs } = await parametres();
-  res.json({ mode: modeFreda(), taux_htg: taux.taux_htg, taux_date: taux.taux_date, tarifs, whatsapp: process.env.WHATSAPP_NUMERO || "50942405729",
+  const { taux, tarifs, banque } = await parametres();
+  res.json({ mode: modeFreda(), taux_htg: taux.taux_htg, taux_date: taux.taux_date, tarifs, banque, whatsapp: process.env.WHATSAPP_NUMERO || "50942405729",
     methodes: CARTE_ACTIVE ? ["moncash", "natcash", "carte"] : ["moncash", "natcash"], paiement_actif: fredaConfiguree() });
 }));
 
@@ -977,7 +977,7 @@ app.post("/api/admin/precommandes/:ref/solde", enveloppe(async (req, res) => {
 /* Paramètres */
 app.get("/api/admin/parametres", enveloppe(async (_req, res) => {
   const p = await parametres();
-  res.json({ taux_htg: p.taux.taux_htg, taux_date: p.taux.taux_date, tarifs: p.tarifs, messages: p.messages });
+  res.json({ taux_htg: p.taux.taux_htg, taux_date: p.taux.taux_date, tarifs: p.tarifs, messages: p.messages, banque: p.banque });
 }));
 app.put("/api/admin/parametres", enveloppe(async (req, res) => {
   const b = req.body || {}, p = await parametres();
@@ -990,9 +990,16 @@ app.put("/api/admin/parametres", enveloppe(async (req, res) => {
     p.tarifs[k] = Number(b.tarifs[k]);
   }
   if (b.messages) for (const k of Object.keys(p.messages)) if (typeof b.messages[k] === "string") p.messages[k] = b.messages[k].slice(0, 4000);
-  for (const cle of ["taux", "tarifs", "messages"]) await q("insert into parametres(cle, valeur) values ($1,$2) on conflict (cle) do update set valeur=excluded.valeur", [cle, JSON.stringify(p[cle])]);
+  if (b.banque && typeof b.banque === "object") {
+    const t = (k, n) => String(b.banque[k] ?? p.banque?.[k] ?? "").trim().slice(0, n);
+    const compteSaisi = t("compte", 40);
+    if (compteSaisi && compteSaisi.replace(/\D/g, "").length < 6) throw err(400, "COMPTE", "Numéro de compte invalide : au moins 6 chiffres.");
+    const banque = { nom: t("nom", 60), titulaire: t("titulaire", 80), compte: compteSaisi.replace(/[^\d\- ]/g, ""), succursale: t("succursale", 20), devise: t("devise", 40) };
+    p.banque = banque;
+  }
+  for (const cle of ["taux", "tarifs", "messages", "banque"]) await q("insert into parametres(cle, valeur) values ($1,$2) on conflict (cle) do update set valeur=excluded.valeur", [cle, JSON.stringify(p[cle])]);
   await journaliser(null, "Paramètres du site mis à jour", "parametres", "administrateur");
-  res.json({ taux_htg: p.taux.taux_htg, taux_date: p.taux.taux_date, tarifs: p.tarifs, messages: p.messages });
+  res.json({ taux_htg: p.taux.taux_htg, taux_date: p.taux.taux_date, tarifs: p.tarifs, messages: p.messages, banque: p.banque });
 }));
 
 /* Rapports */
@@ -1030,10 +1037,10 @@ app.get("/sitemap.xml", enveloppe(async (_req, res) => {
 const vueDevisPublic = async d => {
   const p = d.dossier_ref ? await un("select statut, methode, confirme_le from paiements where ref=$1 and type='initial' order by id desc limit 1", [d.dossier_ref]) : null;
   const expire = d.expire_le && new Date(d.expire_le).getTime() < Date.now();
-  const { taux } = await parametres();
+  const { taux, banque } = await parametres();
   return { numero: d.numero, client_nom: d.client_nom, client_email: d.client_email || "", client_tel: d.client_tel || "", lignes: d.lignes, frais_supplementaires: Number(d.frais_supplementaires), total_usd: Number(d.total_usd), cree_le: d.cree_le, expire_le: d.expire_le,
     statut: d.statut === "paye" ? "paye" : expire ? "expire" : "actif", ref: d.dossier_ref, paiement: p ? { statut: p.statut, methode: p.methode, confirme_le: p.confirme_le } : null,
-    methodes: CARTE_ACTIVE ? ["moncash", "natcash", "carte"] : ["moncash", "natcash"], taux_htg: taux.taux_htg, paiement_actif: fredaConfiguree(), whatsapp: process.env.WHATSAPP_NUMERO || "50942405729" };
+    methodes: CARTE_ACTIVE ? ["moncash", "natcash", "carte"] : ["moncash", "natcash"], banque, taux_htg: taux.taux_htg, paiement_actif: fredaConfiguree(), whatsapp: process.env.WHATSAPP_NUMERO || "50942405729" };
 };
 const devisParJeton = async j => { const d = await un(`select ${VUE_DEVIS} from devis where jeton=$1`, [String(j || "")]); if (!d) throw err(404, "INTROUVABLE", "Ce devis n'existe pas ou le lien n'est plus valable."); return d; };
 app.get("/api/devis/:jeton", limiteur(120, 10 * 60e3), enveloppe(async (req, res) => {

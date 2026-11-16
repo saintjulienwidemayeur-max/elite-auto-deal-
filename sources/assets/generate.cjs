@@ -5,7 +5,7 @@ const fs = require("fs"), path = require("path");
 const ROOT = path.resolve(__dirname, "../.."), OUT = path.join(ROOT, "public");
 const car = fs.readFileSync(path.join(ROOT, "sources/brand/car.path"), "utf8");
 const txt = fs.readFileSync(path.join(ROOT, "sources/brand/text.path"), "utf8");
-const NOIR = "#0B0B0C", ROUGE = "#D7191F";
+const NOIR = "#0B0B0C", ROUGE = "#C8102E"; // palette Elite Auto Deal
 const logo = c => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 207" role="img" aria-label="Elite Auto Deal"><title>Elite Auto Deal</title><path fill="${c}" fill-rule="evenodd" d="${car}"/><path fill="${c}" fill-rule="evenodd" d="${txt}"/></svg>`;
 // Icône carrée 512 : silhouette de la voiture + filet rouge. `rond` = coins arrondis ; `s` = largeur de la voiture
 const icone = (rond, s) => { const k = s / 680, h = 118 * k, x = (512 - s) / 2, y = (512 - h) / 2 - 14;

@@ -20,7 +20,7 @@ export async function envoyerEmail({ a, nom, sujet, html, texte, pieces }) {
   } catch (e) { console.error("[email] échec d'envoi :", e.message); return false; }
 }
 
-const NOIR = "#0B0B0C", ROUGE = "#D7191F", GRIS = "#6E6E75", FOND = "#F6F6F4";
+const NOIR = "#0B0B0C", ROUGE = "#C8102E", GRIS = "#5B5F66", FOND = "#F7F7F8"; // palette Elite Auto Deal
 const publicUrl = () => (process.env.PUBLIC_URL || "").replace(/\/$/, "");
 // Logo : image PNG blanche hébergée par vous (EMAIL_LOGO_URL). Sans elle, le nom de la marque s'affiche en texte.
 const urlLogo = () => process.env.EMAIL_LOGO_URL || (publicUrl().startsWith("https://") ? `${publicUrl()}/logo-email.png` : "");
@@ -37,14 +37,14 @@ const cadre = (titre, corps, apercu = "") => `<!doctype html><html lang="fr"><he
 <tr><td style="background:${ROUGE};height:4px;line-height:4px;font-size:0">&nbsp;</td></tr>
 <tr><td style="background:#fff;padding:34px 30px 30px;font-size:16px;line-height:1.6;color:#222">
 <h1 style="margin:0 0 18px;font-size:24px;line-height:1.25;color:${NOIR}">${titre}</h1>${corps}</td></tr>
-<tr><td style="background:#fff;padding:0 30px"><div style="border-top:1px solid #ececec"></div></td></tr>
+<tr><td style="background:#fff;padding:0 30px"><div style="border-top:1px solid #E5E7EB"></div></td></tr>
 <tr><td style="background:#fff;padding:20px 30px 26px;font-size:13px;line-height:1.55;color:${GRIS};border-radius:0 0 12px 12px">
 <b style="color:${NOIR}">Elite Auto Deal</b><br>Véhicules, précommandes et services automobiles en Haïti<br>
 <a href="mailto:${esc(process.env.EMAIL_EXPEDITEUR || "")}" style="color:${GRIS}">${esc(process.env.EMAIL_EXPEDITEUR || "")}</a>${publicUrl() ? ` · <a href="${esc(publicUrl())}" style="color:${GRIS}">${esc(publicUrl().replace(/^https?:\/\//, ""))}</a>` : ""}</td></tr>
 <tr><td style="padding:18px 10px;font-size:12px;line-height:1.5;color:#9a9aa0;text-align:center">Vous recevez ce message parce qu'un compte Elite Auto Deal utilise cette adresse email. Si ce n'est pas vous, vous pouvez l'ignorer.</td></tr>
 </table></td></tr></table></body></html>`;
 
-const blocCode = code => `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:22px 0"><tr><td align="center" style="background:${FOND};border:1px solid #e4e4e0;border-radius:10px;padding:20px 12px">
+const blocCode = code => `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:22px 0"><tr><td align="center" style="background:${FOND};border:1px solid #E5E7EB;border-radius:10px;padding:20px 12px">
 <div style="font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:${GRIS};margin-bottom:8px">Votre code</div>
 <div style="font-family:'Courier New',Courier,monospace;font-size:36px;font-weight:bold;letter-spacing:10px;color:${NOIR};padding-left:10px">${esc(code)}</div>
 <div style="font-size:13px;color:${GRIS};margin-top:10px">Valable 10 minutes</div></td></tr></table>`;
@@ -86,7 +86,7 @@ export function emailDevis({ nom, numero, total, lien, expire, whatsapp }) {
     sujet: `Votre devis ${numero} — Elite Auto Deal`,
     html: cadre(`Votre devis ${esc(numero)}`, `<p style="margin:0 0 14px">Bonjour ${prenom},</p>
       <p style="margin:0 0 14px">Merci de votre confiance. Votre devis est prêt : vous pouvez le consulter et le payer en ligne en toute sécurité grâce au lien ci-dessous.</p>
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:18px 0"><tr><td align="center" style="background:${FOND};border:1px solid #e4e4e0;border-radius:10px;padding:18px 12px">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:18px 0"><tr><td align="center" style="background:${FOND};border:1px solid #E5E7EB;border-radius:10px;padding:18px 12px">
       <div style="font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:${GRIS};margin-bottom:6px">Total du devis</div>
       <div style="font-size:30px;font-weight:bold;color:${NOIR}">${esc(total)}</div>${date ? `<div style="font-size:13px;color:${GRIS};margin-top:8px">Valable jusqu'au ${esc(date)}</div>` : ""}</td></tr></table>
       ${bouton(lien, "Voir et payer mon devis")}
