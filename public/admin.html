@@ -873,20 +873,31 @@ function addVehicleDrawer(){
     <div class="field"><label for="f-t">Carrosserie</label><select id="f-t"><option value="suv">SUV</option><option value="sedan">Berline</option><option value="pick">Pick-up</option></select></div></div>
     <div class="field"><label for="f-n">Conditions affichées</label><input id="f-n" value="Financement disponible" placeholder="Ex. tout compris : transport + dédouanement"><span class="hint">Pour une précommande : délai estimé, solde de 10 % à l'arrivée, conditions d'annulation.</span></div>
     <div class="field"><span style="font-size:13.5px;font-weight:600">Photos du véhicule</span>
-      <label class="drop" for="f-media">${ic('img','style="width:26px;height:26px;color:var(--g500)"')}<br><b>Choisir des photos</b><br><span class="small muted">JPG, PNG ou WebP, 12 photos maximum. La première devient la photo principale. <b>Format conseillé : 1080 × 1350 px (4:5)</b> ; toute photo est ajustée à ce format sans déformation. Les vidéos s'ajoutent ensuite avec le bouton « Photos et vidéos ».</span><input id="f-media" type="file" accept="image/jpeg,image/png,image/webp" multiple></label>
+      <label class="drop" for="f-media">${ic('img','style="width:26px;height:26px;color:var(--g500)"')}<br><b>Choisir des photos</b><br><span class="small muted">JPG, PNG ou WebP, 12 photos maximum. La première devient la photo principale. <b>Format conseillé : 1080 × 1350 px (4:5)</b> ; toute photo est ajustée à ce format sans déformation.</span><input id="f-media" type="file" accept="image/jpeg,image/png,image/webp" multiple></label>
       <div class="previews" id="previews"></div><div class="upbar" id="addBar" hidden><span></span></div></div>
+    <div class="field"><span style="font-size:13.5px;font-weight:600">Vidéos du véhicule (facultatif)</span>
+      <label class="drop" for="f-video">${ic('file','style="width:26px;height:26px;color:var(--g500)"')}<br><b>Choisir des vidéos</b><br><span class="small muted">MP4, WebM ou MOV, 4 vidéos maximum, 50 Mo chacune. Format libre : la vidéo n'est pas recadrée.</span><input id="f-video" type="file" accept="video/mp4,video/webm,video/quicktime,video/x-m4v" multiple></label>
+      <div class="previews" id="vpreviews"></div><div class="upbar" id="addVBar" hidden><span></span></div></div>
   </form>
   <div class="drawer-f"><button class="btn btn-t" data-close>Annuler</button><button class="btn btn-p" form="addForm" type="submit">Publier le véhicule</button></div>`);
   let first=null,files=[];
   $('#f-media').onchange=e=>{const pv=$('#previews');pv.innerHTML='';first=null;files=[...e.target.files].filter(f=>/^image\/(jpeg|png|webp)$/.test(f.type)).slice(0,12);
     if(e.target.files.length>files.length)toastErr('Seules 12 photos JPG, PNG ou WebP sont acceptées.');
     files.forEach(f=>{const u=URL.createObjectURL(f);const d=document.createElement('div');d.innerHTML=`<img src="${u}" alt="${esc(f.name)}">`;first=first||u;pv.appendChild(d)})};
+  let vids=[];
+  $('#f-video').onchange=e=>{const pv=$('#vpreviews');pv.innerHTML='';let l=[...e.target.files].filter(f=>/^video\/(mp4|webm|quicktime|x-m4v)$/.test(f.type));
+    if(l.length<e.target.files.length)toastErr('Seules les vidéos MP4, WebM ou MOV sont acceptées.');
+    const trop=l.filter(f=>f.size>50*1024*1024);if(trop.length){toastErr(`${trop.length} vidéo(s) dépassent 50 Mo et ont été ignorées.`);l=l.filter(f=>f.size<=50*1024*1024)}
+    if(l.length>4){toastErr('4 vidéos maximum.');l=l.slice(0,4)}
+    vids=l;vids.forEach(f=>{const d=document.createElement('div');d.innerHTML=`<video src="${URL.createObjectURL(f)}" muted preload="metadata"></video>`;pv.appendChild(d)})};
   $('#addForm').onsubmit=e=>{e.preventDefault();
-    const v={id:'V'+(Date.now()%100000),mk:$('#f-mk').value.trim(),md:$('#f-md').value.trim(),y:+$('#f-y').value||'',mi:$('#f-mi').value||'—',p:+String($('#f-p').value).replace(/\D/g,'')||0,st:$('#f-st').value,c:$('#f-c').value,t:$('#f-t').value,note:$('#f-n').value.trim(),img:first,photos:files.map((f,i)=>({id:'local'+i,url:URL.createObjectURL(f)}))};
+    const v={id:'V'+(Date.now()%100000),mk:$('#f-mk').value.trim(),md:$('#f-md').value.trim(),y:+$('#f-y').value||'',mi:$('#f-mi').value||'—',p:+String($('#f-p').value).replace(/\D/g,'')||0,st:$('#f-st').value,c:$('#f-c').value,t:$('#f-t').value,note:$('#f-n').value.trim(),img:first,photos:files.map((f,i)=>({id:'local'+i,url:URL.createObjectURL(f)})),videos:vids.map((f,i)=>({id:'localv'+i,url:URL.createObjectURL(f)}))};
     if(LIVE){const fm={pick:'pickup',sedan:'berline',suv:'suv'}[v.t];const km=parseFloat(String(v.mi).replace(',','.'));
       const body={marque:v.mk,modele:v.md,annee:v.y||null,couleur:v.c.charAt(0).toUpperCase()+v.c.slice(1),hex:COLORS[v.c]||null,km:isNaN(km)?null:(/k/i.test(v.mi)?Math.round(km*1000):Math.round(km)),prix:v.p||null,statut:VST_OUT[v.st]||'disponible',type:v.t==='pick'?'Pick-up':v.t==='sedan'?'Berline':'SUV',forme:fm,note:v.note||null};
       const btn=document.querySelector('[form="addForm"]');btn.disabled=true;
-      api('/api/admin/vehicules',{method:'POST',body}).then(async cree=>{if(files.length&&cree&&cree.id){const bar=$('#addBar');bar.hidden=false;try{await uploadPhotos(cree.id,files,p=>{bar.firstElementChild.style.width=p+'%'})}catch(e){fail(e);toastErr('Véhicule publié, mais les photos n\'ont pas pu être envoyées. Ajoutez-les avec le bouton Photos.')}}closeDrawer();toast(`${vname(v)} publié`);LV.loaded.vehicules=0;if(location.hash!=='#vehicules')location.hash='#vehicules';else liveRender(true)}).catch(err=>{btn.disabled=false;fail(err)});return}
+      api('/api/admin/vehicules',{method:'POST',body}).then(async cree=>{if(files.length&&cree&&cree.id){const bar=$('#addBar');bar.hidden=false;try{await uploadPhotos(cree.id,files,p=>{bar.firstElementChild.style.width=p+'%'})}catch(e){fail(e);toastErr('Véhicule publié, mais les photos n\'ont pas pu être envoyées. Ajoutez-les avec le bouton Photos.')}}
+        if(vids.length&&cree&&cree.id){const bar=$('#addVBar');bar.hidden=false;try{await uploadMedias(cree.id,'videos',vids,p=>{bar.firstElementChild.style.width=p+'%'})}catch(e){fail(e);toastErr('Véhicule publié, mais les vidéos n\'ont pas pu être envoyées. Ajoutez-les avec le bouton Photos et vidéos.')}}
+        closeDrawer();toast(`${vname(v)} publié`);LV.loaded.vehicules=0;if(location.hash!=='#vehicules')location.hash='#vehicules';else liveRender(true)}).catch(err=>{btn.disabled=false;fail(err)});return}
     S.vehicles.unshift(v);closeDrawer();toast(`${vname(v)} publié`);location.hash='#vehicules';render()};
 }
 
