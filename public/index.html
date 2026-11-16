@@ -504,7 +504,7 @@ section{padding:clamp(56px,8vw,104px) 0}
 
 /* Bloc CTA noir */
 .cta-noir{background:var(--noir);color:#fff;border-radius:var(--r-l);padding:clamp(28px,6vw,72px);position:relative;overflow:hidden;display:grid;gap:22px}
-.cta-noir h2{max-width:18ch}
+.cta-noir h2,.cta-noir h3{max-width:18ch;color:#fff}
 .cta-noir p{color:#C4C4C8;max-width:52ch}
 .cta-noir .btns{display:flex;flex-wrap:wrap;gap:10px}
 .cta-noir .filigrane{position:absolute;right:-4%;bottom:-18%;width:min(70%,620px);color:#fff;opacity:.07;pointer-events:none}
@@ -680,7 +680,7 @@ svg.voiture{display:block;height:auto;overflow:visible}
 @media (min-width:1100px){.scene{place-items:center}.diapo-voiture:has(.voiture.vide),.diapo-voiture:has(.voiture.photo){width:100%;max-width:680px;margin:32px 8px 32px 24px}}
 @media (max-width:900px){.heros .scene{margin-top:20px}}
 img.voiture.photo{display:block;width:100%;height:100%;object-fit:cover;border-radius:inherit;background:var(--gris-100)}
-.voiture.vide{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;width:100%;height:100%;min-height:140px;color:var(--gris-300);text-align:center}
+.voiture.vide{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;width:100%;height:100%;min-height:140px;color:var(--gris-500);text-align:center}
 .voiture.vide svg{width:min(46%,220px);aspect-ratio:680/118;color:var(--gris-300)}
 .voiture.vide span{font-size:12.5px;font-weight:600;color:var(--gris-500);letter-spacing:.01em}
 .vcarte-media img.voiture.photo,.vcarte-media .voiture.vide{position:absolute;inset:0;width:100%;height:100%}
