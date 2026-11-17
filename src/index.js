@@ -6,11 +6,11 @@ import crypto from "node:crypto";
 import os from "node:os";
 import path from "node:path";
 import { existsSync, readFileSync } from "node:fs";
-import { unlink } from "node:fs/promises";
+import { unlink, readFile } from "node:fs/promises";
 import { q, un, tous, migrer, parametres, journaliser, transaction } from "./db.js";
 import { SERVICES, COLS_VEHICULE } from "./catalogue.js";
 import { creerPaiement, lirePaiement, signatureValide, modeFreda, fredaConfiguree, ErreurFreda } from "./freda.js";
-import { enregistrer, servir, servirPublic, servirPublicRange, supprimer } from "./stockage.js";
+import { enregistrer, servir, servirPublic, servirPublicRange, supprimer, photosEnBase } from "./stockage.js";
 import { photo45 } from "./medias.js";
 import { envoyerEmail, emailConfigure, emailBienvenue, emailCode, emailDevis, emailPaiementConfirme, emailVirementRefuse } from "./email.js";
 import { validerDevis, genererPdf, montant as montantDevis } from "./devis.js";
@@ -864,6 +864,11 @@ app.post("/api/admin/vehicules/:id/photos", uploadPhotos.array("photos", 12), en
     let { m } = await un("select coalesce(max(ordre), -1)::int m from photos_vehicules where vehicule_id=$1", [v.id]);
     for (const f of fichiers) {
       let n; try { n = await photo45(f.path); } catch { throw err(400, "IMAGE", `Image illisible : ${f.originalname}.`); } // photo ramenée en 4:5, 1080 x 1350
+      if (photosEnBase()) {
+        const buf = await readFile(n.chemin); unlink(n.chemin).catch(() => {});
+        await q("insert into photos_vehicules(vehicule_id, stockage, chemin, type, taille, ordre, donnees) values ($1,'db','db',$2,$3,$4,$5)", [v.id, n.type, buf.length, ++m, buf]);
+        continue;
+      }
       const s = await enregistrer(n.chemin, `vehicules/${v.id}`, f.originalname.replace(/\.[^.]+$/, "") + ".webp", n.type);
       await q("insert into photos_vehicules(vehicule_id, stockage, chemin, type, taille, ordre) values ($1,$2,$3,$4,$5,$6)", [v.id, s.stockage, s.chemin, n.type, n.taille, ++m]);
     }

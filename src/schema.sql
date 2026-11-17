@@ -108,6 +108,7 @@ create table if not exists photos_vehicules (
   ordre int not null default 0,
   cree_le timestamptz not null default now()
 );
+alter table photos_vehicules add column if not exists donnees bytea; -- photos gardées dans la base quand il n'y a ni Supabase ni disque persistant
 create index if not exists photos_vehicules_v_idx on photos_vehicules(vehicule_id, ordre, id);
 
 create table if not exists clients (

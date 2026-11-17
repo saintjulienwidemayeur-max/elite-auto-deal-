@@ -102,3 +102,7 @@ Pour un achat, une précommande ou un devis, le client peut choisir « Virement 
 3. À la confirmation, le dossier passe en « payé » (véhicule vendu, devis payé) et le client reçoit l'email « Paiement confirmé ». Au refus, il reçoit un email avec le motif et peut déposer une nouvelle preuve.
 
 API : `POST /api/dossiers/:ref/preuve` (jeton), `GET /api/dossiers/:ref/virement?jeton=`, `GET /api/admin/virements`, `POST /api/admin/virements/:id/confirmer|refuser`. Test : `node test/virement.js`.
+
+## Stockage des photos de véhicules
+
+Si ni Supabase (`SUPABASE_URL` + `SUPABASE_SERVICE_KEY`) ni un disque persistant (`UPLOAD_DIR`) ne sont configurés, les photos des véhicules sont gardées **dans la base Postgres** : elles survivent aux redémarrages de Render (le disque de Render est effacé). Les vidéos et les documents clients ont toujours besoin de Supabase ou d'un disque persistant.

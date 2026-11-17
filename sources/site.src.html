@@ -1736,7 +1736,7 @@ function rendreDetail(){
   d.innerHTML=`<div class="galerie"><div class="detail-scene" id="gal-vue"><div class="annee-geante" aria-hidden="true">${v.annee}</div>${med.length?mediaHTML(v,med[0]):voitureSVG(v)}</div>${med.length>1?`<div class="gal-mini" role="group" aria-label="Photos et vidéos">${med.map((m,i)=>`<button class="gal-it" type="button" data-gal="${i}" aria-current="${i===0}" aria-label="${m.t==="v"?"Vidéo":"Photo"} ${i+1}">${m.t==="v"?`<span class="gal-play" aria-hidden="true">▶</span>`:`<img src="${esc(m.url)}" alt="" loading="lazy">`}</button>`).join("")}</div>`:""}</div>
    <div class="detail-info">${badge(v)}<h1 style="font-size:clamp(30px,4vw,46px)">${esc(nomV(v))}</h1>
      <div><span class="prix" style="font-size:34px">${v.prix_normal?`<s class="prix-barre">${usd(v.prix_normal)}</s>`:""}${usd(v.prix)}</span>${v.statut==="disponible"&&!/financement/i.test(v.note||"")?`<div><a class="fin-dispo" href="/financement">Financement disponible</a></div>`:""}${v.note?`<p class="muted" style="margin-top:4px">${esc(v.note)}</p>`:""}</div>
-     <dl class="fiche">${fiche.map(([a,b])=>`<div><dt>${a}</dt><dd>${esc(b)}</dd></div>`).join("")}</dl>
+     <dl class="fiche">${fiche.filter(x=>x[1]!=null&&x[1]!=="").map(([a,b])=>`<div><dt>${a}</dt><dd>${esc(b)}</dd></div>`).join("")}</dl>
      ${bloc}${btns}</div>`;
 }
 

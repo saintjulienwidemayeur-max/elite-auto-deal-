@@ -9,6 +9,8 @@ const SB_KEY = process.env.SUPABASE_SERVICE_KEY || "";
 const BUCKET = process.env.SUPABASE_BUCKET || "dossiers";
 export const DOSSIER_LOCAL = path.resolve(process.env.UPLOAD_DIR || "./uploads");
 export const modeStockage = () => (SB_URL && SB_KEY ? "supabase" : "local");
+/** Photos de véhicules : sans Supabase ni disque persistant (UPLOAD_DIR), le disque de Render est effacé à chaque redémarrage : on les garde dans la base. */
+export const photosEnBase = () => modeStockage() === "local" && !process.env.UPLOAD_DIR;
 
 const propre = n => n.normalize("NFKD").replace(/[^\w.\-]+/g, "_").slice(-80);
 
@@ -52,6 +54,11 @@ export async function servir(f, res) {
 /** Sert une image publique (photos de véhicules) en flux, avec cache. */
 export async function servirPublic(f, res) {
   res.setHeader("Cache-Control", "public, max-age=86400");
+  if (f.stockage === "db") {
+    if (!f.donnees) return res.status(404).end();
+    res.setHeader("Content-Type", f.type || "image/webp");
+    return res.end(f.donnees);
+  }
   if (f.stockage === "supabase") {
     const r = await fetch(`${SB_URL}/storage/v1/object/${BUCKET}/${f.chemin}`, { headers: { Authorization: `Bearer ${SB_KEY}`, apikey: SB_KEY } });
     if (!r.ok) return res.status(404).end();
@@ -91,6 +98,7 @@ export async function servirPublicRange(f, req, res) {
 }
 
 export async function supprimer(f) {
+  if (f.stockage === "db") return;
   if (f.stockage === "supabase") {
     await fetch(`${SB_URL}/storage/v1/object/${BUCKET}/${f.chemin}`, { method: "DELETE", headers: { Authorization: `Bearer ${SB_KEY}`, apikey: SB_KEY } }).catch(() => {});
   } else await unlink(path.join(DOSSIER_LOCAL, f.chemin)).catch(() => {});
