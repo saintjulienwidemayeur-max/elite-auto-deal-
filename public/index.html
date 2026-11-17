@@ -1624,13 +1624,13 @@ function boutonsV(v){
   return `<button class="btn btn-rouge" type="button" data-aller="achat" data-v="${v.id}">Acheter</button><button class="btn btn-contour" type="button" data-aller="essai" data-v="${v.id}">Réserver mon essai</button>`;
 }
 function carte(v){
-  const specs=[v.annee, miles(v.km), v.moteur, v.traction].filter(Boolean);
+  const specs=[v.annee, miles(v.km), v.moteur, v.cylindre, v.traction].filter(Boolean);
   return `<article class="vcarte">
    <button class="vcarte-media" type="button" data-aller="vehicule" data-v="${v.id}" aria-label="Voir la fiche ${esc(nomV(v))}">
-     <span class="annee" aria-hidden="true">${v.annee}</span>${voitureSVG(v)}${badge(v)}
+     <span class="annee" aria-hidden="true">${v.annee||""}</span>${voitureSVG(v)}${badge(v)}
    </button>
    <div class="vcarte-corps">
-     <h3>${esc(v.marque)} ${esc(v.modele.replace(/\s\d{4}$/,""))}<small>${esc(v.couleur)}, ${v.places} places, ${esc(v.trans.toLowerCase())}</small></h3>
+     <h3>${esc(v.marque)} ${esc(v.modele.replace(/\s\d{4}$/,""))}<small>${esc([v.couleur,v.places?v.places+" places":"",(v.trans||"").toLowerCase()].filter(Boolean).join(", "))}</small></h3>
      <ul class="specs">${specs.map(s=>`<li>${esc(s)}</li>`).join("")}</ul>
      <div class="vcarte-pied">
        <div class="prix-ligne"><span class="prix">${v.prix_normal?`<s class="prix-barre">${usd(v.prix_normal)}</s>`:""}${usd(v.prix)}</span>${v.statut==="disponible"&&!/financement/i.test(v.note||"")?`<span class="fin-dispo">Financement disponible</span>`:""}${precommandable(v)&&v.prix?`<span class="prix-note">90 % : ${usd(v.prix*.9)}</span>`:(v.note?`<span class="prix-note">${esc(v.note)}</span>`:"")}</div>
