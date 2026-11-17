@@ -53,8 +53,9 @@ export async function migrer() {
   }
   const { n } = await un("select count(*)::int n from vehicules");
   if (n === 0) {
-    const ph = COLS_VEHICULE.map((_, i) => "$" + (i + 1)).join(",");
-    for (const v of VEHICULES_INITIAUX) await q(`insert into vehicules(${COLS_VEHICULE.join(",")}) values (${ph})`, v);
+    const cols = COLS_VEHICULE.filter(c => c !== "cylindre"); // les véhicules initiaux n'ont pas de cylindrée
+    const ph = cols.map((_, i) => "$" + (i + 1)).join(",");
+    for (const v of VEHICULES_INITIAUX) await q(`insert into vehicules(${cols.join(",")}) values (${ph})`, v);
   }
 }
 

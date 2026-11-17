@@ -60,4 +60,4 @@ export const VEHICULES_INITIAUX = [
   ["wra","Jeep","Wrangler Unlimited",2014,"Noir","#1A1B1E",195000,null,"disponible","4x4","suv","V6","Automatique","4x4",5,null,null,false],
   ["jgc15","Jeep","Grand Cherokee 2015",2015,"Rouge","#8C1A1F",75000,21500,"vendu","SUV","suv","V6","Automatique","4x4",5,null,null,false],
 ];
-export const COLS_VEHICULE = ["id","marque","modele","annee","couleur","hex","km","prix","statut","type","forme","moteur","trans","traction","places","delai","note","vedette"];
+export const COLS_VEHICULE = ["id","marque","modele","annee","couleur","hex","km","prix","statut","type","forme","moteur","cylindre","trans","traction","places","delai","note","vedette"];

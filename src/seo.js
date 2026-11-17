@@ -105,7 +105,7 @@ export function pageHtml(dossierPublic, vue, { tarifs, vehicule, chemin, noindex
   const cible = vue === "vehicule" ? "vehicule" : vue;
   html = html.replace(new RegExp(`<div class="vue" data-vue="${cible}">`), () => `<div class="vue active" data-vue="${cible}">`);
   if (vue === "vehicule") { // fiche lisible sans JavaScript, remplacée par le rendu dynamique
-    const v = vehicule, li = [["Année", v.annee], ["Kilométrage", v.km != null ? `${Number(v.km).toLocaleString("fr-FR")} km` : null], ["Moteur", v.moteur], ["Transmission", v.trans], ["Traction", v.traction], ["Couleur", v.couleur], ["Places", v.places], ["Statut", STATUT_LIB[v.statut]], ["Prix", v.prix != null ? usd(v.prix) : null]].filter(x => x[1] != null && x[1] !== "");
+    const v = vehicule, li = [["Année", v.annee], ["Kilométrage", v.km != null ? `${Number(v.km).toLocaleString("fr-FR")} km` : null], ["Moteur", v.moteur], ["Cylindre", v.cylindre], ["Transmission", v.trans], ["Traction", v.traction], ["Couleur", v.couleur], ["Places", v.places], ["Statut", STATUT_LIB[v.statut]], ["Prix", v.prix != null ? usd(v.prix) : null]].filter(x => x[1] != null && x[1] !== "");
     html = html.replace('<div class="detail" id="detail"></div>', () => `<div class="detail" id="detail"><h2>${esc(v.marque)} ${esc(v.modele)}</h2><ul>${li.map(([k, x]) => `<li><b>${esc(k)} :</b> ${esc(x)}</li>`).join("")}</ul></div>`);
   }
   return html;

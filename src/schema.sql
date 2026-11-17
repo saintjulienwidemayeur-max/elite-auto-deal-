@@ -176,6 +176,7 @@ alter table dossiers add constraint dossiers_service_check check (service in ('p
 
 -- Vitrine du site (diapositives de la première page) et prix promo des véhicules
 alter table vehicules add column if not exists prix_promo numeric(12,2);
+alter table vehicules add column if not exists cylindre text;
 create table if not exists vitrine (
   id text primary key,
   marque text not null,

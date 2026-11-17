@@ -871,6 +871,7 @@ function addVehicleDrawer(){
     <div class="field"><label for="f-st">Statut</label><select id="f-st">${VST.slice(0,3).map(s=>`<option>${s}</option>`).join('')}</select></div></div>
     <div class="two"><div class="field"><label for="f-c">Couleur</label><select id="f-c">${Object.keys(COLORS).map(c=>`<option>${c}</option>`).join('')}</select></div>
     <div class="field"><label for="f-t">Carrosserie</label><select id="f-t"><option value="suv">SUV</option><option value="sedan">Berline</option><option value="pick">Pick-up</option></select></div></div>
+    <div class="two"><div class="field"><label for="f-cy">Cylindre</label><select id="f-cy"><option value="">Non précisé</option>${[3,4,5,6,8,10,12].map(n=>`<option value="${n} cylindres">${n} cylindres</option>`).join('')}</select></div><div class="field"></div></div>
     <div class="field"><label for="f-n">Conditions affichées</label><input id="f-n" value="Financement disponible" placeholder="Ex. tout compris : transport + dédouanement"><span class="hint">Pour une précommande : délai estimé, solde de 10 % à l'arrivée, conditions d'annulation.</span></div>
     <div class="field"><span style="font-size:13.5px;font-weight:600">Photos du véhicule</span>
       <label class="drop" for="f-media">${ic('img','style="width:26px;height:26px;color:var(--g500)"')}<br><b>Choisir des photos</b><br><span class="small muted">JPG, PNG ou WebP, 12 photos maximum. La première devient la photo principale. <b>Format conseillé : 1080 × 1350 px (4:5)</b> ; toute photo est ajustée à ce format sans déformation.</span><input id="f-media" type="file" accept="image/jpeg,image/png,image/webp" multiple></label>
@@ -891,9 +892,9 @@ function addVehicleDrawer(){
     if(l.length>4){toastErr('4 vidéos maximum.');l=l.slice(0,4)}
     vids=l;vids.forEach(f=>{const d=document.createElement('div');d.innerHTML=`<video src="${URL.createObjectURL(f)}" muted preload="metadata"></video>`;pv.appendChild(d)})};
   $('#addForm').onsubmit=e=>{e.preventDefault();
-    const v={id:'V'+(Date.now()%100000),mk:$('#f-mk').value.trim(),md:$('#f-md').value.trim(),y:+$('#f-y').value||'',mi:$('#f-mi').value||'—',p:+String($('#f-p').value).replace(/\D/g,'')||0,st:$('#f-st').value,c:$('#f-c').value,t:$('#f-t').value,note:$('#f-n').value.trim(),img:first,photos:files.map((f,i)=>({id:'local'+i,url:URL.createObjectURL(f)})),videos:vids.map((f,i)=>({id:'localv'+i,url:URL.createObjectURL(f)}))};
+    const v={id:'V'+(Date.now()%100000),mk:$('#f-mk').value.trim(),md:$('#f-md').value.trim(),y:+$('#f-y').value||'',mi:$('#f-mi').value||'—',p:+String($('#f-p').value).replace(/\D/g,'')||0,st:$('#f-st').value,c:$('#f-c').value,t:$('#f-t').value,note:$('#f-n').value.trim(),cyl:$('#f-cy').value,img:first,photos:files.map((f,i)=>({id:'local'+i,url:URL.createObjectURL(f)})),videos:vids.map((f,i)=>({id:'localv'+i,url:URL.createObjectURL(f)}))};
     if(LIVE){const fm={pick:'pickup',sedan:'berline',suv:'suv'}[v.t];const km=parseFloat(String(v.mi).replace(',','.'));
-      const body={marque:v.mk,modele:v.md,annee:v.y||null,couleur:v.c.charAt(0).toUpperCase()+v.c.slice(1),hex:COLORS[v.c]||null,km:isNaN(km)?null:(/k/i.test(v.mi)?Math.round(km*1000):Math.round(km)),prix:v.p||null,statut:VST_OUT[v.st]||'disponible',type:v.t==='pick'?'Pick-up':v.t==='sedan'?'Berline':'SUV',forme:fm,note:v.note||null};
+      const body={marque:v.mk,modele:v.md,annee:v.y||null,couleur:v.c.charAt(0).toUpperCase()+v.c.slice(1),hex:COLORS[v.c]||null,km:isNaN(km)?null:(/k/i.test(v.mi)?Math.round(km*1000):Math.round(km)),prix:v.p||null,statut:VST_OUT[v.st]||'disponible',type:v.t==='pick'?'Pick-up':v.t==='sedan'?'Berline':'SUV',forme:fm,cylindre:v.cyl||null,note:v.note||null};
       const btn=document.querySelector('[form="addForm"]');btn.disabled=true;
       api('/api/admin/vehicules',{method:'POST',body}).then(async cree=>{if(files.length&&cree&&cree.id){const bar=$('#addBar');bar.hidden=false;try{await uploadPhotos(cree.id,files,p=>{bar.firstElementChild.style.width=p+'%'})}catch(e){fail(e);toastErr('Véhicule publié, mais les photos n\'ont pas pu être envoyées. Ajoutez-les avec le bouton Photos.')}}
         if(vids.length&&cree&&cree.id){const bar=$('#addVBar');bar.hidden=false;try{await uploadMedias(cree.id,'videos',vids,p=>{bar.firstElementChild.style.width=p+'%'})}catch(e){fail(e);toastErr('Véhicule publié, mais les vidéos n\'ont pas pu être envoyées. Ajoutez-les avec le bouton Photos et vidéos.')}}
@@ -1120,7 +1121,7 @@ function mapPaiement(x){
 function splitModel(m,y){m=String(m||'');const t=String(y||'');return t&&m.endsWith(' '+t)?m.slice(0,-t.length-1):m}
 function mapVehicule(x){
   const c=String(x.couleur||'').toLowerCase();
-  return {id:x.id,mk:x.marque||'',md:splitModel(x.modele,x.annee),y:x.annee||'',c:c||'gris',hex:x.hex,mi:x.km?Math.round(x.km/1000)+'k':'—',p:x.prix||0,pp:x.prix_promo?+x.prix_promo:0,st:VST_IN[x.statut]||'Disponible',t:x.forme==='pickup'?'pick':x.forme==='berline'?'sedan':'suv',note:x.note||'',photos:Array.isArray(x.photos)?x.photos.map(p=>typeof p==='string'?{id:p,url:p}:p):[],videos:Array.isArray(x.videos)?x.videos:[],_api:x};
+  return {id:x.id,mk:x.marque||'',md:splitModel(x.modele,x.annee),y:x.annee||'',c:c||'gris',hex:x.hex,mi:x.km?Math.round(x.km/1000)+'k':'—',p:x.prix||0,pp:x.prix_promo?+x.prix_promo:0,st:VST_IN[x.statut]||'Disponible',t:x.forme==='pickup'?'pick':x.forme==='berline'?'sedan':'suv',note:x.note||'',cyl:x.cylindre||'',photos:Array.isArray(x.photos)?x.photos.map(p=>typeof p==='string'?{id:p,url:p}:p):[],videos:Array.isArray(x.videos)?x.videos:[],_api:x};
 }
 function mapPre(x){
   const bal={non_du:'attente',a_envoyer:'attente',envoye:'envoye',paye:'paye'}[x.statut_solde]||'attente';

@@ -1522,10 +1522,10 @@ input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:
       <div><h4>Services</h4><ul><li><a href="#consultation">Consultation</a></li><li><a href="#recherche">Recherche personnalisée</a></li><li><a href="#essai">Visite ou essai</a></li><li><a href="#vendre">Vendre mon véhicule</a></li><li><a href="#financement">Financement</a></li></ul></div>
       <div><h4>Contact</h4><ul>
         <li><a href="tel:+50942405729"><svg class="ic" aria-hidden="true"><use href="#i-tel"/></svg>+509 4240 5729</a></li>
-        <li><a href="https://wa.me/50942405729" target="_blank" rel="noopener"><svg class="ic ic-wa" aria-hidden="true"><use href="#i-walogo"/></svg>WhatsApp</a></li>
         <li><a href="mailto:contact@eliteautodeal.com"><svg class="ic" aria-hidden="true"><use href="#i-mail"/></svg>contact@eliteautodeal.com</a></li>
         <li><a href="mailto:lakougroup@gmail.com"><svg class="ic" aria-hidden="true"><use href="#i-mail"/></svg>lakougroup@gmail.com</a></li>
         <li class="pied-adresse"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg><span>33, Rue Faustin 1er, Delmas 33, Port-au-Prince</span></li>
+        <li><a href="https://wa.me/50942405729" target="_blank" rel="noopener"><svg class="ic ic-wa" aria-hidden="true"><use href="#i-walogo"/></svg>WhatsApp</a></li>
         <li><a href="https://www.instagram.com/eliteautodeal.ht/" target="_blank" rel="noopener"><svg class="ic ic-insta" aria-hidden="true"><use href="#i-insta"/></svg>Instagram</a></li>
         <li><a href="https://www.facebook.com/eliteautodeal" target="_blank" rel="noopener"><svg class="ic ic-fb" aria-hidden="true"><use href="#i-fb"/></svg>Facebook</a></li>
         <li><a href="https://www.tiktok.com/@eliteautodeal" target="_blank" rel="noopener"><svg class="ic ic-tiktok" aria-hidden="true"><use href="#i-tiktok"/></svg>TikTok</a></li>
@@ -1718,7 +1718,7 @@ function rendreDetail(){
   const v=parId(etat.v);const d=document.getElementById("detail");
   if(!v){d.innerHTML=`<div class="vide"><p>Choisissez un véhicule dans l'inventaire.</p><a class="btn btn-noir" href="#vehicules">Voir les véhicules</a></div>`;return;}
   document.getElementById("fil-v").textContent=nomV(v);
-  const fiche=[["Année",v.annee],["Kilométrage",miles(v.km)||"À confirmer"],["Moteur",v.moteur],["Transmission",v.trans],["Traction",v.traction],["Couleur",v.couleur],["Places",v.places],["Statut",STATUTS[v.statut]]];
+  const fiche=[["Année",v.annee],["Kilométrage",miles(v.km)||"À confirmer"],["Moteur",v.moteur],["Cylindre",v.cylindre],["Transmission",v.trans],["Traction",v.traction],["Couleur",v.couleur],["Places",v.places],["Statut",STATUTS[v.statut]]];
   let bloc="";
   if(precommandable(v)&&v.prix){
     bloc=`<div><h3 style="margin-bottom:10px">Paiement en deux temps</h3><div class="repartition"><div><span>À la précommande (90 %)</span><b>${usd(v.prix*.9)}</b></div><div><span>À l'arrivée en Haïti (10 %)</span><b>${usd(v.prix*.1)}</b></div></div></div>
