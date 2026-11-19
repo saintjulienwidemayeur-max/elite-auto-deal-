@@ -83,12 +83,14 @@ app.use(express.json({ limit: "200kb" }));
 /* ---------- Changement de statut d'un paiement (webhook ou vérification) ---------- */
 async function appliquerStatut(p, statut, data = {}, source = "verification") {
   if (p.statut === statut || p.statut === "succeeded") return; // un paiement réussi est définitif
+  let applique = false;
   await transaction(async c => {
     const r = await c.query(
       `update paiements set statut=$2, frais=$3, net=$4, echec_raison=$5, confirme_le=case when $2='succeeded' then now() else null end
        where id=$1 and statut<>'succeeded' returning *`,
       [p.id, statut, data.fee ?? null, data.net_amount ?? null, data.failure_reason ?? null]);
     if (!r.rowCount) return;
+    applique = true;
     const d = (await c.query("select * from dossiers where ref=$1 for update", [p.ref])).rows[0];
     if (statut === "succeeded") {
       if (p.type === "initial") {
@@ -107,6 +109,16 @@ async function appliquerStatut(p, statut, data = {}, source = "verification") {
       await c.query("insert into journal(ref, texte, type) values ($1,$2,'alerte')", [p.ref, `Paiement échoué${data.failure_reason ? " : " + data.failure_reason : ""}`]);
     }
   });
+  // Email de confirmation (MonCash, Natcash, carte) : le client le reçoit même s'il a perdu la page. Le virement a son propre email (confirmation par l'administrateur).
+  if (applique && statut === "succeeded" && p.methode !== "virement" && emailConfigure()) {
+    try {
+      const d = await un("select * from dossiers where ref=$1", [p.ref]);
+      if (d?.client_email) {
+        await envoyerEmail({ a: d.client_email, nom: d.client_nom, ...emailPaiementConfirme({ nom: d.client_nom, ref: d.ref, montant: `${Number(p.montant).toLocaleString("fr-FR")} ${p.devise}`, detail: d.donnees?.detail || SERVICES[d.service]?.titre || "", lien: `${PUBLIC_URL}/suivi-dossier`, whatsapp: process.env.WHATSAPP_NUMERO || "50942405729", moyen: LIB_METHODE[p.methode] }) });
+        await journaliser(d.ref, "Email de confirmation de paiement envoyé au client", "paiement");
+      }
+    } catch (e) { console.warn("email confirmation paiement", e.message); }
+  }
 }
 
 /** Interroge Freda Pay si le dernier paiement est en attente (au plus toutes les 4 s). */

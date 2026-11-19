@@ -106,3 +106,9 @@ API : `POST /api/dossiers/:ref/preuve` (jeton), `GET /api/dossiers/:ref/virement
 ## Stockage des photos de véhicules
 
 Si ni Supabase (`SUPABASE_URL` + `SUPABASE_SERVICE_KEY`) ni un disque persistant (`UPLOAD_DIR`) ne sont configurés, les photos des véhicules sont gardées **dans la base Postgres** : elles survivent aux redémarrages de Render (le disque de Render est effacé). Les vidéos et les documents clients ont toujours besoin de Supabase ou d'un disque persistant.
+
+## Confirmation de paiement (MonCash, Natcash, carte)
+
+- Dès que Freda confirme (webhook ou interrogation), le client reçoit l'email « Paiement confirmé ».
+- Le site mémorise le dernier dossier payé : si le client revient sur n'importe quelle page sans passer par la page de retour, il est envoyé sur la page de confirmation (paiement confirmé) ou voit un bandeau « paiement en cours de vérification ».
+- Après 10 minutes sans réponse, la page de retour ne propose plus de payer à nouveau : elle demande de ne pas repayer, vérifie toute seule et propose WhatsApp.

@@ -97,12 +97,12 @@ export function emailDevis({ nom, numero, total, lien, expire, whatsapp }) {
   };
 }
 
-export function emailPaiementConfirme({ nom, ref, montant, detail, lien, whatsapp }) {
+export function emailPaiementConfirme({ nom, ref, montant, detail, lien, whatsapp, moyen }) {
   const prenom = esc(String(nom).trim().split(/\s+/)[0]);
   return {
     sujet: `Paiement confirmé — dossier ${ref} — Elite Auto Deal`,
     html: cadre("Paiement confirmé", `<p style="margin:0 0 14px">Bonjour ${prenom},</p>
-      <p style="margin:0 0 14px">Nous avons bien reçu et vérifié votre virement. Merci de votre confiance !</p>
+      <p style="margin:0 0 14px">Nous avons bien reçu et vérifié votre paiement${moyen ? " par " + esc(moyen) : ""}. Merci de votre confiance !</p>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:18px 0"><tr><td align="center" style="background:${FOND};border:1px solid #E5E7EB;border-radius:10px;padding:18px 12px">
       <div style="font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:${GRIS};margin-bottom:6px">Montant confirmé</div>
       <div style="font-size:28px;font-weight:bold;color:${NOIR}">${esc(montant)}</div>
@@ -110,8 +110,8 @@ export function emailPaiementConfirme({ nom, ref, montant, detail, lien, whatsap
       <p style="margin:0 0 14px">Votre dossier est maintenant en cours de traitement. Vous pouvez suivre chaque étape depuis votre espace client.</p>
       ${bouton(lien, "Suivre mon dossier")}
       <p style="margin:18px 0 0;color:${GRIS};font-size:14px">Une question ? Écrivez-nous sur WhatsApp${whatsapp ? ` au <b style="color:${NOIR}">+${esc(whatsapp)}</b>` : ""}.</p>`,
-      `Votre virement de ${montant} est confirmé (dossier ${ref}).`),
-    texte: `Bonjour ${String(nom).trim().split(/\s+/)[0]}, votre virement de ${montant} est confirmé (dossier ${ref}). Suivez votre dossier : ${lien}`,
+      `Votre paiement de ${montant} est confirmé (dossier ${ref}).`),
+    texte: `Bonjour ${String(nom).trim().split(/\s+/)[0]}, votre paiement de ${montant} est confirmé (dossier ${ref}). Suivez votre dossier : ${lien}`,
   };
 }
 

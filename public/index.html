@@ -2247,10 +2247,30 @@ async function sonder(){
   if(d&&d.paiement&&d.paiement.methode==="virement"&&st!=="succeeded"){await ecranVirement(d);RT.t=setTimeout(sonder,8000);return;}
   if(st==="succeeded"){RT.enCours=false;ecranSucces(d);return;}
   if(st==="failed"){RT.enCours=false;ecranEchec(d);return;}
-  if(Date.now()-RT.debut>600000){RT.enCours=false;ecranEchec(d,true);return;}
+  const long=Date.now()-RT.debut>600000;
+  if(long){z.innerHTML=`<div class="bloc-form"><h3>Paiement en cours de vérification</h3>
+    <p class="muted">Dossier <b>${esc(ref)}</b>. Si MonCash ou Natcash vous a affiché « Payment successful », <b>ne payez pas une 2e fois</b> : votre paiement est enregistré dès que le prestataire nous le confirme, et vous recevez un email. Cette page continue de vérifier toute seule.</p>
+    <div class="form-actions"><a class="btn btn-wa btn-sm" target="_blank" rel="noopener" href="${waUrl("Bonjour Elite Auto Deal, j'ai payé mais mon paiement n'est pas encore confirmé.\nRéférence : "+ref)}"><svg aria-hidden="true"><use href="#i-wa"/></svg>Écrire sur WhatsApp</a><button class="btn btn-noir btn-sm" type="button" data-r="verif">Vérifier maintenant</button></div></div>`;
+    z.querySelector("[data-r=verif]").onclick=()=>{clearTimeout(RT.t);sonder();};RT.t=setTimeout(sonder,15000);return;}
   z.innerHTML=`<div class="bloc-form"><div class="verif" role="status"><span class="spin"></span>Paiement en attente de confirmation…</div>
     <p class="muted">Dossier <b>${esc(ref)}</b>${d&&d.paiement&&d.paiement.montant!=null?", "+montantDevise(d.paiement.montant,d.paiement.devise):""}. Si vous payez par MonCash ou Natcash, validez la transaction sur votre téléphone. Cette page se met à jour toute seule.</p></div>`;
   RT.t=setTimeout(sonder,4000);
+}
+/* Paiement mémorisé : si le client revient sur le site (sans passer par la page de retour), on lui montre l'état de son dernier paiement */
+function masquerBandeauPaiement(){const b=document.getElementById("bandeau-paiement");if(b)b.remove();}
+async function verifierDernierPaiement(){
+  if(!MODE_REEL)return;
+  const ref=refRetour();if(!ref||vueCourante()==="retour")return;
+  try{if(localStorage.getItem("ead-ack-"+ref))return;}catch(_){}
+  let d;try{d=await api("/api/dossiers/"+encodeURIComponent(ref));}catch(e){if(e.status===404){try{localStorage.removeItem("ead-derniere-ref");}catch(_){}}return;}
+  const st=d&&d.paiement?d.paiement.statut:null;if(!st||st==="failed")return;
+  if(st==="succeeded"){aller("retour");return;} /* paiement confirmé : on affiche la page de confirmation */
+  if(st==="pending"&&d.paiement.methode!=="virement"&&!document.getElementById("bandeau-paiement")){
+    const b=document.createElement("div");b.id="bandeau-paiement";b.setAttribute("role","status");
+    b.style.cssText="background:#0B0B0C;color:#fff;padding:12px 16px;text-align:center;font-size:14.5px";
+    b.innerHTML=`Paiement en cours de vérification (dossier <b>${esc(ref)}</b>). <a href="/retour-paiement" style="color:#fff;text-decoration:underline;font-weight:700" data-aller="retour">Voir l'état</a>`;
+    document.body.insertBefore(b,document.body.firstChild);
+  }
 }
 /* Virement bancaire : dépôt de la preuve de paiement, puis vérification par l'administrateur */
 async function ecranVirement(d){
@@ -2283,6 +2303,7 @@ async function ecranVirement(d){
   };
 }
 function ecranSucces(d){
+  try{localStorage.setItem("ead-ack-"+d.ref,"1");}catch(_){}masquerBandeauPaiement();
   const z=document.getElementById("retour-zone"),S=SERV[d.service]||{suite:[]},p=d.paiement||{};
   const meth=LIB_METH[p.methode]||"MonCash ou Natcash";
   const paye=montantDevise(p.montant,p.devise);
@@ -2809,6 +2830,7 @@ async function demarrer(){
   if(q){try{localStorage.setItem("ead-derniere-ref",q.trim().toUpperCase());}catch(_){}if(vueCourante()==="accueil")allerChemin(CHEMINS.retour+location.search,true);}
   const ri=new URLSearchParams(location.search).get("reinit");if(ri){CPT.reinit=ri;if(vueCourante()!=="compte")allerChemin(CHEMINS.compte+location.search,true);}
   CPT.pret=false;CPT.client=null;
+  setTimeout(verifierDernierPaiement,1500);
   await Promise.all([(async()=>{try{const l=await api("/api/vehicules");if(Array.isArray(l)){DERNIER.v=JSON.stringify(l);V.length=0;l.forEach(v=>V.push(v));rerendre();}}catch(_){}})(),chargerCompte()]);
   route();
 }
