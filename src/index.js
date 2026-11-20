@@ -10,7 +10,7 @@ import { unlink, readFile } from "node:fs/promises";
 import { q, un, tous, migrer, parametres, journaliser, transaction } from "./db.js";
 import { SERVICES, COLS_VEHICULE } from "./catalogue.js";
 import { creerPaiement, lirePaiement, signatureValide, modeFreda, fredaConfiguree, ErreurFreda } from "./freda.js";
-import { DOSSIER_LOCAL, enregistrer, servir, servirPublic, servirPublicRange, supprimer, photosEnBase } from "./stockage.js";
+import { DOSSIER_LOCAL, enregistrer, servir, servirPublic, servirPublicRange, supprimer, photosEnBase, modeStockage } from "./stockage.js";
 import { photo45 } from "./medias.js";
 import { envoyerEmail, emailConfigure, emailBienvenue, emailCode, emailDevis, emailPaiementConfirme, emailVirementRefuse } from "./email.js";
 import { validerDevis, genererPdf, montant as montantDevis } from "./devis.js";
@@ -766,6 +766,13 @@ app.patch("/api/admin/dossiers/:ref", enveloppe(async (req, res) => {
   res.json(formeDossier(await un(`${LISTE_DOSSIERS} where d.ref=$1`, [d.ref])));
 }));
 
+// État du stockage des fichiers (page Paramètres) : où vont les nouveaux fichiers, et combien sont perdus
+app.get("/api/admin/stockage", enveloppe(async (_req, res) => {
+  const mode = modeStockage() === "supabase" ? "supabase" : photosEnBase() ? "base" : "disque";
+  const l = await tous("select id, stockage, chemin from fichiers");
+  const perdus = l.filter(f => f.stockage === "local" && !existsSync(path.join(DOSSIER_LOCAL, f.chemin))).length;
+  res.set("Cache-Control", "no-store").json({ mode, fichiers: l.length, perdus });
+}));
 // Lien temporaire (5 min) pour ouvrir un fichier dans un nouvel onglet : fonctionne sur téléphone, avec Supabase (redirection) comme avec la base ou le disque
 const sigFichier = (id, exp) => crypto.createHmac("sha256", SESSION_SECRET).update(`fichier:${id}:${exp}`).digest("base64url");
 app.get("/api/admin/fichiers/:id/lien", enveloppe(async (req, res) => {

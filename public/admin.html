@@ -1507,6 +1507,11 @@ document.addEventListener('click',e=>{
 });
 /* ================= Code d'accès administrateur ================= */
 const _vParams=V['parametres-site'];
+LOADERS.stockage=()=>api('/api/admin/stockage').then(r=>{LV.stockage=r});
+NEEDS['parametres-site']=[...(NEEDS['parametres-site']||[]),'stockage'];
+const stockageCarte=()=>{const s=LV.stockage;if(!s)return '';const lib={base:['Base de données (durable)','b-ok'],supabase:['Supabase Storage (durable)','b-ok'],disque:['Disque du serveur (temporaire sur Render)','b-warn']}[s.mode]||['','b-n'];
+ return `<section class="card" style="margin-top:18px;max-width:560px"><div class="card-h"><h2>Stockage des fichiers</h2></div><div class="card-b"><p style="margin:0 0 10px">Nouveaux fichiers (photos, documents, preuves) : <span class="badge ${lib[1]}">${esc(lib[0])}</span></p>
+ <p class="small muted" style="margin:0">${s.fichiers} fichier(s) de dossiers enregistré(s)${s.perdus?` · <b style="color:#9E0B22">${s.perdus} perdu(s)</b> : ouvrez le dossier concerné et utilisez « Redemander ».`:' · aucun fichier perdu.'}</p></div></section>`};
 const accesCarte=()=>`<section class="card" style="margin-top:18px;max-width:560px"><div class="card-h"><h2>Code d'accès administrateur</h2></div><div class="card-b">
   <form class="form" id="accForm" novalidate autocomplete="off">
    <div class="field"><label for="acc-a">Code d'accès actuel</label><input id="acc-a" type="password" autocomplete="current-password" required></div>
@@ -1524,7 +1529,7 @@ const banqueCarte=()=>{const b=((LV.params||{}).banque)||{};return `<section cla
    <div class="field"><label for="bq-d">Devise du compte</label><input id="bq-d" value="${esc(b.devise||'')}" maxlength="40" placeholder="Gourdes (HTG)"></div>
    <div class="small" id="bqErr" role="alert" style="color:var(--rouge);min-height:18px"></div>
    <button class="btn btn-n" type="submit" id="bqBtn">Enregistrer le compte bancaire</button></form></div></section>`};
-V['parametres-site']=()=>_vParams()+(LIVE?banqueCarte()+accesCarte():'');
+V['parametres-site']=()=>_vParams()+(LIVE?banqueCarte()+stockageCarte()+accesCarte():'');
 document.addEventListener('submit',async e=>{
   if(e.target.id!=='banqueForm')return;e.preventDefault();const err=$('#bqErr');err.textContent='';
   const banque={nom:$('#bq-n').value.trim(),titulaire:$('#bq-t').value.trim(),compte:$('#bq-c').value.trim(),succursale:$('#bq-s').value.trim(),devise:$('#bq-d').value.trim()};
