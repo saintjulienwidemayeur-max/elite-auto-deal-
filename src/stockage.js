@@ -11,7 +11,8 @@ const BUCKET = process.env.SUPABASE_BUCKET || "dossiers";
 export const DOSSIER_LOCAL = path.resolve(process.env.UPLOAD_DIR || "./uploads");
 export const modeStockage = () => (SB_URL && SB_KEY ? "supabase" : "local");
 /** Photos de véhicules : sans Supabase ni disque persistant (UPLOAD_DIR), le disque de Render est effacé à chaque redémarrage : on les garde dans la base. */
-export const photosEnBase = () => modeStockage() === "local" && !process.env.UPLOAD_DIR;
+// UPLOAD_DIR relatif (ex. ./uploads, valeur de .env.example) = disque éphémère de Render : seul un chemin absolu (point de montage d'un disque persistant, ex. /var/data) est considéré durable.
+export const photosEnBase = () => modeStockage() === "local" && !path.isAbsolute(process.env.UPLOAD_DIR || "");
 const MAX_BASE = 15 * 1024 * 1024; // au-delà, un fichier garde le disque local (perdu au redémarrage) : configurez Supabase Storage
 const idBlob = f => (/^blob:(\d+)$/.exec(f.chemin || "") || [])[1];
 const lireBlob = async f => (await un("select donnees from blobs where id=$1", [idBlob(f)]))?.donnees || null;
