@@ -1203,10 +1203,18 @@ VL.apercu=()=>{
     </div>
   </div>`;
 };
+LOADERS.finStatut=()=>api('/api/admin/financement').then(r=>{LV.finDispo=r.disponible!==false});
+NEEDS.financement=[...NEEDS.financement,'finStatut'];
+document.addEventListener('click',e=>{const b=e.target.closest('[data-findispo]');if(!b||!$('#view').contains(b))return;
+  const rendre=b.dataset.findispo==='off';
+  const run=async()=>{try{await api('/api/admin/financement',{method:'PUT',body:{disponible:!rendre}});LV.finDispo=!rendre;toast(rendre?'Financement indisponible pour le moment : les clients le voient tout de suite':'Financement de nouveau disponible');render()}catch(er){fail(er)}};
+  if(rendre)confirmBox('Mettre le financement indisponible ?','Le site affichera « Indisponible pour le moment, revenez dans quelques heures ou quelques jours » et les nouvelles demandes seront bloquées. Les dossiers déjà ouverts ne changent pas.','Mettre indisponible',run,true);else run()});
 VL.financement=()=>{
   const list=S.dossiers.filter(d=>d.svc==='financement'&&match(d.id,d.cl,d.need));
   const lbl=['Reçue','Vérification des documents','En examen','Décision finale'];
-  return `<div class="head"><div><h1>Financement</h1><p>Aucune approbation automatique : le site collecte, vous décidez.</p></div></div>
+  const dispo=LV.finDispo!==false;
+  return `<div class="head"><div><h1>Financement</h1><p>Aucune approbation automatique : le site collecte, vous décidez.</p></div>
+  <div class="actions"><span class="badge ${dispo?'b-ok':'b-bad'}">${dispo?'Ouvert aux clients':'Indisponible pour le moment'}</span><button class="btn ${dispo?'btn-t':'btn-p'}" type="button" data-findispo="${dispo?'off':'on'}">${dispo?'Mettre indisponible':'Réactiver le financement'}</button></div></div>
   <div class="stage-legend">${lbl.map(s=>`<span>${s}</span>`).join(ic('more','style="width:14px;height:14px;opacity:.4"'))}</div>
   ${list.length?`<div class="fin-grid">${list.map(d=>{const st=Math.min(d.etape,3);const paid=d.pay==='confirme';
     const bars=[0,1,2,3].map(i=>`<i class="${st===3?'ok':i<=st?'on':''}"></i>`).join('');
@@ -1281,11 +1289,20 @@ async function dossierDrawerLive(id){
   const lignes=(x.donnees&&x.donnees.lignes)||[];
   const files=x.fichiers||[];
   const journal=x.journal||[];
+  const DOCS_STD=["Pièce d'identité (carte, passeport ou permis)","Preuve de revenus","Relevé bancaire (3 derniers mois)","Preuve d'adresse","Lettre d'emploi ou preuve d'activité","Autre document justificatif"];
+  const lien=x.lien_documents;const choisis=lien?lien.documents:DOCS_STD.slice(0,5);
+  const lienSec=`<div class="sec" id="docs-sec"><h3>Lien pour compléter le dossier</h3>
+   <p class="small muted" style="margin:0 0 10px">Un seul lien par dossier : copiez-le et envoyez-le au client. Il dépose lui-même tous les documents manquants.</p>
+   <div style="display:grid;gap:6px;margin-bottom:10px">${[...new Set([...DOCS_STD,...choisis])].map((l,i)=>`<label style="display:flex;gap:8px;align-items:flex-start;font-size:14px"><input type="checkbox" data-doc="${esc(l)}" ${choisis.includes(l)?'checked':''} style="margin-top:3px"><span>${esc(l)}</span></label>`).join('')}</div>
+   <div class="field"><label for="docs-msg" class="small">Message pour le client (facultatif)</label><input id="docs-msg" maxlength="500" value="${esc((lien&&lien.message)||'')}" placeholder="Ex. : photos nettes, tous les coins visibles"></div>
+   <button class="btn btn-n" type="button" id="docs-creer" style="margin-top:10px">${ic('send')}${lien?'Mettre à jour le lien':'Créer le lien'}</button>
+   <div id="docs-res">${lien?`<div class="field" style="margin-top:12px"><label class="small">Lien du client</label><input id="docs-url" readonly value="${esc(lien.url)}"></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button class="btn btn-t btn-sm" type="button" data-docs-copy>Copier le lien</button>${tel?`<a class="btn btn-wa btn-sm" target="_blank" rel="noopener" href="${waLink(tel,`Bonjour ${d.cl}, ici Elite Auto Deal. Pour finaliser votre dossier ${d.id}, envoyez les documents manquants avec ce lien : ${lien.url}`)}">${ic('wa')}Envoyer par WhatsApp</a>`:''}</div>`:''}</div></div>`;
   openDrawer(drawerHead(esc(d.cl),`${esc(SVC[d.svc]||d.svc)} · ${esc(d.id)}`)+`<div class="drawer-b">
    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px"><span class="badge ${d.st==='validation'?'b-bad':d.st==='clos'?'b-g':'b-n'}">${DST[d.st]}</span><span class="badge ${PST[d.pay][1]}">Paiement : ${PST[d.pay][0].toLowerCase()}</span></div>
    <dl class="kv"><dt>Compte client</dt><dd>${acctHtml(x.client_compte&&x.client_compte.nom)}</dd><dt>Téléphone</dt><dd class="num">${esc(x.client_tel||'')}</dd>${x.client_whatsapp&&x.client_whatsapp!==x.client_tel?`<dt>WhatsApp</dt><dd class="num">${esc(x.client_whatsapp)}</dd>`:''}${x.client_email?`<dt>Email</dt><dd>${esc(x.client_email)}</dd>`:''}<dt>Demande</dt><dd>${esc(d.need)}</dd><dt>Reçue le</dt><dd>${esc(fdate(x.cree_le,true))}</dd>${x.vehicule?`<dt>Véhicule</dt><dd>${esc(typeof x.vehicule==='string'?x.vehicule:[x.vehicule.marque,x.vehicule.modele].filter(Boolean).join(' '))}</dd>`:''}</dl>
    ${lignes.length?`<div class="sec"><h3>Formulaire du client</h3><dl class="kv small">${lignes.map(([a,b])=>`<dt>${esc(a)}</dt><dd>${esc(b)}</dd>`).join('')}</dl></div>`:''}
    <div class="sec"><h3>Paiements</h3>${pays.length?`<div class="files">${pays.map(q=>`<div class="file">${ic('card')}<span><b>${fmt(q.amt,q.cur)}</b> · ${esc(q.prov)}<br><span class="small muted">${esc(q.d)}${q.freda?' · '+esc(q.freda):''}</span><br><span class="badge ${PST[q.st][1]}" style="margin-top:6px">${PST[q.st][0]}</span></span></div>`).join('')}</div>`:'<p class="small muted" style="margin:0">Aucun paiement enregistré.</p>'}</div>
+   ${lienSec}
    <div class="sec"><h3>Fichiers envoyés</h3>${files.length?`<div class="files">${files.map(f=>`<div class="file">${ic(fileIcon(f.type,f.nom))}<span>${esc(f.nom)}<br><span class="small muted">${kb(f.taille)}</span>${f.perdu?`<br><span class="badge b-bad">Fichier perdu</span>`:''}</span>${f.perdu?`<a class="btn btn-wa btn-sm" target="_blank" rel="noopener" href="${waLink(tel,`Bonjour ${d.cl}, ici Elite Auto Deal (dossier ${d.id}). Une panne technique a effacé le document « ${f.nom} ». Pouvez-vous le renvoyer ici sur WhatsApp ou depuis votre espace client sur eliteautodeal.com ? Merci et toutes nos excuses.`)}">Redemander</a>`:`<button class="btn btn-t btn-sm" data-file="${esc(f.id)}">Ouvrir</button>`}</div>`).join('')}</div>`:'<p class="small muted" style="margin:0">Aucun fichier pour ce dossier.</p>'}</div>
    ${statuts.length?`<div class="sec"><h3>Étapes du dossier</h3><ol class="steps-list">${statuts.map((s,i)=>`<li class="${i<et?'done':i===et?'cur':''}"><i></i>${esc(s)}</li>`).join('')}</ol></div>`:''}
    <div class="sec"><h3>Historique</h3>${journal.length?`<ul class="timeline">${journal.map(j=>`<li>${esc(j.texte||'')}${j.par?` <span class="muted">(${esc(j.par)})</span>`:''}<time>${esc(fdate(j.quand,true))}</time></li>`).join('')}</ul>`:'<p class="small muted" style="margin:0">Aucun événement.</p>'}</div>
@@ -1295,6 +1312,17 @@ async function dossierDrawerLive(id){
   <div class="drawer-f">${tel?`<a class="btn btn-wa" href="${waLink(tel,msg)}" target="_blank" rel="noopener">${ic('wa')}WhatsApp</a>`:''}${acts.map(([l,a],i)=>`<button class="btn ${i===0?'btn-n':'btn-t'}" data-lact="${a}" ${canAct?'':'disabled'}>${esc(l)}</button>`).join('')}</div>`);
   const dr=$('#drawer');
   dr.querySelectorAll('[data-file]').forEach(b=>b.onclick=()=>openFile(b.dataset.file,b));
+  const cr=dr.querySelector('#docs-creer');
+  if(cr)cr.onclick=async()=>{
+    const docs=[...dr.querySelectorAll('[data-doc]:checked')].map(i=>i.dataset.doc);
+    if(!docs.length)return toastErr('Cochez au moins un document à demander.');
+    cr.disabled=true;
+    try{const r=await api('/api/admin/dossiers/'+encodeURIComponent(id)+'/lien-documents',{method:'POST',body:{documents:docs,message:($('#docs-msg')||{}).value||''}});
+      $('#docs-res').innerHTML=`<div class="field" style="margin-top:12px"><label class="small">Lien du client</label><input id="docs-url" readonly value="${esc(r.url)}"></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button class="btn btn-t btn-sm" type="button" data-docs-copy>Copier le lien</button>${tel?`<a class="btn btn-wa btn-sm" target="_blank" rel="noopener" href="${waLink(tel,`Bonjour ${d.cl}, ici Elite Auto Deal. Pour finaliser votre dossier ${d.id}, envoyez les documents manquants avec ce lien : ${r.url}`)}">${ic('wa')}Envoyer par WhatsApp</a>`:''}</div>`;
+      copyText(r.url,'Lien créé et copié : envoyez-le au client',$('#docs-url'));cr.textContent='Mettre à jour le lien';
+    }catch(e){fail(e)}finally{cr.disabled=false}
+  };
+  dr.addEventListener('click',e=>{const b=e.target.closest('[data-docs-copy]');if(b)copyText($('#docs-url').value,'Lien copié',$('#docs-url'))});
   dr.querySelectorAll('[data-lact]').forEach(b=>b.onclick=()=>{
     const a=b.dataset.lact;const def=acts.find(z=>z[1]===a);const label=def[0];const body={...def[2]};
     if(body.etape==='last')body.etape=Math.max(0,statuts.length-1);else if(body.etape==='next')body.etape=Math.min(et+1,Math.max(0,statuts.length-1));

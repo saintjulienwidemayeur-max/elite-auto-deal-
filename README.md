@@ -112,3 +112,8 @@ Si ni Supabase (`SUPABASE_URL` + `SUPABASE_SERVICE_KEY`) ni un disque persistant
 - Dès que Freda confirme (webhook ou interrogation), le client reçoit l'email « Paiement confirmé ».
 - Le site mémorise le dernier dossier payé : si le client revient sur n'importe quelle page sans passer par la page de retour, il est envoyé sur la page de confirmation (paiement confirmé) ou voit un bandeau « paiement en cours de vérification ».
 - Après 10 minutes sans réponse, la page de retour ne propose plus de payer à nouveau : elle demande de ne pas repayer, vérifie toute seule et propose WhatsApp.
+
+## Lien « documents manquants » et financement indisponible
+
+- **Lien unique par dossier** : Admin → ouvrir un dossier → « Lien pour compléter le dossier » : cochez les documents à demander (message facultatif), « Créer le lien », puis copiez-le ou envoyez-le par WhatsApp. Le client ouvre `/documents/<jeton>` (jamais indexé), voit ce qui manque et dépose tout lui-même (photos/PDF, 10 Mo). Les fichiers arrivent dans le dossier. Le lien ne change pas aux mises à jour.
+- **Financement indisponible** : Admin → Financement → « Mettre indisponible ». Le site affiche « Indisponible pour le moment, revenez dans quelques heures ou quelques jours » (page Financement, carte de service, badges « Financement disponible » masqués) et le serveur refuse les nouvelles demandes (409). « Réactiver le financement » remet tout en place ; les dossiers déjà ouverts ne changent pas. Les visiteurs voient le changement en moins de 30 secondes sans recharger.

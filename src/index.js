@@ -212,10 +212,12 @@ async function avecPhotos(vs, admin = false) {
   return vs;
 }
 
+/** Financement : l'administrateur peut le mettre « indisponible pour le moment » quand il y a trop de demandes à traiter. */
+const financementDispo = async () => (await un("select valeur from parametres where cle='financement_statut'"))?.valeur?.disponible !== false;
 app.get("/api/config", enveloppe(async (_req, res) => {
   const { taux, tarifs, banque } = await parametres();
   res.json({ mode: modeFreda(), taux_htg: taux.taux_htg, taux_date: taux.taux_date, tarifs, banque, whatsapp: process.env.WHATSAPP_NUMERO || "50942405729",
-    methodes: CARTE_ACTIVE ? ["moncash", "natcash", "carte"] : ["moncash", "natcash"], paiement_actif: fredaConfiguree() });
+    methodes: CARTE_ACTIVE ? ["moncash", "natcash", "carte"] : ["moncash", "natcash"], paiement_actif: fredaConfiguree(), financement_disponible: await financementDispo() });
 }));
 
 app.get("/api/vehicules", enveloppe(async (_req, res) => {
@@ -243,6 +245,7 @@ app.post("/api/dossiers", limiteur(Number(process.env.LIMITE_DOSSIERS) || 12, 15
   try {
     const service = b.service, S = SERVICES[service];
     if (!S) throw err(400, "SERVICE", "Service inconnu.");
+    if (service === "financement" && !(await financementDispo())) throw err(409, "FINANCEMENT_INDISPONIBLE", "Le financement est indisponible pour le moment : nous traitons beaucoup de demandes. Revenez dans quelques heures ou dans quelques jours.");
     const idCli = idSession(req), cli = idCli ? await un("select * from clients where id=$1", [idCli]) : null;
     const nom = String(b.client_nom || cli?.nom || "").trim().slice(0, 120), tel = String(b.client_tel || cli?.tel || "").trim().slice(0, 40);
     if (nom.length < 2 || tel.replace(/\D/g, "").length < 8) throw err(400, "CLIENT", "Indiquez votre nom complet et un numéro de téléphone valide.");
@@ -315,6 +318,45 @@ app.get("/api/dossiers/:ref", limiteur(240, 10 * 60e3), enveloppe(async (req, re
     prenom: prenomDe(d.client_nom),
   });
 }));
+
+/* ---------- Lien « documents manquants » : un seul lien par dossier, le client dépose tout ce qui manque ---------- */
+const uploadDocs = multer({
+  dest: os.tmpdir(), limits: { fileSize: 10 * 1024 * 1024, files: 12 },
+  fileFilter: (_req, f, cb) => cb(/^(image\/|application\/pdf$)/.test(f.mimetype) ? null : err(400, "FICHIER", `Type de fichier non accepté : ${f.originalname}. Photo ou PDF uniquement.`), true),
+});
+const dossierDocs = async jeton => {
+  const j = String(jeton || "");
+  const d = j.length >= 20 ? await un("select * from dossiers where docs_jeton=$1", [j]) : null;
+  if (!d) throw err(404, "INTROUVABLE", "Ce lien n'existe pas ou n'est plus valable. Contactez-nous sur WhatsApp.");
+  return d;
+};
+const vueDocs = async d => {
+  const dem = Array.isArray(d.docs_demandes) ? d.docs_demandes : [];
+  const fs = await tous("select id, nom, champ from fichiers where ref=$1 order by id", [d.ref]);
+  return { ref: d.ref, prenom: prenomDe(d.client_nom), titre: SERVICES[d.service]?.titre || "", message: d.docs_message || "",
+    demandes: dem.map((label, i) => ({ cle: `d${i}`, label, recus: fs.filter(f => f.champ === label).map(f => ({ nom: f.nom })) })) };
+};
+app.get("/api/documents/:jeton", limiteur(120, 10 * 60e3), enveloppe(async (req, res) => {
+  res.set("Cache-Control", "no-store").json(await vueDocs(await dossierDocs(req.params.jeton)));
+}));
+app.post("/api/documents/:jeton", limiteur(30, 15 * 60e3), uploadDocs.array("fichiers", 12), enveloppe(async (req, res) => {
+  const fichiers = req.files || [];
+  try {
+    const d = await dossierDocs(req.params.jeton);
+    if (!fichiers.length) throw err(400, "VIDE", "Ajoutez au moins un document.");
+    let cles = []; try { cles = JSON.parse(req.body.champs || "[]"); } catch { /* ignoré */ }
+    const dem = Array.isArray(d.docs_demandes) ? d.docs_demandes : [];
+    for (const [i, f] of fichiers.entries()) {
+      const idx = Number(String(cles[i] || "").replace(/^d/, ""));
+      const champ = dem[idx] || "Document complémentaire";
+      const s = await enregistrer(f.path, d.ref, f.originalname, f.mimetype);
+      await q("insert into fichiers(ref, champ, nom, type, taille, stockage, chemin) values ($1,$2,$3,$4,$5,$6,$7)", [d.ref, champ, f.originalname, f.mimetype, f.size, s.stockage, s.chemin]);
+    }
+    await journaliser(d.ref, `Documents reçus via le lien du dossier : ${fichiers.length} fichier(s)`, "media");
+    res.status(201).json(await vueDocs(d));
+  } finally { for (const f of fichiers) unlink(f.path).catch(() => {}); }
+}));
+app.get("/documents/:jeton", enveloppe(async (req, res) => envoyerPage(res, "documents", "/documents/" + encodeURIComponent(req.params.jeton), { noindex: true })));
 
 // Virement : le client dépose sa preuve de paiement (image ou PDF, 10 Mo max, 3 fichiers max)
 const uploadPreuve = multer({
@@ -735,6 +777,24 @@ app.get("/api/admin/dossiers", enveloppe(async (req, res) => {
   res.json(ds);
 }));
 
+const DOCS_PAR_DEFAUT = ["Pièce d'identité (carte, passeport ou permis)", "Preuve de revenus", "Relevé bancaire (3 derniers mois)", "Preuve d'adresse", "Lettre d'emploi ou preuve d'activité"];
+app.post("/api/admin/dossiers/:ref/lien-documents", enveloppe(async (req, res) => {
+  const d = await un("select ref, docs_jeton, client_nom from dossiers where ref=$1", [req.params.ref]);
+  if (!d) throw err(404, "INTROUVABLE", "Dossier introuvable.");
+  const docs = (Array.isArray(req.body?.documents) ? req.body.documents : DOCS_PAR_DEFAUT).map(x => String(x).trim().slice(0, 120)).filter(Boolean).slice(0, 12);
+  if (!docs.length) throw err(400, "DOCUMENTS", "Choisissez au moins un document à demander.");
+  const jeton = d.docs_jeton || crypto.randomBytes(18).toString("hex"); // un seul lien par dossier : il ne change pas
+  await q("update dossiers set docs_jeton=$2, docs_demandes=$3, docs_message=$4, maj_le=now() where ref=$1", [d.ref, jeton, JSON.stringify(docs), String(req.body?.message || "").trim().slice(0, 500) || null]);
+  await journaliser(d.ref, `Lien de documents créé : ${docs.join(", ")}`, "dossier", "administrateur");
+  res.json({ url: `${PUBLIC_URL}/documents/${jeton}`, documents: docs });
+}));
+app.get("/api/admin/financement", enveloppe(async (_req, res) => res.json({ disponible: await financementDispo() })));
+app.put("/api/admin/financement", enveloppe(async (req, res) => {
+  const disponible = req.body?.disponible !== false;
+  await q("insert into parametres(cle, valeur) values ('financement_statut', $1) on conflict (cle) do update set valeur=excluded.valeur", [JSON.stringify({ disponible })]);
+  await journaliser(null, `Financement ${disponible ? "réactivé" : "mis indisponible pour le moment"}`, "parametres", "administrateur");
+  res.json({ disponible });
+}));
 app.get("/api/admin/dossiers/:ref", enveloppe(async (req, res) => {
   const d = await un(`${LISTE_DOSSIERS} where d.ref=$1`, [req.params.ref]);
   if (!d) throw err(404, "INTROUVABLE", "Dossier introuvable.");
@@ -742,6 +802,7 @@ app.get("/api/admin/dossiers/:ref", enveloppe(async (req, res) => {
   const fichiers = (await tous("select id, nom, type, taille, champ, stockage, chemin from fichiers where ref=$1 order by id", [d.ref])).map(({ stockage, chemin, ...f }) => ({ ...f, url: `/api/admin/fichiers/${f.id}`, perdu: stockage === "local" && !existsSync(path.join(DOSSIER_LOCAL, chemin)) }));
   res.json({
     ...formeDossier(d), client_email: d.client_email, donnees: d.donnees, fichiers,
+    lien_documents: (await un("select docs_jeton, docs_demandes, docs_message from dossiers where ref=$1", [d.ref]).then(r => r?.docs_jeton ? { url: `${PUBLIC_URL}/documents/${r.docs_jeton}`, documents: r.docs_demandes || [], message: r.docs_message || "" } : null)),
     client_compte: d.client_id ? await un("select id, nom from clients where id=$1", [d.client_id]) : null,
     paiements: await tous("select id, type, methode, montant, devise, montant_usd, statut, freda_id, cree_le, confirme_le, echec_raison from paiements where ref=$1 order by id", [d.ref]),
     journal: await tous("select quand, texte, par, type from journal where ref=$1 order by quand desc", [d.ref]),

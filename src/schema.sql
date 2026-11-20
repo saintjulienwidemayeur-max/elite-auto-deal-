@@ -150,6 +150,10 @@ alter table paiements drop constraint if exists paiements_methode_check;
 alter table paiements add constraint paiements_methode_check check (methode in ('mobile','moncash','natcash','carte','virement'));
 alter table dossiers add column if not exists preuve_jeton text;
 alter table paiements add column if not exists motif_refus text;
+-- Lien unique pour que le client complète les documents manquants
+alter table dossiers add column if not exists docs_jeton text;
+alter table dossiers add column if not exists docs_demandes jsonb;
+alter table dossiers add column if not exists docs_message text;
 
 -- Gestion des devis (espace administrateur)
 create table if not exists devis (

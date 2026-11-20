@@ -841,6 +841,7 @@ input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:
 .gal-it[aria-current="true"]{border-color:var(--rouge)}.gal-it img{width:100%;height:100%;object-fit:cover;display:block}
 .gal-it .gal-play{position:absolute;inset:0;display:grid;place-items:center;background:#0B0B0C;color:#fff;font-size:20px}
 .fin-dispo{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--succes);background:var(--succes-50,#E7F4EC);border-radius:999px;padding:4px 10px;margin-top:6px;text-decoration:none}
+.badge-indispo{display:inline-block;background:var(--noir);color:#fff;border-radius:999px;padding:4px 12px;font-size:12.5px;font-weight:700;margin:0 0 8px}.badge-indispo.cache{display:none}
 .fin-dispo::before{content:"✓";font-weight:800}
 .sec-tete h2::before{content:"";display:block;width:48px;height:4px;border-radius:2px;background:var(--rouge);margin-bottom:14px}
 .page-tete h1::before{content:"";display:block;width:56px;height:5px;border-radius:3px;background:var(--rouge);margin-bottom:16px}
@@ -1002,6 +1003,7 @@ input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:
         </article>
         <article class="service">
           <h3>Financement</h3>
+          <span class="badge-indispo cache" data-fin-badge>Indisponible pour le moment</span>
           <div class="tarif"><b>{{T:financement}}</b><span>frais de dossier</span></div>
           <p>Ouvrez un dossier de financement pour votre achat : vérification de vos documents, examen, puis décision finale de financement.</p>
           <a class="btn btn-rouge" href="/financement">Demander un financement</a>
@@ -1065,7 +1067,7 @@ input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:
     <div class="wrap">
       <div class="atouts">
         <div class="atout"><svg viewBox="0 0 36 36" fill="none" stroke-width="1.5"><path d="M4 24h20l4-6h4v6h-2"/><path d="M4 24V12h18v12"/><circle cx="10" cy="27" r="3"/><circle cx="25" cy="27" r="3"/></svg><b>Clé en main</b><p>Transport depuis les États-Unis et dédouanement pris en charge selon l'offre du véhicule.</p></div>
-        <div class="atout"><svg viewBox="0 0 36 36" fill="none" stroke-width="1.5"><rect x="5" y="9" width="26" height="18" rx="2"/><path d="M5 15h26M10 21h7"/></svg><b>Financement disponible</b><p>Un parcours dédié, des pièces vérifiées et une décision communiquée clairement.</p></div>
+        <div class="atout" data-fin-atout><svg viewBox="0 0 36 36" fill="none" stroke-width="1.5"><rect x="5" y="9" width="26" height="18" rx="2"/><path d="M5 15h26M10 21h7"/></svg><b>Financement disponible</b><p>Un parcours dédié, des pièces vérifiées et une décision communiquée clairement.</p></div>
         <div class="atout"><svg viewBox="0 0 36 36" fill="none" stroke-width="1.5"><rect x="7" y="15" width="22" height="15" rx="2"/><path d="M12 15v-3a6 6 0 0 1 12 0v3"/><path d="M18 21v3"/></svg><b>Paiements vérifiés</b><p>Chaque paiement porte une référence unique et génère un reçu.</p></div>
         <div class="atout"><svg viewBox="0 0 36 36" fill="none" stroke-width="1.5"><path d="M6 8h24v16H14l-6 5v-5H6z"/><path d="M12 15h12M12 19h8"/></svg><b>Suivi sur WhatsApp</b><p>Votre conseiller vous écrit après la confirmation du paiement.</p></div>
       </div>
@@ -1401,6 +1403,7 @@ input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:
       <div class="rang"><div><h1>Demande de financement</h1><p class="lead">Un parcours distinct, avec vérification de vos documents. Aucune approbation n'est automatique : la décision revient à Elite Auto Deal après examen.</p></div>
       <div class="etiquette-prix"><b>{{T:financement}}</b><span>frais de dossier, ou l'équivalent en gourdes</span></div></div>
     </div>
+    <div class="encadre rouge cache" id="fi-indispo" role="status" style="margin:0 0 18px"><svg aria-hidden="true"><use href="#i-info"/></svg><div><p><b>Financement indisponible pour le moment.</b></p><p>Nous traitons actuellement beaucoup de demandes. Revenez dans quelques heures ou dans quelques jours : le financement sera de nouveau ouvert. Pour une question urgente, écrivez-nous sur WhatsApp.</p><p style="margin-top:10px"><a class="btn btn-wa btn-sm" target="_blank" rel="noopener" data-wa-fin href="#"><svg aria-hidden="true"><use href="#i-wa"/></svg>Écrire sur WhatsApp</a></p></div></div>
     <div class="parcours" data-service="financement">
       <div class="parcours-principal">
         <ol class="etapier"><li>Informations</li><li>Récapitulatif</li><li>Paiement</li><li>Confirmation</li></ol>
@@ -1492,6 +1495,13 @@ input[type=password]{width:100%;min-height:48px;padding:12px 14px;border-radius:
   </div>
 </div>
 
+<!-- ============ DOCUMENTS MANQUANTS (lien unique) ============ -->
+<div class="vue" data-vue="documents">
+  <div class="wrap" style="padding-bottom:clamp(40px,6vw,80px)">
+    <div id="documents-zone" aria-live="polite"></div>
+  </div>
+</div>
+
 <!-- ============ CONDITIONS ============ -->
 <div class="vue" data-vue="conditions">
   <div class="wrap legal" style="padding-bottom:clamp(40px,6vw,80px)">
@@ -1564,6 +1574,16 @@ let TAUX_HTG = 132;           // 1 USD = 132 HTG (taux affiché, modifiable par 
 let TAUX_DATE = "12 novembre 2026";
 const TARIFS = {consultation:{{N:consultation}},recherche:{{N:recherche}},service_recherche:{{N:service_recherche}},essai:{{N:essai}},vendre:{{N:vendre}},financement:{{N:financement}}};
 let MODE_REEL = false, CONFIG = null;
+/* Financement mis « indisponible pour le moment » par l'administrateur */
+function finDispo(){return !(CONFIG&&CONFIG.financement_disponible===false);}
+function appliquerFinancement(){
+  const ok=finDispo();
+  const n=document.getElementById("fi-indispo");if(n)n.classList.toggle("cache",ok);
+  const p=document.querySelector('.parcours[data-service="financement"]');if(p)p.style.display=ok?"":"none";
+  document.querySelectorAll("[data-fin-badge]").forEach(e=>e.classList.toggle("cache",ok));
+  document.querySelectorAll("[data-fin-atout]").forEach(e=>{e.style.display=ok?"":"none";});
+  const wa=document.querySelector("[data-wa-fin]");if(wa&&typeof waUrl==="function")wa.href=waUrl("Bonjour Elite Auto Deal, je souhaite une demande de financement. Quand sera-t-il de nouveau disponible ?");
+}
 let WA_NUM = "50942405729";
 const ANNEE = 2026;
 
@@ -1633,7 +1653,7 @@ function carte(v){
      <h3>${esc(v.marque)} ${esc(v.modele.replace(/\s\d{4}$/,""))}<small>${esc([v.couleur,v.places?v.places+" places":"",(v.trans||"").toLowerCase()].filter(Boolean).join(", "))}</small></h3>
      <ul class="specs">${specs.map(s=>`<li>${esc(s)}</li>`).join("")}</ul>
      <div class="vcarte-pied">
-       <div class="prix-ligne"><span class="prix">${v.prix_normal?`<s class="prix-barre">${usd(v.prix_normal)}</s>`:""}${usd(v.prix)}</span>${v.statut==="disponible"&&!/financement/i.test(v.note||"")?`<span class="fin-dispo">Financement disponible</span>`:""}${precommandable(v)&&v.prix?`<span class="prix-note">90 % : ${usd(v.prix*.9)}</span>`:(v.note?`<span class="prix-note">${esc(v.note)}</span>`:"")}</div>
+       <div class="prix-ligne"><span class="prix">${v.prix_normal?`<s class="prix-barre">${usd(v.prix_normal)}</s>`:""}${usd(v.prix)}</span>${v.statut==="disponible"&&finDispo()&&!/financement/i.test(v.note||"")?`<span class="fin-dispo">Financement disponible</span>`:""}${precommandable(v)&&v.prix?`<span class="prix-note">90 % : ${usd(v.prix*.9)}</span>`:(v.note?`<span class="prix-note">${esc(v.note)}</span>`:"")}</div>
        <div class="vcarte-btns">${boutonsV(v)}</div>
      </div>
    </div></article>`;
@@ -1735,7 +1755,7 @@ function rendreDetail(){
   const med=mediasV(v);
   d.innerHTML=`<div class="galerie"><div class="detail-scene" id="gal-vue"><div class="annee-geante" aria-hidden="true">${v.annee}</div>${med.length?mediaHTML(v,med[0]):voitureSVG(v)}</div>${med.length>1?`<div class="gal-mini" role="group" aria-label="Photos et vidéos">${med.map((m,i)=>`<button class="gal-it" type="button" data-gal="${i}" aria-current="${i===0}" aria-label="${m.t==="v"?"Vidéo":"Photo"} ${i+1}">${m.t==="v"?`<span class="gal-play" aria-hidden="true">▶</span>`:`<img src="${esc(m.url)}" alt="" loading="lazy">`}</button>`).join("")}</div>`:""}</div>
    <div class="detail-info">${badge(v)}<h1 style="font-size:clamp(30px,4vw,46px)">${esc(nomV(v))}</h1>
-     <div><span class="prix" style="font-size:34px">${v.prix_normal?`<s class="prix-barre">${usd(v.prix_normal)}</s>`:""}${usd(v.prix)}</span>${v.statut==="disponible"&&!/financement/i.test(v.note||"")?`<div><a class="fin-dispo" href="/financement">Financement disponible</a></div>`:""}${v.note?`<p class="muted" style="margin-top:4px">${esc(v.note)}</p>`:""}</div>
+     <div><span class="prix" style="font-size:34px">${v.prix_normal?`<s class="prix-barre">${usd(v.prix_normal)}</s>`:""}${usd(v.prix)}</span>${v.statut==="disponible"&&finDispo()&&!/financement/i.test(v.note||"")?`<div><a class="fin-dispo" href="/financement">Financement disponible</a></div>`:""}${v.note?`<p class="muted" style="margin-top:4px">${esc(v.note)}</p>`:""}</div>
      <dl class="fiche">${fiche.filter(x=>x[1]!=null&&x[1]!=="").map(([a,b])=>`<div><dt>${a}</dt><dd>${esc(b)}</dd></div>`).join("")}</dl>
      ${bloc}${btns}</div>`;
 }
@@ -1748,12 +1768,13 @@ function vueDeChemin(p){
   p=(p||"/").replace(/\/+$/,"")||"/";
   if(/\.pdf$/i.test(p))return null; // fichiers PDF : pas une vue
   if(p.startsWith("/devis/")&&p.length>7)return{vue:"devis",jeton:decodeURIComponent(p.slice(7))};
+  if(p.startsWith("/documents/")&&p.length>11)return{vue:"documents",jeton:decodeURIComponent(p.slice(11))};
   if(p.startsWith("/vehicules/")&&p.length>11)return{vue:"vehicule",id:decodeURIComponent(p.slice(11))};
   for(const[v,c]of Object.entries(CHEMINS))if(c===p)return{vue:v};
   return null;
 }
 const cheminDeVue=(v,vid)=>v==="vehicule"&&vid?"/vehicules/"+encodeURIComponent(vid):(CHEMINS[v]||"/");
-function vueCourante(){const r=vueDeChemin(location.pathname);if(!r)return"accueil";if(r.id)etat.v=r.id;if(r.jeton)etat.devisJeton=r.jeton;return r.vue;}
+function vueCourante(){const r=vueDeChemin(location.pathname);if(!r)return"accueil";if(r.id)etat.v=r.id;if(r.jeton){if(r.vue==="documents")etat.docsJeton=r.jeton;else etat.devisJeton=r.jeton;}return r.vue;}
 function allerChemin(chemin,remplacer){
   if(location.pathname+location.search===chemin){route();return;}
   history[remplacer?"replaceState":"pushState"](null,"",chemin);if(!remplacer)TITRE_CLIENT=true;route();
@@ -1761,7 +1782,7 @@ function allerChemin(chemin,remplacer){
 // Anciennes adresses avec # (liens déjà partagés) : on les convertit vers la vraie URL
 (function(){const h=location.hash.slice(1);if(h&&CHEMINS[h]!==undefined&&location.pathname==="/")history.replaceState(null,"",CHEMINS[h]+location.search);})();
 let TITRE_CLIENT=false; // vrai après une navigation dans la page ; avant, on garde le titre complet envoyé par le serveur
-const VUES=["accueil","vehicules","vehicule","precommande","achat","consultation","recherche","essai","vendre","financement","suivi","conditions","retour","compte","compte-dossier","devis"];
+const VUES=["accueil","vehicules","vehicule","precommande","achat","consultation","recherche","essai","vendre","financement","suivi","conditions","retour","compte","compte-dossier","devis","documents"];
 /* ---------- Compte bancaire (virement ou dépôt) : coordonnées modifiables dans l'administration ---------- */
 function banqueHTML(b,ouvert){
   b=b||(typeof CONFIG!=="undefined"&&CONFIG&&CONFIG.banque);if(!b||!b.compte)return "";
@@ -1773,6 +1794,38 @@ function banqueHTML(b,ouvert){
 }
 document.addEventListener("click",e=>{const b=e.target.closest("[data-copier-compte]");if(b)copier(b.dataset.copierCompte,"Numéro de compte copié");});
 
+/* ---------- Documents manquants (lien unique envoyé par Elite Auto Deal) ---------- */
+async function rendreDocuments(){
+  const z=document.getElementById("documents-zone");if(!z)return;
+  const j=etat.docsJeton;
+  if(!z.firstChild)z.innerHTML=`<div class="verif" role="status" style="margin-top:20px"><span class="spin"></span>Chargement de votre dossier…</div>`;
+  let d;
+  try{d=await api("/api/documents/"+encodeURIComponent(j));}
+  catch(e){z.innerHTML=`<div class="carte-suivi"><b>${esc(e.status===404?"Ce lien n'existe pas ou n'est plus valable.":e.message)}</b><p class="muted" style="margin-top:6px">Contactez-nous sur WhatsApp : nous vous renverrons un lien.</p><a class="btn btn-wa btn-sm" target="_blank" rel="noopener" href="${waUrl("Bonjour Elite Auto Deal, j'ai un problème avec le lien pour compléter mon dossier.")}">Écrire sur WhatsApp</a></div>`;return;}
+  const slot=(cle,label,recus,facultatif)=>`<div class="champ" style="padding:14px;border:1px solid var(--gris-200);border-radius:var(--r-m);background:#fff">
+    <label for="doc-${cle}" style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><span><b>${esc(label)}</b>${facultatif?' <span class="muted">(facultatif)</span>':""}</span>${recus.length?`<span class="fin-dispo" style="margin:0">${recus.length} reçu${recus.length>1?"s":""}</span>`:(facultatif?"":`<span class="badge-indispo" style="margin:0;background:var(--rouge)">À envoyer</span>`)}</label>
+    <input id="doc-${cle}" data-cle="${cle}" type="file" accept="image/*,application/pdf" multiple>
+    ${recus.length?`<p class="muted" style="font-size:13px;margin:6px 0 0">Déjà reçu : ${recus.map(r=>esc(r.nom)).join(", ")}</p>`:""}</div>`;
+  const manque=d.demandes.filter(x=>!x.recus.length).length;
+  z.innerHTML=`<div class="bloc-form" style="max-width:720px;margin:24px auto 0">
+    <h1 style="font-size:clamp(24px,4vw,34px);margin-bottom:6px">Compléter mon dossier</h1>
+    <p class="muted">Dossier <b>${esc(d.ref)}</b>${d.titre?" · "+esc(d.titre):""}</p>
+    <p>Bonjour${d.prenom?" "+esc(d.prenom):""}, ${manque?`il nous manque ${manque} document${manque>1?"s":""} pour traiter votre dossier.`:"merci : nous avons reçu tous les documents demandés. Vous pouvez en ajouter d'autres si besoin."} Photos ou PDF, 10 Mo maximum par fichier.</p>
+    ${d.message?`<div class="encadre" style="margin:0 0 14px"><svg aria-hidden="true"><use href="#i-info"/></svg><p>${esc(d.message)}</p></div>`:""}
+    <div style="display:grid;gap:12px">${d.demandes.map(x=>slot(x.cle,x.label,x.recus,false)).join("")}${slot("x","Autre document",[],true)}</div>
+    <div class="erreur-paie cache" id="doc-err" role="alert" style="margin-top:14px"></div>
+    <div class="form-actions"><span class="muted" style="font-size:13px">Vos documents sont transmis uniquement à l'équipe Elite Auto Deal.</span><button class="btn btn-rouge" type="button" id="doc-envoyer"><svg aria-hidden="true"><use href="#i-upload"/></svg>Envoyer mes documents</button></div></div>`;
+  document.getElementById("doc-envoyer").onclick=async e=>{
+    const btn=e.currentTarget,err=document.getElementById("doc-err");err.classList.add("cache");
+    const fd=new FormData(),cles=[];let n=0;
+    z.querySelectorAll('input[type=file]').forEach(inp=>[...inp.files].forEach(f=>{if(n<12){fd.append("fichiers",f,f.name);cles.push(inp.dataset.cle);n++;}}));
+    if(!n){err.textContent="Choisissez au moins un document à envoyer.";err.classList.remove("cache");return;}
+    fd.append("champs",JSON.stringify(cles));
+    btn.disabled=true;btn.textContent="Envoi en cours…";
+    try{await api("/api/documents/"+encodeURIComponent(j),{method:"POST",body:fd});toast("Documents bien reçus, merci !");await rendreDocuments();window.scrollTo({top:0,behavior:"smooth"});}
+    catch(x){btn.disabled=false;btn.innerHTML='<svg aria-hidden="true"><use href="#i-upload"/></svg>Envoyer mes documents';err.textContent=x.message;err.classList.remove("cache");}
+  };
+}
 /* ---------- Devis en ligne (lien sécurisé) ---------- */
 const eur=n=>Number(n).toLocaleString("fr-FR",{minimumFractionDigits:2,maximumFractionDigits:2}).replace(/[  ]/g," ")+" $";
 const DVP={methode:"moncash",email:"",cond:false};
@@ -1841,6 +1894,7 @@ function route(){
   if(h==="retour")afficherRetour();
   if(h==="vehicule")rendreDetail();
   if(h==="devis")rendreDevisPublic();
+  if(h==="documents")rendreDocuments();
   if(h==="vehicules")rendreInventaire();
   if(h!=="compte-dossier")clearTimeout(CPT.t);
   if(h==="compte")rendreCompte(true);
@@ -2788,6 +2842,7 @@ chargerCompte();
 const DERNIER={v:"",vit:JSON.stringify(typeof VITRINE!=="undefined"?VITRINE:[])};
 async function rafraichirDonnees(){
   if(!MODE_REEL||document.hidden)return;
+  try{const c=await api("/api/config");if(c&&typeof c==="object"&&CONFIG&&"financement_disponible" in c){const av=finDispo();CONFIG.financement_disponible=c.financement_disponible;if(finDispo()!==av){appliquerFinancement();rerendre();if(vueCourante()==="vehicule")rendreDetail();}}}catch(_){}
   try{
     const[l,vit]=await Promise.all([api("/api/vehicules"),api("/api/vitrine")]);
     if(Array.isArray(l)){const js=JSON.stringify(l);if(DERNIER.v&&js!==DERNIER.v){const avant=etat.v&&JSON.stringify(parId(etat.v)||null);V.length=0;l.forEach(v=>V.push(v));rerendre();
@@ -2820,7 +2875,7 @@ async function demarrer(){
     }catch(_){}
   }
   if(!cfg||typeof cfg!=="object"||!cfg.tarifs)return;
-  CONFIG=cfg;MODE_REEL=true;document.documentElement.classList.add("mode-reel");
+  CONFIG=cfg;MODE_REEL=true;document.documentElement.classList.add("mode-reel");appliquerFinancement();
   if(cfg.taux_htg)TAUX_HTG=+cfg.taux_htg;
   if(cfg.taux_date){const d=new Date(cfg.taux_date+"T12:00");TAUX_DATE=isNaN(d)?cfg.taux_date:d.toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"});}
   Object.assign(TARIFS,cfg.tarifs);
