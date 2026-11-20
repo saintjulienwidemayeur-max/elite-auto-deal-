@@ -765,6 +765,23 @@ app.patch("/api/admin/dossiers/:ref", enveloppe(async (req, res) => {
   res.json(formeDossier(await un(`${LISTE_DOSSIERS} where d.ref=$1`, [d.ref])));
 }));
 
+// Lien temporaire (5 min) pour ouvrir un fichier dans un nouvel onglet : fonctionne sur téléphone, avec Supabase (redirection) comme avec la base ou le disque
+const sigFichier = (id, exp) => crypto.createHmac("sha256", SESSION_SECRET).update(`fichier:${id}:${exp}`).digest("base64url");
+app.get("/api/admin/fichiers/:id/lien", enveloppe(async (req, res) => {
+  const id = Number(req.params.id) || 0;
+  if (!(await un("select 1 from fichiers where id=$1", [id]))) throw err(404, "INTROUVABLE", "Fichier introuvable.");
+  const exp = Date.now() + 5 * 60e3;
+  res.set("Cache-Control", "no-store").json({ url: `/api/fichier/${id}?exp=${exp}&sig=${sigFichier(id, exp)}` });
+}));
+app.get("/api/fichier/:id", enveloppe(async (req, res) => {
+  const id = Number(req.params.id) || 0, exp = Number(req.query.exp) || 0, sig = String(req.query.sig || "");
+  const attendu = sigFichier(id, exp);
+  if (!(exp > Date.now()) || sig.length !== attendu.length || !crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(attendu))) throw err(403, "LIEN", "Ce lien a expiré. Rouvrez le fichier depuis l'administration.");
+  const f = await un("select * from fichiers where id=$1", [id]);
+  if (!f) throw err(404, "INTROUVABLE", "Fichier introuvable.");
+  res.set("Cache-Control", "private, no-store");
+  await servir(f, res);
+}));
 app.get("/api/admin/fichiers/:id", enveloppe(async (req, res) => {
   const f = await un("select * from fichiers where id=$1", [Number(req.params.id) || 0]);
   if (!f) throw err(404, "INTROUVABLE", "Fichier introuvable.");

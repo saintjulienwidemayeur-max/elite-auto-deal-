@@ -1305,11 +1305,8 @@ async function openFile(fid,btn){
   const w=window.open('','_blank');
   btn.disabled=true;
   try{
-    const r=await fetch('/api/admin/fichiers/'+encodeURIComponent(fid),{headers:{Authorization:'Bearer '+TOKEN}});
-    if(r.status===401){w&&w.close();logout(true);return}
-    if(!r.ok)throw new Error('Fichier introuvable ou indisponible.');
-    const url=URL.createObjectURL(await r.blob());
-    if(w)w.location.href=url;else{const a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener';a.click()}
+    const l=await api('/api/admin/fichiers/'+encodeURIComponent(fid)+'/lien'); /* lien temporaire : s'ouvre aussi sur téléphone */
+    if(w)w.location.href=l.url;else{const a=document.createElement('a');a.href=l.url;a.target='_blank';a.rel='noopener';a.click()}
   }catch(e){w&&w.close();fail(e)}finally{btn.disabled=false}
 }
 async function balanceLive(ref){

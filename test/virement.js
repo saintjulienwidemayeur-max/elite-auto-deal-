@@ -38,6 +38,14 @@ await t("admin : le virement apparaît avec sa preuve (fichier lisible), le doss
   assert.equal((await fetch(B + "/api/admin/virements")).status, 401);
   assert.equal((await fetch(B + "/api/admin/virements/" + pid + "/confirmer", { method: "POST" })).status, 401);
 });
+await t("ouverture d'un fichier : lien temporaire signé (sans en-tête d'authentification), refusé si modifié, lien exigé par l'admin", async () => {
+  const f = (await (await A("/api/admin/virements")).json()).find(x => x.ref === ref).preuves[0];
+  assert.equal((await fetch(B + `/api/admin/fichiers/${f.id}/lien`)).status, 401);
+  const { url } = await (await A(`/api/admin/fichiers/${f.id}/lien`)).json();
+  const ok = await fetch(B + url); assert.equal(ok.status, 200); assert.match(ok.headers.get("content-type"), /image\/png/);
+  assert.equal((await fetch(B + url.replace(/sig=./, "sig=x"))).status, 403);
+  assert.equal((await fetch(B + url.replace(/exp=\d+/, "exp=1"))).status, 403);
+});
 await t("refus : motif enregistré, email au client, nouvelle preuve remet le virement en attente", async () => {
   const r = await A(`/api/admin/virements/${pid}/refuser`, { method: "POST", body: JSON.stringify({ motif: "Montant incomplet" }) }); assert.equal((await r.json()).email, true);
   assert.equal((await (await fetch(`${B}/api/dossiers/${ref}`)).json()).paiement.motif_refus, "Montant incomplet");
