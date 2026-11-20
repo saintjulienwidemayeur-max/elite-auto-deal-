@@ -105,7 +105,7 @@ API : `POST /api/dossiers/:ref/preuve` (jeton), `GET /api/dossiers/:ref/virement
 
 ## Stockage des photos de véhicules
 
-Si ni Supabase (`SUPABASE_URL` + `SUPABASE_SERVICE_KEY`) ni un disque persistant (`UPLOAD_DIR`) ne sont configurés, les photos des véhicules sont gardées **dans la base Postgres** : elles survivent aux redémarrages de Render (le disque de Render est effacé). Les vidéos et les documents clients ont toujours besoin de Supabase ou d'un disque persistant.
+Si ni Supabase (`SUPABASE_URL` + `SUPABASE_SERVICE_KEY`) ni un disque persistant (`UPLOAD_DIR`) ne sont configurés, les photos des véhicules sont gardées **dans la base Postgres** : elles survivent aux redémarrages de Render (le disque de Render est effacé). Les documents clients (financement, vente…), les preuves de virement et les vidéos jusqu'à 15 Mo sont gardés dans Postgres de la même façon (table `blobs`). Les fichiers de plus de 15 Mo ont besoin de Supabase Storage ou d'un disque persistant.
 
 ## Confirmation de paiement (MonCash, Natcash, carte)
 
