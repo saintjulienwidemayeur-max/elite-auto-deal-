@@ -10,7 +10,7 @@ import { unlink, readFile } from "node:fs/promises";
 import { q, un, tous, migrer, parametres, journaliser, transaction } from "./db.js";
 import { SERVICES, COLS_VEHICULE } from "./catalogue.js";
 import { creerPaiement, lirePaiement, signatureValide, modeFreda, fredaConfiguree, ErreurFreda } from "./freda.js";
-import { enregistrer, servir, servirPublic, servirPublicRange, supprimer, photosEnBase } from "./stockage.js";
+import { DOSSIER_LOCAL, enregistrer, servir, servirPublic, servirPublicRange, supprimer, photosEnBase } from "./stockage.js";
 import { photo45 } from "./medias.js";
 import { envoyerEmail, emailConfigure, emailBienvenue, emailCode, emailDevis, emailPaiementConfirme, emailVirementRefuse } from "./email.js";
 import { validerDevis, genererPdf, montant as montantDevis } from "./devis.js";
@@ -738,7 +738,8 @@ app.get("/api/admin/dossiers", enveloppe(async (req, res) => {
 app.get("/api/admin/dossiers/:ref", enveloppe(async (req, res) => {
   const d = await un(`${LISTE_DOSSIERS} where d.ref=$1`, [req.params.ref]);
   if (!d) throw err(404, "INTROUVABLE", "Dossier introuvable.");
-  const fichiers = (await tous("select id, nom, type, taille, champ from fichiers where ref=$1 order by id", [d.ref])).map(f => ({ ...f, url: `/api/admin/fichiers/${f.id}` }));
+  // « perdu » : fichier gardé sur le disque local qui n'existe plus (disque de Render effacé au redéploiement)
+  const fichiers = (await tous("select id, nom, type, taille, champ, stockage, chemin from fichiers where ref=$1 order by id", [d.ref])).map(({ stockage, chemin, ...f }) => ({ ...f, url: `/api/admin/fichiers/${f.id}`, perdu: stockage === "local" && !existsSync(path.join(DOSSIER_LOCAL, chemin)) }));
   res.json({
     ...formeDossier(d), client_email: d.client_email, donnees: d.donnees, fichiers,
     client_compte: d.client_id ? await un("select id, nom from clients where id=$1", [d.client_id]) : null,

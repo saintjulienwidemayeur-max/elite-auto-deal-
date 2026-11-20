@@ -46,6 +46,14 @@ await t("ouverture d'un fichier : lien temporaire signé (sans en-tête d'authen
   assert.equal((await fetch(B + url.replace(/sig=./, "sig=x"))).status, 403);
   assert.equal((await fetch(B + url.replace(/exp=\d+/, "exp=1"))).status, 403);
 });
+await t("fichier perdu (disque effacé) : signalé « perdu » dans le dossier admin au lieu d'échouer en silence", async () => {
+  const { default: pg } = await import("pg"); const db = new pg.Client({ connectionString: "postgres://ead:ead@localhost:5432/ead" }); await db.connect();
+  const f = (await (await A("/api/admin/virements")).json()).find(x => x.ref === ref).preuves[0];
+  const avant = (await (await A("/api/admin/dossiers/" + ref)).json()).fichiers.find(x => x.id === f.id); assert.equal(avant.perdu, false);
+  await db.query("update fichiers set chemin='inexistant/fichier.png' where id=$1", [f.id]);
+  const apres = (await (await A("/api/admin/dossiers/" + ref)).json()).fichiers.find(x => x.id === f.id); assert.equal(apres.perdu, true);
+  await db.query("update fichiers set chemin=$2 where id=$1", [f.id, (await db.query("select chemin from fichiers where id<>$1 and stockage='local' limit 1", [f.id])).rows[0]?.chemin || "x"]); await db.end();
+});
 await t("refus : motif enregistré, email au client, nouvelle preuve remet le virement en attente", async () => {
   const r = await A(`/api/admin/virements/${pid}/refuser`, { method: "POST", body: JSON.stringify({ motif: "Montant incomplet" }) }); assert.equal((await r.json()).email, true);
   assert.equal((await (await fetch(`${B}/api/dossiers/${ref}`)).json()).paiement.motif_refus, "Montant incomplet");
